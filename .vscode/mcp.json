@@ -1,0 +1,11 @@
+{
+	"servers": {
+		"coffeeMate": {
+			"type": "stdio",
+			"command": "node",
+			"args": [
+				"${workspaceFolder}/build/index.js"
+			]
+		}
+	}
+}
