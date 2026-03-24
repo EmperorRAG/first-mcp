@@ -1,5 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { z } from "zod";
 
 const server = new McpServer({
 	name: "coffee-mate",
@@ -52,6 +53,35 @@ server.registerTool(
 				{
 					type: "text",
 					text: JSON.stringify(coffeeDrinks),
+				},
+			],
+		};
+	},
+);
+
+server.registerTool(
+	"get-a-coffee",
+	{
+		description: "Retrieve the data for a specific coffee based on its name",
+		inputSchema: z.object({ name: z.string() }),
+	},
+	async ({ name }) => {
+		const coffee = coffeeDrinks.find((c) => c.name === name);
+		if (!coffee) {
+			return {
+				content: [
+					{
+						type: "text",
+						text: "Coffee not found",
+					},
+				],
+			};
+		}
+		return {
+			content: [
+				{
+					type: "text",
+					text: JSON.stringify(coffee),
 				},
 			],
 		};
