@@ -1,5 +1,7 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
+import express from "express";
 import { z } from "zod";
 
 const server = new McpServer({
@@ -89,9 +91,49 @@ server.registerTool(
 );
 
 async function main() {
-	const transport = new StdioServerTransport();
-	await server.connect(transport);
-	console.error("MCP Server running on stdio");
+	const useStdio = process.argv.includes("--stdio");
+
+	if (useStdio) {
+		const transport = new StdioServerTransport();
+		await server.connect(transport);
+		console.error("MCP Server running on stdio");
+	} else {
+		const app = express();
+		const PORT = parseInt(process.env["PORT"] || "3001", 10);
+
+		const transports = new Map<string, SSEServerTransport>();
+
+		app.get("/health", (_req, res) => {
+			res.status(200).json({ status: "ok" });
+		});
+
+		app.get("/sse", async (req, res) => {
+			const transport = new SSEServerTransport("/messages", res);
+			transports.set(transport.sessionId, transport);
+
+			res.on("close", () => {
+				transports.delete(transport.sessionId);
+			});
+
+			await server.connect(transport);
+		});
+
+		app.post("/messages", express.json(), async (req, res) => {
+			const sessionId = req.query["sessionId"] as string;
+			const transport = transports.get(sessionId);
+
+			if (!transport) {
+				res.status(400).json({ error: "Unknown session" });
+				return;
+			}
+
+			await transport.handlePostMessage(req, res, req.body);
+		});
+
+		app.listen(PORT, () => {
+			console.error(`MCP Server running on http://0.0.0.0:${PORT}`);
+		});
+	}
 }
 
 main().catch((error) => {
