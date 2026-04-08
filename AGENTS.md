@@ -2,16 +2,22 @@
 
 ## Architecture
 
-MCP (Model Context Protocol) server using stdio transport. Single entry point at `src/index.ts` that registers tools via `McpServer.registerTool()` and connects over `StdioServerTransport`. TypeScript source in `src/` compiles to `build/`.
+MCP (Model Context Protocol) server with dual transport. Single entry point at `src/index.ts` that registers tools via `McpServer.registerTool()`. TypeScript source in `src/` compiles to `build/`.
+
+Two transport modes:
+
+- **SSE (default)**: Express HTTP server exposing `GET /sse`, `POST /messages`, and `GET /health`. Used for Docker and network-based clients (e.g. n8n MCP Client Tool).
+- **stdio (`--stdio` flag)**: `StdioServerTransport` for local VS Code MCP integration via `.vscode/mcp.json`.
 
 ## Build and Test
 
 ```bash
 npm install        # Install dependencies
 npm run build      # Compile TypeScript (src/ → build/)
+docker build -t coffee-mate-mcp .  # Build Docker image
 ```
 
-After code changes, always run `npm run build` before testing the MCP server.
+After code changes, always run `npm run build` before testing the MCP server. When running inside Docker Compose (via `first-n8n`), use `--build` flag to pick up source changes.
 
 ## Conventions
 
@@ -20,3 +26,6 @@ After code changes, always run `npm run build` before testing the MCP server.
 - **Input validation**: Use Zod schemas via `inputSchema` in the tool config object
 - **Tool responses**: Always return `{ content: [{ type: "text", text: string }] }`
 - **Strict TypeScript**: `strict: true` is enabled — no implicit `any`, null checks required
+- **SSE body parsing**: Always pass `req.body` as the third argument to `transport.handlePostMessage(req, res, req.body)` — `express.json()` consumes the stream, so the SDK cannot re-read it
+- **Port configuration**: `PORT` env var controls HTTP server port (default `3001`)
+- **Health endpoint**: `GET /health` returns `{ status: "ok" }` — used by Docker healthcheck
