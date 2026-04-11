@@ -4,11 +4,6 @@ import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
 import express from "express";
 import { z } from "zod";
 
-const server = new McpServer({
-	name: "coffee-mate",
-	version: "1.0.0",
-});
-
 export const coffeeDrinks = [
 	{
 		id: 1,
@@ -44,56 +39,66 @@ export const coffeeDrinks = [
 	},
 ];
 
-server.registerTool(
-	"get-coffees",
-	{
-		description: "Get a list of all coffees",
-	},
-	async () => {
-		return {
-			content: [
-				{
-					type: "text",
-					text: JSON.stringify(coffeeDrinks),
-				},
-			],
-		};
-	},
-);
+function createServer(): McpServer {
+	const server = new McpServer({
+		name: "coffee-mate",
+		version: "1.0.0",
+	});
 
-server.registerTool(
-	"get-a-coffee",
-	{
-		description: "Retrieve the data for a specific coffee based on its name",
-		inputSchema: z.object({ name: z.string() }),
-	},
-	async ({ name }) => {
-		const coffee = coffeeDrinks.find((c) => c.name === name);
-		if (!coffee) {
+	server.registerTool(
+		"get-coffees",
+		{
+			description: "Get a list of all coffees",
+		},
+		async () => {
 			return {
 				content: [
 					{
 						type: "text",
-						text: "Coffee not found",
+						text: JSON.stringify(coffeeDrinks),
 					},
 				],
 			};
-		}
-		return {
-			content: [
-				{
-					type: "text",
-					text: JSON.stringify(coffee),
-				},
-			],
-		};
-	},
-);
+		},
+	);
+
+	server.registerTool(
+		"get-a-coffee",
+		{
+			description: "Retrieve the data for a specific coffee based on its name",
+			inputSchema: z.object({ name: z.string() }),
+		},
+		async ({ name }) => {
+			const coffee = coffeeDrinks.find((c) => c.name === name);
+			if (!coffee) {
+				return {
+					content: [
+						{
+							type: "text",
+							text: "Coffee not found",
+						},
+					],
+				};
+			}
+			return {
+				content: [
+					{
+						type: "text",
+						text: JSON.stringify(coffee),
+					},
+				],
+			};
+		},
+	);
+
+	return server;
+}
 
 async function main() {
 	const useStdio = process.argv.includes("--stdio");
 
 	if (useStdio) {
+		const server = createServer();
 		const transport = new StdioServerTransport();
 		await server.connect(transport);
 		console.error("MCP Server running on stdio");
@@ -108,6 +113,7 @@ async function main() {
 		});
 
 		app.get("/sse", async (req, res) => {
+			const server = createServer();
 			const transport = new SSEServerTransport("/messages", res);
 			transports.set(transport.sessionId, transport);
 
