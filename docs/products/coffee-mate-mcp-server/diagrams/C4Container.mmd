@@ -1,0 +1,37 @@
+C4Container
+    title C4 Container Diagram - Coffee Mate MCP Server
+
+    Person(n8n_user, "n8n Workflow User", "Automation engineer using n8n MCP Client Tool")
+    Person(vscode_dev, "VS Code Developer", "Developer using GitHub Copilot Agent mode")
+    Person(devops, "DevOps Engineer", "Pushes code to main branch")
+
+    System_Boundary(mcp_system, "Coffee Mate MCP Server") {
+        Container(express_server, "Express HTTP Server", "Node.js 24, Express 4, TypeScript", "Hosts SSE and Messages endpoints on port 3001")
+        Container(mcp_core, "MCP Server Core", "Model Context Protocol SDK", "Registers tools: get-coffees, get-a-coffee with Zod validation")
+        Container(sse_transport, "SSE Transport", "SSEServerTransport", "Manages SSE sessions via Map with sessionId tracking")
+        Container(stdio_transport, "Stdio Transport", "StdioServerTransport", "Provides local pipe transport for VS Code via --stdio flag")
+        Container(health_endpoint, "Health Endpoint", "Express Route", "GET /health returns status ok for Docker healthcheck")
+        ContainerDb(coffee_data, "Coffee Data Store", "In-Memory Array", "Static catalog of 4 coffee drinks with id, name, size, price, iced, caffeineMg")
+    }
+
+    System_Ext(github_actions, "GitHub Actions", "CI/CD pipeline: build, push Docker image, deploy, verify health")
+    System_Ext(acr, "Azure Container Registry", "Stores Docker images tagged by commit SHA and latest")
+    System_Ext(container_apps, "Azure Container Apps", "Cloud hosting with ingress FQDN and auto-scaling")
+    System_Ext(entra_id, "Microsoft Entra ID", "OIDC workload identity for passwordless Azure deployment")
+
+    Rel(n8n_user, express_server, "Connects via SSE", "HTTP GET /sse, POST /messages")
+    Rel(vscode_dev, stdio_transport, "Connects via stdio", "node build/index.js --stdio")
+    Rel(devops, github_actions, "Pushes to main branch", "git push")
+
+    Rel(express_server, sse_transport, "Routes SSE requests to")
+    Rel(sse_transport, mcp_core, "Forwards JSON-RPC messages to")
+    Rel(stdio_transport, mcp_core, "Pipes JSON-RPC messages to")
+    Rel(mcp_core, coffee_data, "Reads coffee catalog from")
+    Rel(express_server, health_endpoint, "Serves health checks via")
+
+    Rel(github_actions, acr, "Pushes Docker image to", "docker push")
+    Rel(github_actions, container_apps, "Deploys and verifies via", "az containerapp update")
+    Rel(github_actions, entra_id, "Authenticates via", "OIDC federation")
+    Rel(container_apps, express_server, "Runs container on", "Port 3001")
+
+    UpdateLayoutConfig($c4ShapeInRow="3", $c4BoundaryInRow="1")

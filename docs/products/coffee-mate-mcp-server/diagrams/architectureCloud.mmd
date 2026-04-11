@@ -1,0 +1,41 @@
+architecture-beta
+    %% External Clients
+    group external_clients(mdi:cloud)[External Clients]
+
+    service n8n_client(mdi:server)[N8N Client] in external_clients
+    service vscode_client(mdi:account)[VSCode Client] in external_clients
+
+    %% Transport Layer
+    group transport_layer(mdi:lan)[Transport Layer]
+
+    service sse_transport(mdi:api)[SSE Transport] in transport_layer
+    service stdio_transport(mdi:server)[Stdio Transport] in transport_layer
+
+    %% Docker Container
+    group docker_container(mdi:cloud)[Docker Container Node 24 Alpine]
+
+    group express_server(mdi:server)[Express HTTP Server] in docker_container
+
+    service mcp_server(mdi:server)[MCP Server] in express_server
+    service health_endpoint(mdi:chart-line)[Health Check] in express_server
+    service sse_endpoint(mdi:api)[SSE Endpoint] in express_server
+    service messages_endpoint(mdi:api)[Messages Endpoint] in express_server
+
+    group build_layer(mdi:harddisk)[Build Layer] in docker_container
+
+    service typescript_src(mdi:harddisk)[TypeScript Source] in build_layer
+    service compiled_js(mdi:harddisk)[Compiled JS Build] in build_layer
+
+    %% Client to Transport connections
+    n8n_client:R --> L:sse_transport
+    vscode_client:R --> L:stdio_transport
+
+    %% Transport to Server connections
+    sse_transport:R --> L:sse_endpoint
+    stdio_transport:R --> L:mcp_server
+
+    %% Internal connections
+    sse_endpoint:R --> L:mcp_server
+    messages_endpoint:R --> L:mcp_server
+    mcp_server:R --> L:health_endpoint
+    typescript_src:R --> L:compiled_js

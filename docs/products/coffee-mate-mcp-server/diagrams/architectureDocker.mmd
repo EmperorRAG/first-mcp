@@ -1,0 +1,21 @@
+architecture-beta
+    group docker_container(logos:docker-icon)[Docker_Container]
+
+    service node_app(logos:nodejs-icon)[MCP_Server] in docker_container
+    service health_endpoint(mdi:monitor-dashboard)[Health_Check] in docker_container
+
+    group transport_layer(mdi:lan)[Transport_Layer]
+
+    service sse_transport(mdi:api)[SSE_Transport] in transport_layer
+    service stdio_transport(mdi:application)[Stdio_Transport] in transport_layer
+
+    group external_clients(mdi:cloud)[External_Clients]
+
+    service n8n_client(mdi:web)[N8N_Client] in external_clients
+    service vscode_client(mdi:desktop-tower-monitor)[VSCode_Client] in external_clients
+
+    n8n_client:R --> L:sse_transport
+    vscode_client:R --> L:stdio_transport
+    sse_transport:R --> L:node_app
+    stdio_transport:R --> L:node_app
+    node_app:R --> L:health_endpoint

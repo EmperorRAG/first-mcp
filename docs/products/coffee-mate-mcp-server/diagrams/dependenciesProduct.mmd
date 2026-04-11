@@ -1,0 +1,58 @@
+flowchart TB
+    ROOT["🛡️ 6 Dependencies | Score: 7.7/10<br/>Critical: 0 | High: 0 | Medium: 1 | Low: 5 | Good: 0"]
+
+    subgraph CRITICAL["🚨 CRITICAL (0) - Fix Immediately"]
+        critical_no_data["No data found"]
+    end
+
+    subgraph HIGH["⚠️ HIGH (0) - Fix This Sprint"]
+        high_no_data["No data found"]
+    end
+
+    subgraph MEDIUM["🔶 MEDIUM (1) - Plan Updates"]
+        medium_types_node["@types/node ^22.14.1"]
+        medium_comment_types_node[["📅 3 major versions behind<br/>🆕 Latest: 25.6.0 available<br/>⚠️ Significantly outdated<br/>📋 Action: Plan major update"]]
+        medium_types_node --> medium_comment_types_node
+    end
+
+    subgraph LOW["🔽 LOW (5) - Minor Issues"]
+        low_modelcontextprotocol_sdk["@modelcontextprotocol/sdk ^1.9.0"]
+        low_comment_modelcontextprotocol_sdk[["📅 Minor version updates available<br/>🆕 Latest: 1.29.0 available<br/>⚠️ Small improvements available<br/>📋 Action: Update in next cycle"]]
+        low_modelcontextprotocol_sdk --> low_comment_modelcontextprotocol_sdk
+        low_express["express ^4.21.0"]
+        low_comment_express[["📅 1 major version behind<br/>🆕 Latest: 5.2.1 available<br/>⚠️ Outdated but manageable<br/>📋 Action: Update when convenient"]]
+        low_express --> low_comment_express
+        low_zod["zod ^3.24.2"]
+        low_comment_zod[["📅 1 major version behind<br/>🆕 Latest: 4.3.6 available<br/>⚠️ Outdated but manageable<br/>📋 Action: Update when convenient"]]
+        low_zod --> low_comment_zod
+        low_types_express["@types/express ^5.0.0"]
+        low_comment_types_express[["📅 Minor version updates available<br/>🆕 Latest: 5.0.6 available<br/>⚠️ Small improvements available<br/>📋 Action: Update in next cycle"]]
+        low_types_express --> low_comment_types_express
+        low_typescript["typescript ^5.8.3"]
+        low_comment_typescript[["📅 1 major version behind<br/>🆕 Latest: 6.0.2 available<br/>⚠️ Outdated but manageable<br/>📋 Action: Update when convenient"]]
+        low_typescript --> low_comment_typescript
+    end
+
+    subgraph GOOD["✅ GOOD (0) - No Issues"]
+        good_no_data["No data found"]
+    end
+
+    %% Connections
+    ROOT --> CRITICAL
+    ROOT --> HIGH
+    ROOT --> MEDIUM
+    ROOT --> LOW
+    ROOT --> GOOD
+
+    %% Styling
+    style ROOT fill:#F06292,stroke:#AD1457,stroke-width:2.5px
+    style CRITICAL fill:#FFB3BA,stroke:#D32F2F,stroke-width:2px
+    style HIGH fill:#FFD8A7,stroke:#EF6C00,stroke-width:2px
+    style MEDIUM fill:#FFFACD,stroke:#FBC02D,stroke-width:2px
+    style LOW fill:#B0E0E6,stroke:#0288D1,stroke-width:2px
+    style GOOD fill:#C1E1C1,stroke:#388E3C,stroke-width:2px
+    %% Comment node styling
+    classDef commentStyle fill:#F5F5F5,stroke:#666,stroke-width:1px,color:#28253D
+    class ROOT,CRITICAL,HIGH,MEDIUM,LOW,GOOD,medium_comment_types_node,medium_types_node,low_comment_modelcontextprotocol_sdk,low_modelcontextprotocol_sdk,low_comment_express,low_express,low_comment_zod,low_zod,low_comment_types_express,low_types_express,low_comment_typescript,low_typescript,critical_no_data,high_no_data,good_no_data commentStyle
+
+    %% Click handlers for vulnerability details

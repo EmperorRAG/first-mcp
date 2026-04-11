@@ -1,0 +1,220 @@
+---
+query: in the diagrams directory; it is an execution sequence diagram for the mcp
+  server and not for CI/CD, n8n items.
+references:
+  - "File:
+    /docs/products/coffee-mate-mcp-server/diagrams/dependenciesProduct.mmd"
+  - "File: /docs/products/coffee-mate-mcp-server/diagrams/C4Container.mmd"
+  - "File: /docs/products/coffee-mate-mcp-server/diagrams/architectureDocker.mmd"
+  - "File: /docs/products/coffee-mate-mcp-server/diagrams/architectureCloud.mmd"
+  - "File: /src/index.ts"
+  - "File: /Dockerfile"
+generationTime: 2026-04-11T01:03:45.142Z
+---
+sequenceDiagram
+    %% ============================================
+    %% Coffee Mate MCP Server — Full Execution Flow
+    %% src/index.ts + Dockerfile + CI/CD pipeline
+    %% ============================================
+
+    actor N8N as n8n Client
+    actor Dev as VS Code Developer
+    actor DevOps as DevOps Engineer
+    participant Docker as Docker Container
+    participant Express as Express HTTP Server
+    participant MCP as MCP Server Core
+    participant SSE as SSE Transport
+    participant Stdio as Stdio Transport
+    participant Data as Coffee Data Store
+    participant GHA as GitHub Actions
+    participant ACR as Azure Container Registry
+    participant ACA as Azure Container Apps
+
+    %% ============================================
+    %% Scenario 1: SSE Mode Startup (default)
+    %% ============================================
+    rect rgb(230, 245, 255)
+        Note over Docker, Express: Scenario 1 — SSE Mode Startup (default)
+        Docker->>MCP: node build/index.js
+        activate MCP
+        MCP->>MCP: new McpServer(coffee-mate v1.0.0)
+        MCP->>MCP: registerTool(get-coffees)
+        MCP->>MCP: registerTool(get-a-coffee, Zod schema)
+        MCP->>MCP: main() — no --stdio flag detected
+        MCP->>Express: Create Express app
+        activate Express
+        Express->>Express: Register GET /health
+        Express->>Express: Register GET /sse
+        Express->>Express: Register POST /messages
+        Express->>Express: app.listen(PORT 3001)
+        Note over Express: MCP Server running on<br/>http://0.0.0.0:3001
+        deactivate Express
+        deactivate MCP
+    end
+
+    %% ============================================
+    %% Scenario 2: n8n SSE Connection
+    %% ============================================
+    rect rgb(255, 243, 224)
+        Note over N8N, Data: Scenario 2 — n8n SSE Connection Flow
+
+        %% SSE Handshake
+        N8N->>Express: GET /sse
+        activate Express
+        Express->>SSE: new SSEServerTransport(/messages, res)
+        activate SSE
+        Note right of SSE: sessionId generated<br/>stored in transports Map
+        SSE->>MCP: server.connect(transport)
+        activate MCP
+        MCP-->>SSE: Connection established
+        deactivate MCP
+        SSE-->>Express: SSE stream opened
+        Express-->>N8N: SSE connection ready
+        deactivate SSE
+        deactivate Express
+
+        %% Tool Call: get-coffees
+        Note over N8N, Data: Tool Call — get-coffees (list all)
+        N8N->>Express: POST /messages?sessionId=abc123
+        activate Express
+        Express->>Express: express.json() parses req.body
+        Express->>SSE: handlePostMessage(req, res, req.body)
+        activate SSE
+        SSE->>MCP: JSON-RPC call: get-coffees
+        activate MCP
+        MCP->>Data: Read coffeeDrinks array
+        activate Data
+        Data-->>MCP: 4 coffee objects
+        deactivate Data
+        MCP-->>SSE: JSON.stringify(coffeeDrinks)
+        deactivate MCP
+        SSE-->>Express: Result via SSE stream
+        deactivate SSE
+        Express-->>N8N: 200 OK
+        deactivate Express
+
+        %% Tool Call: get-a-coffee (found)
+        Note over N8N, Data: Tool Call — get-a-coffee (coffee found)
+        N8N->>Express: POST /messages?sessionId=abc123
+        activate Express
+        Express->>SSE: handlePostMessage(req, res, req.body)
+        activate SSE
+        SSE->>MCP: JSON-RPC call: get-a-coffee name=Latte
+        activate MCP
+        MCP->>MCP: Zod validates: z.object name z.string
+        MCP->>Data: coffeeDrinks.find(c => c.name === Latte)
+        activate Data
+        Data-->>MCP: Latte object found
+        deactivate Data
+        MCP-->>SSE: JSON.stringify(coffee)
+        deactivate MCP
+        SSE-->>Express: Result via SSE stream
+        deactivate SSE
+        Express-->>N8N: 200 OK
+        deactivate Express
+
+        %% Tool Call: get-a-coffee (not found)
+        Note over N8N, MCP: Tool Call — get-a-coffee (not found)
+        N8N->>Express: POST /messages?sessionId=abc123
+        activate Express
+        Express->>SSE: handlePostMessage(req, res, req.body)
+        activate SSE
+        SSE->>MCP: JSON-RPC call: get-a-coffee name=Mocha
+        activate MCP
+        MCP->>Data: coffeeDrinks.find(c => c.name === Mocha)
+        activate Data
+        Data-->>MCP: undefined
+        deactivate Data
+        Note right of MCP: Coffee not found path
+        MCP-->>SSE: text: Coffee not found
+        deactivate MCP
+        SSE-->>Express: Error result via SSE stream
+        deactivate SSE
+        Express-->>N8N: 200 OK
+        deactivate Express
+
+        %% Unknown session error
+        Note over N8N, Express: Error — Unknown Session
+        N8N->>Express: POST /messages?sessionId=invalid
+        activate Express
+        Express->>Express: transports.get(sessionId) is undefined
+        Express-->>N8N: 400 error: Unknown session
+        deactivate Express
+
+        %% Client disconnect cleanup
+        Note over N8N, SSE: Client Disconnect — Cleanup
+        N8N->>Express: SSE connection closed
+        activate Express
+        Express->>SSE: res close event fires
+        activate SSE
+        SSE->>SSE: transports.delete(sessionId)
+        deactivate SSE
+        deactivate Express
+    end
+
+    %% ============================================
+    %% Scenario 3: Stdio Mode (VS Code Copilot)
+    %% ============================================
+    rect rgb(232, 245, 233)
+        Note over Dev, Data: Scenario 3 — Stdio Mode (VS Code Copilot)
+        Dev->>MCP: node build/index.js --stdio
+        activate MCP
+        Note right of MCP: process.argv includes --stdio
+        MCP->>Stdio: new StdioServerTransport()
+        activate Stdio
+        MCP->>Stdio: server.connect(transport)
+        Note right of Stdio: stdin/stdout pipes for JSON-RPC
+        Stdio-->>MCP: Transport connected
+        Note over MCP: MCP Server running on stdio
+
+        %% Tool call via stdio
+        Dev->>Stdio: JSON-RPC via stdin: get-coffees
+        Stdio->>MCP: Forward tool call
+        MCP->>Data: Read coffeeDrinks array
+        activate Data
+        Data-->>MCP: 4 coffee objects
+        deactivate Data
+        MCP-->>Stdio: JSON.stringify(coffeeDrinks)
+        Stdio-->>Dev: JSON-RPC response via stdout
+        deactivate Stdio
+        deactivate MCP
+    end
+
+    %% ============================================
+    %% Scenario 4: Docker Health Check
+    %% ============================================
+    rect rgb(243, 229, 245)
+        Note over Docker, Express: Scenario 4 — Docker Health Check
+        Docker->>Express: GET /health
+        activate Express
+        Express-->>Docker: 200 status: ok
+        deactivate Express
+    end
+
+    %% ============================================
+    %% Scenario 5: CI/CD Deployment Pipeline
+    %% ============================================
+    rect rgb(255, 236, 236)
+        Note over DevOps, ACA: Scenario 5 — CI/CD Deployment Pipeline
+        DevOps->>GHA: git push to main branch
+        activate GHA
+        GHA->>GHA: npm run build (TypeScript to JS)
+        GHA->>GHA: docker build -t coffee-mate-mcp
+        GHA->>ACR: docker push (SHA tag + latest)
+        activate ACR
+        ACR-->>GHA: Image stored
+        deactivate ACR
+        GHA->>ACA: az containerapp update
+        activate ACA
+        ACA->>Express: Start container on port 3001
+        activate Express
+        Express-->>ACA: Container healthy
+        deactivate Express
+        ACA-->>GHA: Deployment complete
+        deactivate ACA
+        GHA->>ACA: Verify GET /health
+        activate ACA
+        ACA-->>GHA: 200 status: ok
+        deactivate ACA
+        deactivate GHA
+    end

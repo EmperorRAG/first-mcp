@@ -4,7 +4,7 @@ A TypeScript MCP (Model Context Protocol) server that serves coffee data. Origin
 
 ## Prerequisites
 
-- Node.js 18+
+- Node.js 24+
 - npm
 - Docker (optional, for containerized deployment)
 
