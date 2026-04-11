@@ -2,7 +2,11 @@ import type { ToolTextResponse } from "../../../common/type/tool-response/tool-r
 import type { GetACoffeeServiceClass } from "../service/get-a-coffee.service.js";
 import type { GetACoffeeInput } from "../dto/get-a-coffee.dto.js";
 
-export class GetACoffeeController {
+export interface GetACoffeeControllerClass {
+	handle(input: GetACoffeeInput): ToolTextResponse;
+}
+
+export class GetACoffeeController implements GetACoffeeControllerClass {
 	constructor(private readonly service: GetACoffeeServiceClass) { }
 
 	handle(input: GetACoffeeInput): ToolTextResponse {

@@ -19,10 +19,17 @@ export default defineConfig(
 				tsconfigRootDir: import.meta.dirname,
 			},
 		},
+		rules: {
+			"@typescript-eslint/consistent-type-assertions": [
+				"error",
+				{ assertionStyle: "never" },
+			],
+		},
 	},
 	{
 		files: ["src/**/*.steps.ts"],
 		rules: {
+			"@typescript-eslint/consistent-type-assertions": "off",
 			"@typescript-eslint/no-unsafe-argument": "off",
 			"@typescript-eslint/no-unsafe-assignment": "off",
 			"@typescript-eslint/no-unsafe-call": "off",

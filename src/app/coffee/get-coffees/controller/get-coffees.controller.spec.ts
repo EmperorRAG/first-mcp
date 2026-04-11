@@ -9,9 +9,9 @@ describe("GetCoffeesController", () => {
 		{ id: 2, name: "Espresso", size: "Small", price: 2.5, iced: false, caffeineMg: 64 },
 	];
 
-	const mockService = {
+	const mockService: GetCoffeesServiceClass = {
 		execute: vi.fn(() => mockCoffees),
-	} as unknown as GetCoffeesServiceClass;
+	};
 
 	it("returns a ToolTextResponse with JSON array", () => {
 		const controller = new GetCoffeesController(mockService);

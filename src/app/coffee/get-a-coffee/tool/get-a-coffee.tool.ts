@@ -1,10 +1,10 @@
 import type { McpServer } from "@modelcontextprotocol/server";
 import { GetACoffeeInputSchema } from "../dto/get-a-coffee.dto.js";
-import type { GetACoffeeController } from "../controller/get-a-coffee.controller.js";
+import type { GetACoffeeControllerClass } from "../controller/get-a-coffee.controller.js";
 
 export function registerGetACoffeeTool(
 	server: McpServer,
-	controller: GetACoffeeController,
+	controller: GetACoffeeControllerClass,
 ): void {
 	server.registerTool(
 		"get-a-coffee",

@@ -1,9 +1,18 @@
 import { randomUUID } from "node:crypto";
+import type { IncomingHttpHeaders } from "node:http";
 import type { McpServer } from "@modelcontextprotocol/server";
 import { isInitializeRequest } from "@modelcontextprotocol/server";
 import { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
 import { createMcpExpressApp } from "@modelcontextprotocol/express";
 import cors from "cors";
+
+function getSessionId(headers: IncomingHttpHeaders): string | undefined {
+	const value = headers["mcp-session-id"];
+	if (Array.isArray(value)) {
+		return value[0];
+	}
+	return value;
+}
 
 export function startHttpServer(
 	createServer: () => McpServer,
@@ -32,9 +41,7 @@ export function startHttpServer(
 	});
 
 	app.post("/mcp", async (req, res) => {
-		const sessionId = req.headers["mcp-session-id"] as
-			| string
-			| undefined;
+		const sessionId = getSessionId(req.headers);
 
 		if (sessionId && transports.has(sessionId)) {
 			await transports
@@ -67,9 +74,7 @@ export function startHttpServer(
 	});
 
 	app.get("/mcp", async (req, res) => {
-		const sessionId = req.headers["mcp-session-id"] as
-			| string
-			| undefined;
+		const sessionId = getSessionId(req.headers);
 
 		if (sessionId && transports.has(sessionId)) {
 			await transports
@@ -82,9 +87,7 @@ export function startHttpServer(
 	});
 
 	app.delete("/mcp", async (req, res) => {
-		const sessionId = req.headers["mcp-session-id"] as
-			| string
-			| undefined;
+		const sessionId = getSessionId(req.headers);
 
 		if (sessionId && transports.has(sessionId)) {
 			const transport = transports.get(sessionId)!;

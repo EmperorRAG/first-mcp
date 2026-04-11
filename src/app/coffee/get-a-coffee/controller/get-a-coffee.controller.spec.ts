@@ -9,9 +9,9 @@ describe("GetACoffeeController", () => {
 	};
 
 	function createController(coffee: Coffee | undefined) {
-		const mockService = {
+		const mockService: GetACoffeeServiceClass = {
 			execute: vi.fn(() => coffee),
-		} as unknown as GetACoffeeServiceClass;
+		};
 		return new GetACoffeeController(mockService);
 	}
 
