@@ -5,7 +5,7 @@ import {
 	SERVER_VERSION,
 	DEFAULT_PORT,
 	getPort,
-} from "../../../config/server/server.config.js";
+} from "../mcp-server.config.js";
 
 declare module "quickpickle" {
 	interface QuickPickleWorldInterface {

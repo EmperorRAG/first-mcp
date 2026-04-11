@@ -1,5 +1,5 @@
 import type { McpServer } from "@modelcontextprotocol/server";
-import { InMemoryCoffeeRepository } from "./shared/repository/coffee.repository.js";
+import { InMemoryCoffeeRepository } from "./shared/repository/coffee/coffee.repository.js";
 import { registerGetCoffeesModule } from "./get-coffees/module/get-coffees.module.js";
 import { registerGetACoffeeModule } from "./get-a-coffee/module/get-a-coffee.module.js";
 

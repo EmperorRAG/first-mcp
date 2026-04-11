@@ -1,11 +1,11 @@
 import { When, Then } from "quickpickle";
 import { expect } from "vitest";
 import { McpServer } from "@modelcontextprotocol/server";
-import { createServer } from "../../server/server.js";
+import { createMcpServer } from "../mcp-server.js";
 import {
 	SERVER_NAME,
 	SERVER_VERSION,
-} from "../../config/server/server.config.js";
+} from "../../../config/mcp-server/mcp-server.config.js";
 
 declare module "quickpickle" {
 	interface QuickPickleWorldInterface {
@@ -14,7 +14,7 @@ declare module "quickpickle" {
 }
 
 When("I create a server instance", (world) => {
-	world.serverInstance = createServer();
+	world.serverInstance = createMcpServer();
 });
 
 Then("the server should be an McpServer", (world) => {

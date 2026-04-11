@@ -7,9 +7,9 @@ import { createMcpExpressApp } from "@modelcontextprotocol/express";
 import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
 import { randomUUID } from "node:crypto";
 import cors from "cors";
-import { createServer } from "../../../server/server.js";
+import { createMcpServer } from "../../server/mcp-server/mcp-server.js";
 import { registerCoffeeDomain } from "../coffee.domain.js";
-import type { Coffee } from "../shared/coffee.types.js";
+import type { Coffee } from "../shared/type/coffee.types.js";
 import type { Server as HttpServer } from "node:http";
 
 declare module "quickpickle" {
@@ -219,7 +219,7 @@ function startTestServer(): Promise<{
 					}
 				};
 
-				const server = createServer();
+				const server = createMcpServer();
 				await server.connect(transport);
 				await transport.handleRequest(req, res, req.body);
 				return;

@@ -5,7 +5,7 @@ import { McpServer, isInitializeRequest } from "@modelcontextprotocol/server";
 import { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
 import { createMcpExpressApp } from "@modelcontextprotocol/express";
 import cors from "cors";
-import { createServer } from "../../../server/server.js";
+import { createMcpServer } from "../../../server/mcp-server/mcp-server.js";
 import type { Server as HttpServer } from "node:http";
 
 declare module "quickpickle" {
@@ -72,7 +72,7 @@ function startTestHttpServer(): Promise<{
 					}
 				};
 
-				const server = createServer();
+				const server = createMcpServer();
 				await server.connect(transport);
 				await transport.handleRequest(req, res, req.body);
 				return;

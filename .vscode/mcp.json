@@ -4,7 +4,7 @@
 			"type": "stdio",
 			"command": "node",
 			"args": [
-				"${workspaceFolder}/build/main.js",
+				"${workspaceFolder}/build/app/main.js",
 				"--stdio"
 			]
 		}

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { GetACoffeeService } from "./get-a-coffee.service.js";
-import type { CoffeeRepository } from "../../shared/repository/coffee.repository.js";
-import type { Coffee } from "../../shared/coffee.types.js";
+import type { CoffeeRepository } from "../../shared/repository/coffee/coffee.repository.js";
+import type { Coffee } from "../../shared/type/coffee.types.js";
 
 describe("GetACoffeeService", () => {
 	const flatWhite: Coffee = {

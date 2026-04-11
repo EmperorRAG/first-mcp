@@ -1,4 +1,4 @@
-import type { Coffee } from "../coffee.types.js";
+import type { Coffee } from "../../type/coffee.types.js";
 
 export interface CoffeeRepository {
 	findAll(): Coffee[];

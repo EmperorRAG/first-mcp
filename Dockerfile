@@ -14,4 +14,4 @@ USER app
 
 EXPOSE 3001
 
-CMD ["node", "build/main.js"]
+CMD ["node", "build/app/main.js"]

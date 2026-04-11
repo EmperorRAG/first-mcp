@@ -2,45 +2,47 @@
 
 ## Architecture
 
-MCP (Model Context Protocol) server with dual transport using a domain-driven module-service architecture. TypeScript source in `src/` compiles to `build/`. Entry point at `src/main.ts`.
+MCP (Model Context Protocol) server with dual transport using a domain-driven module-service architecture. TypeScript source in `src/` compiles to `build/`. Entry point at `src/app/main.ts`.
 
 ### Module-Service Structure
 
 ```plaintext
-src/
+src/app/
 ├── main.ts                             — entry point (--stdio flag selects transport)
 ├── server/
-│   └── server.ts                       — createServer() factory, registers domains
+│   └── mcp-server/
+│       └── mcp-server.ts              — createServer() factory, registers domains
 ├── config/
-│   └── server/
-│       └── server.config.ts            — PORT, server name/version
+│   └── mcp-server/
+│       └── mcp-server.config.ts       — PORT, server name/version
 ├── transport/
 │   ├── http/
 │   │   └── http.ts                     — Express Streamable HTTP transport
 │   └── stdio/
 │       └── stdio.ts                    — Stdio transport for VS Code
-├── common/types/
+├── common/type/
 │   └── tool-response/
 │       └── tool-response.ts            — shared ToolTextResponse type
-└── app/
-    └── coffee/                         — domain
-        ├── coffee.domain.ts            — domain barrel (registers all tool modules)
-        ├── shared/
-        │   ├── coffee.types.ts         — Coffee interface
-        │   └── repository/
-        │       ├── coffee.repository.ts      — CoffeeRepository interface + InMemory impl
-        │       └── coffee.repository.spec.ts
-        ├── get-coffees/                — module-service per tool
-        │   ├── module/get-coffees.module.ts
-        │   ├── tool/get-coffees.tool.ts + .spec.ts
-        │   ├── controller/get-coffees.controller.ts + .spec.ts
-        │   └── service/get-coffees.service.ts + .spec.ts
-        └── get-a-coffee/
-            ├── module/get-a-coffee.module.ts
-            ├── tool/get-a-coffee.tool.ts + .spec.ts
-            ├── controller/get-a-coffee.controller.ts + .spec.ts
-            ├── service/get-a-coffee.service.ts + .spec.ts
-            └── dto/get-a-coffee.dto.ts
+└── coffee/                             — domain
+    ├── coffee.domain.ts                — domain barrel (registers all tool modules)
+    ├── shared/
+    │   ├── type/
+    │   │   └── coffee.types.ts         — Coffee interface
+    │   └── repository/
+    │       └── coffee/
+    │           ├── coffee.repository.ts      — CoffeeRepository interface + InMemory impl
+    │           └── coffee.repository.spec.ts
+    ├── get-coffees/                    — module-service per tool
+    │   ├── module/get-coffees.module.ts
+    │   ├── tool/get-coffees.tool.ts + .spec.ts
+    │   ├── controller/get-coffees.controller.ts + .spec.ts
+    │   └── service/get-coffees.service.ts + .spec.ts
+    └── get-a-coffee/
+        ├── module/get-a-coffee.module.ts
+        ├── tool/get-a-coffee.tool.ts + .spec.ts
+        ├── controller/get-a-coffee.controller.ts + .spec.ts
+        ├── service/get-a-coffee.service.ts + .spec.ts
+        └── dto/get-a-coffee.dto.ts
 ```
 
 ### Layer Responsibilities
@@ -104,12 +106,12 @@ docs/features/
 │   └── coffee-domain.e2e.feature          — E2E (MCP client + HTTP transport)
 ├── server/
 │   └── components/
-│       ├── server-config/              — server config module
-│       │   ├── server-config.unit.feature
-│       │   └── server-config.contract.feature
-│       └── server-factory/             — createServer factory
-│           ├── server-factory.unit.feature
-│           └── server-factory.contract.feature
+│       ├── mcp-server-config/          — server config module
+│       │   ├── mcp-server-config.unit.feature
+│       │   └── mcp-server-config.contract.feature
+│       └── mcp-server-factory/         — createServer factory
+│           ├── mcp-server-factory.unit.feature
+│           └── mcp-server-factory.contract.feature
 └── transport/
     └── components/
         ├── stdio-transport/            — stdio transport module
@@ -123,14 +125,14 @@ docs/features/
 
 ```plaintext
 src/app/coffee/
-├── shared/repository/step/coffee-repository.steps.ts  — component steps
+├── shared/repository/coffee/step/coffee-repository.steps.ts  — component steps
 ├── get-coffees/step/get-coffees.steps.ts              — service steps
 ├── get-a-coffee/step/get-a-coffee.steps.ts            — service steps
 └── step/coffee-domain.steps.ts                        — domain + E2E steps
-src/config/server/step/server-config.steps.ts          — server config component steps
-src/server/step/server-factory.steps.ts                — server factory component steps
-src/transport/http/step/http-transport.steps.ts         — HTTP transport component steps
-src/transport/stdio/step/stdio-transport.steps.ts       — stdio transport component steps
+src/app/config/mcp-server/step/mcp-server-config.steps.ts     — server config component steps
+src/app/server/mcp-server/step/mcp-server-factory.steps.ts    — server factory component steps
+src/app/transport/http/step/http-transport.steps.ts            — HTTP transport component steps
+src/app/transport/stdio/step/stdio-transport.steps.ts          — stdio transport component steps
 ```
 
 #### Vitest Projects
@@ -151,7 +153,7 @@ src/transport/stdio/step/stdio-transport.steps.ts       — stdio transport comp
 
 - **ES Modules**: Project uses `"type": "module"` — use `import`/`export`, not `require`
 - **Module-service pattern**: Each MCP tool gets its own module-service folder under its domain with singular-named layer subfolders (`tool/`, `controller/`, `service/`, `dto/`, `module/`). Specs are co-located alongside implementation files
-- **Domain registration**: Domain barrels (`*.domain.ts`) create shared resources and register tool modules. `src/server/server.ts` registers domains
+- **Domain registration**: Domain barrels (`*.domain.ts`) create shared resources and register tool modules. `src/app/server/mcp-server/mcp-server.ts` registers domains
 - **Tool registration**: Use `server.registerTool(name, config, handler)` inside `*.tool.ts` files — the older `server.tool()` is deprecated
 - **Input validation**: Use Zod schemas in `*.dto.ts` files, referenced by tool `inputSchema` and validated in controllers
 - **Tool responses**: Controllers return `ToolTextResponse` type: `{ content: [{ type: "text", text: string }] }`

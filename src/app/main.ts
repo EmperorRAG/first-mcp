@@ -1,4 +1,4 @@
-import { createServer } from "./server/server.js";
+import { createMcpServer } from "./server/mcp-server/mcp-server.js";
 import { startHttpServer } from "./transport/http/http.js";
 import { startStdioServer } from "./transport/stdio/stdio.js";
 
@@ -6,10 +6,10 @@ async function main() {
 	const useStdio = process.argv.includes("--stdio");
 
 	if (useStdio) {
-		const server = createServer();
+		const server = createMcpServer();
 		await startStdioServer(server);
 	} else {
-		startHttpServer(createServer);
+		startHttpServer(createMcpServer);
 	}
 }
 

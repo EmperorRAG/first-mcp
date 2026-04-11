@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { GetCoffeesController } from "./get-coffees.controller.js";
 import type { GetCoffeesService } from "../service/get-coffees.service.js";
-import type { Coffee } from "../../shared/coffee.types.js";
+import type { Coffee } from "../../shared/type/coffee.types.js";
 
 describe("GetCoffeesController", () => {
 	const mockCoffees: Coffee[] = [

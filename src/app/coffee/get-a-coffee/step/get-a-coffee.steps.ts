@@ -1,13 +1,13 @@
 import { Given, When, Then } from "quickpickle";
 import { expect } from "vitest";
 import { McpServer } from "@modelcontextprotocol/server";
-import { InMemoryCoffeeRepository } from "../../shared/repository/coffee.repository.js";
+import { InMemoryCoffeeRepository } from "../../shared/repository/coffee/coffee.repository.js";
 import { registerGetACoffeeModule } from "../module/get-a-coffee.module.js";
 import { GetACoffeeService } from "../service/get-a-coffee.service.js";
 import { GetACoffeeController } from "../controller/get-a-coffee.controller.js";
 import { GetACoffeeInputSchema } from "../dto/get-a-coffee.dto.js";
-import type { ToolTextResponse } from "../../../../common/types/tool-response/tool-response.js";
-import type { Coffee } from "../../shared/coffee.types.js";
+import type { ToolTextResponse } from "../../../common/type/tool-response/tool-response.js";
+import type { Coffee } from "../../shared/type/coffee.types.js";
 
 declare module "quickpickle" {
 	interface QuickPickleWorldInterface {

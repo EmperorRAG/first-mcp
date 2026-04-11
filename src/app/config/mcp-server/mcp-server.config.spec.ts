@@ -4,7 +4,7 @@ import {
 	SERVER_VERSION,
 	DEFAULT_PORT,
 	getPort,
-} from "./server.config.js";
+} from "./mcp-server.config.js";
 
 describe("server.config", () => {
 	afterEach(() => {

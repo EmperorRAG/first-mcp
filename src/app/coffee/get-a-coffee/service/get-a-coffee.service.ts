@@ -1,5 +1,5 @@
-import type { Coffee } from "../../shared/coffee.types.js";
-import type { CoffeeRepository } from "../../shared/repository/coffee.repository.js";
+import type { Coffee } from "../../shared/type/coffee.types.js";
+import type { CoffeeRepository } from "../../shared/repository/coffee/coffee.repository.js";
 
 export class GetACoffeeService {
 	constructor(private readonly repo: CoffeeRepository) { }

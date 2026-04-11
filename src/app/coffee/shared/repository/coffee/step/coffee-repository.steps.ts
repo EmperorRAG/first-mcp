@@ -1,7 +1,7 @@
 import { Given, When, Then } from "quickpickle";
 import { expect } from "vitest";
 import { InMemoryCoffeeRepository } from "../coffee.repository.js";
-import type { Coffee } from "../../coffee.types.js";
+import type { Coffee } from "../../../type/coffee.types.js";
 import type { CoffeeRepository } from "../coffee.repository.js";
 
 declare module "quickpickle" {
