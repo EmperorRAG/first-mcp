@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { InMemoryCoffeeRepository } from "./coffee.repository.js";
+import { flatWhiteCoffee } from "../../../../testing/factory/coffee.factory.js";
 
 describe("InMemoryCoffeeRepository", () => {
 	const repo = new InMemoryCoffeeRepository();
@@ -25,10 +26,10 @@ describe("InMemoryCoffeeRepository", () => {
 
 	describe("findByName", () => {
 		it("returns a matching coffee", () => {
-			const result = repo.findByName("Flat White");
+			const result = repo.findByName(flatWhiteCoffee.name);
 			expect(result).toBeDefined();
-			expect(result!.name).toBe("Flat White");
-			expect(result!.price).toBe(4.5);
+			expect(result!.name).toBe(flatWhiteCoffee.name);
+			expect(result!.price).toBe(flatWhiteCoffee.price);
 		});
 
 		it("returns undefined for non-existent coffee", () => {

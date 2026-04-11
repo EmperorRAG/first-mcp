@@ -13,6 +13,7 @@ import { GetACoffeeController } from "../controller/get-a-coffee.controller.js";
 import { GetACoffeeInputSchema } from "../dto/get-a-coffee.dto.js";
 import type { ToolTextResponse } from "../../../common/type/tool-response/tool-response.js";
 import type { Coffee } from "../../shared/type/coffee.types.js";
+import { parseCoffeeJson } from "../../../testing/utility/coffee-parser.utility.js";
 
 declare module "quickpickle" {
 	interface QuickPickleWorldInterface {
@@ -21,32 +22,6 @@ declare module "quickpickle" {
 		toolResponse: ToolTextResponse;
 		parsedCoffee: Coffee | undefined;
 	}
-}
-
-function getObjectProperty(value: unknown, key: string): unknown {
-	if (typeof value !== "object" || value === null) {
-		return undefined;
-	}
-	return Reflect.get(value, key);
-}
-
-function isCoffee(value: unknown): value is Coffee {
-	return (
-		typeof getObjectProperty(value, "id") === "number"
-		&& typeof getObjectProperty(value, "name") === "string"
-		&& typeof getObjectProperty(value, "size") === "string"
-		&& typeof getObjectProperty(value, "price") === "number"
-		&& typeof getObjectProperty(value, "iced") === "boolean"
-		&& typeof getObjectProperty(value, "caffeineMg") === "number"
-	);
-}
-
-function parseCoffeeJson(text: string): Coffee {
-	const parsed: unknown = JSON.parse(text);
-	if (!isCoffee(parsed)) {
-		throw new Error("Expected tool output to conform to Coffee interface");
-	}
-	return parsed;
 }
 
 Given(

@@ -6,10 +6,11 @@ import {
 	getPort,
 	createServerConfig,
 } from "./mcp-server.config.js";
+import { clearPortEnv, setPortEnv } from "../../testing/utility/env.utility.js";
 
 describe("server.config", () => {
 	afterEach(() => {
-		delete process.env.PORT;
+		clearPortEnv();
 	});
 
 	it("exports SERVER_NAME as 'coffee-mate'", () => {
@@ -25,23 +26,23 @@ describe("server.config", () => {
 	});
 
 	it("getPort returns DEFAULT_PORT when PORT env is not set", () => {
-		delete process.env.PORT;
+		clearPortEnv();
 		expect(getPort()).toBe(DEFAULT_PORT);
 	});
 
 	it("getPort returns PORT env value as number", () => {
-		process.env.PORT = "4000";
+		setPortEnv("4000");
 		expect(getPort()).toBe(4000);
 	});
 });
 
 describe("createServerConfig", () => {
 	afterEach(() => {
-		delete process.env.PORT;
+		clearPortEnv();
 	});
 
 	it("returns a frozen config object with default values", () => {
-		delete process.env.PORT;
+		clearPortEnv();
 		const config = createServerConfig();
 		expect(config.name).toBe(SERVER_NAME);
 		expect(config.version).toBe(SERVER_VERSION);
@@ -50,7 +51,7 @@ describe("createServerConfig", () => {
 	});
 
 	it("reads PORT from environment", () => {
-		process.env.PORT = "5000";
+		setPortEnv("5000");
 		const config = createServerConfig();
 		expect(config.port).toBe(5000);
 	});

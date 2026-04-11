@@ -3,6 +3,7 @@ import { expect } from "vitest";
 import { InMemoryCoffeeRepository } from "../coffee.repository.js";
 import type { Coffee } from "../../../type/coffee.types.js";
 import type { CoffeeRepository } from "../coffee.repository.js";
+import { getObjectProperty } from "../../../../../testing/utility/reflect.utility.js";
 
 declare module "quickpickle" {
 	interface QuickPickleWorldInterface {
@@ -10,13 +11,6 @@ declare module "quickpickle" {
 		coffees: Coffee[];
 		coffee: Coffee | undefined;
 	}
-}
-
-function getDynamicProperty(value: unknown, key: string): unknown {
-	if (typeof value !== "object" || value === null) {
-		return undefined;
-	}
-	return Reflect.get(value, key);
 }
 
 Given("the coffee repository is initialized", (world: QuickPickleWorldInterface) => {
@@ -80,7 +74,7 @@ Then(
 	(world: QuickPickleWorldInterface, prop: string, type: string) => {
 		for (const coffee of world.coffees) {
 			expect(coffee).toHaveProperty(prop);
-			expect(typeof getDynamicProperty(coffee, prop)).toBe(
+			expect(typeof getObjectProperty(coffee, prop)).toBe(
 				type,
 			);
 		}

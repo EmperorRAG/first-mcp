@@ -1,17 +1,12 @@
 import { describe, it, expect, vi } from "vitest";
 import { GetCoffeesController } from "./get-coffees.controller.js";
-import type { GetCoffeesServiceClass } from "../service/get-coffees.service.js";
-import type { Coffee } from "../../shared/type/coffee.types.js";
+import { defaultCoffeeList } from "../../../testing/factory/coffee.factory.js";
+import { createMockGetCoffeesService } from "../../../testing/factory/mock-coffee.factory.js";
+import { parseFirstToolTextAsJson } from "../../../testing/utility/tool-response.utility.js";
 
 describe("GetCoffeesController", () => {
-	const mockCoffees: Coffee[] = [
-		{ id: 1, name: "Flat White", size: "Medium", price: 4.5, iced: false, caffeineMg: 130 },
-		{ id: 2, name: "Espresso", size: "Small", price: 2.5, iced: false, caffeineMg: 64 },
-	];
-
-	const mockService: GetCoffeesServiceClass = {
-		execute: vi.fn(() => mockCoffees),
-	};
+	const mockCoffees = defaultCoffeeList;
+	const mockService = createMockGetCoffeesService(mockCoffees);
 
 	it("returns a ToolTextResponse with JSON array", () => {
 		const controller = new GetCoffeesController(mockService);
@@ -20,7 +15,8 @@ describe("GetCoffeesController", () => {
 		expect(result.content).toHaveLength(1);
 		expect(result.content[0].type).toBe("text");
 
-		const parsed: unknown = JSON.parse(result.content[0].text);
+		const parsed = parseFirstToolTextAsJson(result);
 		expect(parsed).toEqual(mockCoffees);
+		expect(vi.isMockFunction(mockService.execute)).toBe(true);
 	});
 });

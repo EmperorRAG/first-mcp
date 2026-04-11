@@ -12,6 +12,10 @@ import {
 	DEFAULT_PORT,
 	getPort,
 } from "../mcp-server.config.js";
+import {
+	clearPortEnv,
+	setPortEnv,
+} from "../../../testing/utility/env.utility.js";
 
 declare module "quickpickle" {
 	interface QuickPickleWorldInterface {
@@ -20,7 +24,7 @@ declare module "quickpickle" {
 }
 
 After((_world: QuickPickleWorldInterface) => {
-	delete process.env.PORT;
+	clearPortEnv();
 });
 
 // Unit steps
@@ -42,13 +46,13 @@ Then("DEFAULT_PORT should be {int}", (_world: QuickPickleWorldInterface, expecte
 });
 
 Given("the PORT environment variable is not set", (_world: QuickPickleWorldInterface) => {
-	delete process.env.PORT;
+	clearPortEnv();
 });
 
 Given(
 	"the PORT environment variable is set to {string}",
 	(_world: QuickPickleWorldInterface, value: string) => {
-		process.env.PORT = value;
+		setPortEnv(value);
 	},
 );
 

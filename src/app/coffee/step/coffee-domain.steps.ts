@@ -7,26 +7,33 @@ import {
 } from "quickpickle";
 import { expect } from "vitest";
 import { McpServer } from "@modelcontextprotocol/server";
-import { isInitializeRequest } from "@modelcontextprotocol/server";
 import { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
-import { createMcpExpressApp } from "@modelcontextprotocol/express";
 import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
-import { randomUUID } from "node:crypto";
-import cors from "cors";
 import { createMcpServer } from "../../server/mcp-server/mcp-server.js";
 import { registerCoffeeDomain } from "../coffee.domain.js";
-import type { ServerConfig } from "../../config/mcp-server/mcp-server.config.js";
 import type { Coffee } from "../shared/type/coffee.types.js";
-import type {
-	IncomingHttpHeaders,
-	Server as HttpServer,
-} from "node:http";
+import { createTestServerConfig } from "../../testing/factory/server-config.factory.js";
+import { createTestHttpServer } from "../../testing/factory/http-server.factory.js";
+import {
+	getRegisteredTool,
+	getRegisteredTools,
+	getSchemaShape,
+} from "../../testing/utility/mcp-server-introspection.utility.js";
+import {
+	getTextContent,
+	parseHealthStatus,
+	parseSseResponse,
+	parseToolCallText,
+	parseToolsListPayload,
+} from "../../testing/utility/mcp-response.utility.js";
+import {
+	parseCoffeeArrayJson,
+	parseCoffeeJson,
+} from "../../testing/utility/coffee-parser.utility.js";
+import { getObjectProperty } from "../../testing/utility/reflect.utility.js";
+import type { Server as HttpServer } from "node:http";
 
-const testConfig: ServerConfig = {
-	name: "test-server",
-	version: "0.0.1",
-	port: 0,
-};
+const testConfig = createTestServerConfig();
 
 declare module "quickpickle" {
 	interface QuickPickleWorldInterface {
@@ -68,140 +75,6 @@ After(async (world: QuickPickleWorldInterface) => {
 		}
 	}
 });
-
-// --- Helper types ---
-
-function getObjectProperty(value: unknown, key: string): unknown {
-	if (typeof value !== "object" || value === null) {
-		return undefined;
-	}
-	return Reflect.get(value, key);
-}
-
-function getSessionId(headers: IncomingHttpHeaders): string | undefined {
-	const value = headers["mcp-session-id"];
-	if (Array.isArray(value)) {
-		return value[0];
-	}
-	return value;
-}
-
-function getRegisteredTools(server: McpServer): Record<string, unknown> {
-	const tools = Reflect.get(server, "_registeredTools");
-	if (typeof tools !== "object" || tools === null) {
-		throw new Error("Server does not expose _registeredTools");
-	}
-	return Object.fromEntries(Object.entries(tools));
-}
-
-function getRegisteredTool(
-	tools: Record<string, unknown>,
-	name: string,
-): Record<string, unknown> | undefined {
-	const tool = tools[name];
-	if (typeof tool !== "object" || tool === null) {
-		return undefined;
-	}
-	return Object.fromEntries(Object.entries(tool));
-}
-
-function getSchemaShape(schema: unknown): Record<string, unknown> | undefined {
-	const definition = getObjectProperty(schema, "def");
-	const shape = getObjectProperty(definition, "shape");
-	if (typeof shape !== "object" || shape === null) {
-		return undefined;
-	}
-	return Object.fromEntries(Object.entries(shape));
-}
-
-function getTextContent(content: unknown): string | undefined {
-	if (!Array.isArray(content)) {
-		return undefined;
-	}
-
-	for (const item of content) {
-		if (getObjectProperty(item, "type") === "text") {
-			const text = getObjectProperty(item, "text");
-			if (typeof text === "string") {
-				return text;
-			}
-		}
-	}
-
-	return undefined;
-}
-
-function isCoffee(value: unknown): value is Coffee {
-	return (
-		typeof getObjectProperty(value, "id") === "number"
-		&& typeof getObjectProperty(value, "name") === "string"
-		&& typeof getObjectProperty(value, "size") === "string"
-		&& typeof getObjectProperty(value, "price") === "number"
-		&& typeof getObjectProperty(value, "iced") === "boolean"
-		&& typeof getObjectProperty(value, "caffeineMg") === "number"
-	);
-}
-
-function parseCoffeeJson(text: string): Coffee {
-	const parsed: unknown = JSON.parse(text);
-	if (!isCoffee(parsed)) {
-		throw new Error("Expected tool output to conform to Coffee interface");
-	}
-	return parsed;
-}
-
-function parseCoffeeArrayJson(text: string): Coffee[] {
-	const parsed: unknown = JSON.parse(text);
-	if (!Array.isArray(parsed) || !parsed.every(isCoffee)) {
-		throw new Error("Expected tool output to conform to Coffee[] interface");
-	}
-	return parsed;
-}
-
-function parseToolsListPayload(payload: unknown): string[] {
-	const result = getObjectProperty(payload, "result");
-	const tools = getObjectProperty(result, "tools");
-	if (!Array.isArray(tools)) {
-		throw new Error("Invalid tools/list payload");
-	}
-
-	const names: string[] = [];
-	for (const tool of tools) {
-		const name = getObjectProperty(tool, "name");
-		if (typeof name === "string") {
-			names.push(name);
-		}
-	}
-
-	return names;
-}
-
-function parseToolCallText(payload: unknown): string | undefined {
-	const result = getObjectProperty(payload, "result");
-	const content = getObjectProperty(result, "content");
-	return getTextContent(content);
-}
-
-function parseHealthStatus(payload: unknown): string {
-	const status = getObjectProperty(payload, "status");
-	if (typeof status !== "string") {
-		throw new Error("Invalid health payload");
-	}
-	return status;
-}
-
-// --- Helper to parse SSE response into JSON ---
-
-async function parseSseResponse(response: Response): Promise<unknown> {
-	const text = await response.text();
-	const lines = text.split("\n");
-	for (const line of lines) {
-		if (line.startsWith("data: ")) {
-			return JSON.parse(line.slice(6));
-		}
-	}
-	return JSON.parse(text);
-}
 
 const MCP_HEADERS = {
 	"Content-Type": "application/json",
@@ -280,117 +153,10 @@ Then(
 	},
 );
 
-// --- E2E: HTTP Server Helper ---
-
-function startTestServer(): Promise<{
-	httpServer: HttpServer;
-	baseUrl: string;
-	transports: Map<string, NodeStreamableHTTPServerTransport>;
-}> {
-	return new Promise((resolve) => {
-		const app = createMcpExpressApp();
-		const transports = new Map<
-			string,
-			NodeStreamableHTTPServerTransport
-		>();
-
-		app.use(
-			cors({
-				exposedHeaders: [
-					"Mcp-Session-Id",
-					"Mcp-Protocol-Version",
-					"WWW-Authenticate",
-				],
-				origin: "*",
-			}),
-		);
-
-		app.get("/health", (_req, res) => {
-			res.status(200).json({ status: "ok" });
-		});
-
-		app.post("/mcp", async (req, res) => {
-			const sessionId = getSessionId(req.headers);
-
-			if (sessionId && transports.has(sessionId)) {
-				await transports
-					.get(sessionId)!
-					.handleRequest(req, res, req.body);
-				return;
-			}
-
-			if (!sessionId && isInitializeRequest(req.body)) {
-				const transport =
-					new NodeStreamableHTTPServerTransport({
-						sessionIdGenerator: () => randomUUID(),
-						onsessioninitialized: (sid) => {
-							transports.set(sid, transport);
-						},
-					});
-
-				transport.onclose = () => {
-					if (transport.sessionId) {
-						transports.delete(transport.sessionId);
-					}
-				};
-
-				const server = createMcpServer(testConfig);
-				await server.connect(transport);
-				await transport.handleRequest(req, res, req.body);
-				return;
-			}
-
-			res.status(400).json({ error: "Invalid request" });
-		});
-
-		app.get("/mcp", async (req, res) => {
-			const sessionId = getSessionId(req.headers);
-
-			if (sessionId && transports.has(sessionId)) {
-				await transports
-					.get(sessionId)!
-					.handleRequest(req, res);
-				return;
-			}
-
-			res.status(400).json({
-				error: "Invalid or missing session",
-			});
-		});
-
-		app.delete("/mcp", async (req, res) => {
-			const sessionId = getSessionId(req.headers);
-
-			if (sessionId && transports.has(sessionId)) {
-				const transport = transports.get(sessionId)!;
-				await transport.close();
-				transports.delete(sessionId);
-				res.status(200).end();
-				return;
-			}
-
-			res.status(400).json({
-				error: "Invalid or missing session",
-			});
-		});
-
-		const httpServer = app.listen(0, () => {
-			const addr = httpServer.address();
-			const port =
-				typeof addr === "object" && addr ? addr.port : 0;
-			resolve({
-				httpServer,
-				baseUrl: `http://127.0.0.1:${port}`,
-				transports,
-			});
-		});
-	});
-}
-
 // --- E2E In-Process steps ---
 
 Given("an MCP server with in-process client", async (world: QuickPickleWorldInterface) => {
-	const result = await startTestServer();
+	const result = await createTestHttpServer(() => createMcpServer(testConfig));
 	world.httpServer = result.httpServer;
 	world.baseUrl = result.baseUrl;
 	world.transports = result.transports;
@@ -473,7 +239,7 @@ Then(
 // --- E2E HTTP steps ---
 
 Given("an MCP HTTP server is running", async (world: QuickPickleWorldInterface) => {
-	const result = await startTestServer();
+	const result = await createTestHttpServer(() => createMcpServer(testConfig));
 	world.httpServer = result.httpServer;
 	world.baseUrl = result.baseUrl;
 	world.transports = result.transports;

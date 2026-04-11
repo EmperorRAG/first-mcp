@@ -6,45 +6,21 @@ import {
 	SERVER_NAME,
 	SERVER_VERSION,
 } from "../../../config/mcp-server/mcp-server.config.js";
-import type { ServerConfig } from "../../../config/mcp-server/mcp-server.config.js";
+import { createTestServerConfig } from "../../../testing/factory/server-config.factory.js";
+import {
+	getRegisteredToolNames,
+	getServerInfoValue,
+} from "../../../testing/utility/mcp-server-introspection.utility.js";
 
-const testConfig: ServerConfig = {
+const testConfig = createTestServerConfig({
 	name: SERVER_NAME,
 	version: SERVER_VERSION,
-	port: 0,
-};
+});
 
 declare module "quickpickle" {
 	interface QuickPickleWorldInterface {
 		serverInstance: McpServer;
 	}
-}
-
-function getRegisteredToolNames(server: McpServer): string[] {
-	const tools: unknown = Reflect.get(server, "_registeredTools");
-	if (typeof tools !== "object" || tools === null) {
-		throw new Error("Server does not expose _registeredTools");
-	}
-	return Object.keys(tools);
-}
-
-function getServerInfoValue(server: McpServer, key: "name" | "version"): string {
-	const internalServer: unknown = Reflect.get(server, "server");
-	if (typeof internalServer !== "object" || internalServer === null) {
-		throw new Error("Server internal object is unavailable");
-	}
-
-	const serverInfo: unknown = Reflect.get(internalServer, "_serverInfo");
-	if (typeof serverInfo !== "object" || serverInfo === null) {
-		throw new Error("Server info is unavailable");
-	}
-
-	const value: unknown = Reflect.get(serverInfo, key);
-	if (typeof value !== "string") {
-		throw new Error(`Server info field ${key} is not a string`);
-	}
-
-	return value;
 }
 
 When("I create a server instance", (world: QuickPickleWorldInterface) => {

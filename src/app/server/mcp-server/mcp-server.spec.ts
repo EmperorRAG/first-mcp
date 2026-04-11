@@ -1,29 +1,19 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { McpServer } from "@modelcontextprotocol/server";
 import { createMcpServer } from "./mcp-server.js";
-import type { ServerConfig } from "../../config/mcp-server/mcp-server.config.js";
-
-const testConfig: ServerConfig = {
-	name: "test-server",
-	version: "0.0.1",
-	port: 0,
-};
+import { defaultTestServerConfig } from "../../testing/factory/server-config.factory.js";
+import { getRegisteredToolNames } from "../../testing/utility/mcp-server-introspection.utility.js";
 
 describe("createServer", () => {
 	it("returns an McpServer instance", () => {
-		const server = createMcpServer(testConfig);
+		const server = createMcpServer(defaultTestServerConfig);
 		expect(server).toBeInstanceOf(McpServer);
 	});
 
 	it("registers coffee domain tools", () => {
-		const spy = vi.spyOn(McpServer.prototype, "registerTool");
-
-		createMcpServer(testConfig);
-
-		const toolNames = spy.mock.calls.map((call) => call[0]);
+		const server = createMcpServer(defaultTestServerConfig);
+		const toolNames = getRegisteredToolNames(server);
 		expect(toolNames).toContain("get-coffees");
 		expect(toolNames).toContain("get-a-coffee");
-
-		spy.mockRestore();
 	});
 });
