@@ -1,8 +1,13 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
-import express from "express";
-import { z } from "zod";
+import { randomUUID } from "node:crypto";
+import {
+	McpServer,
+	StdioServerTransport,
+	isInitializeRequest,
+} from "@modelcontextprotocol/server";
+import { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
+import { createMcpExpressApp } from "@modelcontextprotocol/express";
+import cors from "cors";
+import * as z from "zod/v4";
 
 export const coffeeDrinks = [
 	{
@@ -103,41 +108,106 @@ async function main() {
 		await server.connect(transport);
 		console.error("MCP Server running on stdio");
 	} else {
-		const app = express();
+		const app = createMcpExpressApp();
 		const PORT = parseInt(process.env["PORT"] || "3001", 10);
 
-		const transports = new Map<string, SSEServerTransport>();
+		app.use(
+			cors({
+				exposedHeaders: [
+					"Mcp-Session-Id",
+					"Mcp-Protocol-Version",
+					"WWW-Authenticate",
+				],
+				origin: "*",
+			}),
+		);
+
+		const transports = new Map<
+			string,
+			NodeStreamableHTTPServerTransport
+		>();
 
 		app.get("/health", (_req, res) => {
 			res.status(200).json({ status: "ok" });
 		});
 
-		app.get("/sse", async (req, res) => {
-			const server = createServer();
-			const transport = new SSEServerTransport("/messages", res);
-			transports.set(transport.sessionId, transport);
+		app.post("/mcp", async (req, res) => {
+			const sessionId = req.headers["mcp-session-id"] as
+				| string
+				| undefined;
 
-			res.on("close", () => {
-				transports.delete(transport.sessionId);
-			});
-
-			await server.connect(transport);
-		});
-
-		app.post("/messages", express.json(), async (req, res) => {
-			const sessionId = req.query["sessionId"] as string;
-			const transport = transports.get(sessionId);
-
-			if (!transport) {
-				res.status(400).json({ error: "Unknown session" });
+			if (sessionId && transports.has(sessionId)) {
+				await transports
+					.get(sessionId)!
+					.handleRequest(req, res, req.body);
 				return;
 			}
 
-			await transport.handlePostMessage(req, res, req.body);
+			if (!sessionId && isInitializeRequest(req.body)) {
+				const transport = new NodeStreamableHTTPServerTransport({
+					sessionIdGenerator: () => randomUUID(),
+					onsessioninitialized: (sid) => {
+						transports.set(sid, transport);
+					},
+				});
+
+				transport.onclose = () => {
+					if (transport.sessionId) {
+						transports.delete(transport.sessionId);
+					}
+				};
+
+				const server = createServer();
+				await server.connect(transport);
+				await transport.handleRequest(req, res, req.body);
+				return;
+			}
+
+			res.status(400).json({ error: "Invalid request" });
 		});
 
-		app.listen(PORT, () => {
+		app.get("/mcp", async (req, res) => {
+			const sessionId = req.headers["mcp-session-id"] as
+				| string
+				| undefined;
+
+			if (sessionId && transports.has(sessionId)) {
+				await transports
+					.get(sessionId)!
+					.handleRequest(req, res);
+				return;
+			}
+
+			res.status(400).json({ error: "Invalid or missing session" });
+		});
+
+		app.delete("/mcp", async (req, res) => {
+			const sessionId = req.headers["mcp-session-id"] as
+				| string
+				| undefined;
+
+			if (sessionId && transports.has(sessionId)) {
+				const transport = transports.get(sessionId)!;
+				await transport.close();
+				transports.delete(sessionId);
+				res.status(200).end();
+				return;
+			}
+
+			res.status(400).json({ error: "Invalid or missing session" });
+		});
+
+		const httpServer = app.listen(PORT, () => {
 			console.error(`MCP Server running on http://0.0.0.0:${PORT}`);
+		});
+
+		process.on("SIGINT", async () => {
+			httpServer.close();
+			for (const [, transport] of transports) {
+				await transport.close();
+			}
+			transports.clear();
+			process.exit(0);
 		});
 	}
 }
