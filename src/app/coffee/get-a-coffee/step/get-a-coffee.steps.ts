@@ -1,4 +1,9 @@
-import { Given, When, Then } from "quickpickle";
+import {
+	Given,
+	When,
+	Then,
+	type QuickPickleWorldInterface,
+} from "quickpickle";
 import { expect } from "vitest";
 import { McpServer } from "@modelcontextprotocol/server";
 import { InMemoryCoffeeRepository } from "../../shared/repository/coffee/coffee.repository.js";
@@ -18,22 +23,51 @@ declare module "quickpickle" {
 	}
 }
 
-Given("the get-a-coffee module is registered", (world) => {
-	const repo = new InMemoryCoffeeRepository();
-	const service = new GetACoffeeService(repo);
-	world.getACoffeeController = new GetACoffeeController(service);
-	world.server = new McpServer({ name: "test", version: "0.0.0" });
-	registerGetACoffeeModule(world.server, repo);
-});
+function getObjectProperty(value: unknown, key: string): unknown {
+	if (typeof value !== "object" || value === null) {
+		return undefined;
+	}
+	return Reflect.get(value, key);
+}
+
+function isCoffee(value: unknown): value is Coffee {
+	return (
+		typeof getObjectProperty(value, "id") === "number"
+		&& typeof getObjectProperty(value, "name") === "string"
+		&& typeof getObjectProperty(value, "size") === "string"
+		&& typeof getObjectProperty(value, "price") === "number"
+		&& typeof getObjectProperty(value, "iced") === "boolean"
+		&& typeof getObjectProperty(value, "caffeineMg") === "number"
+	);
+}
+
+function parseCoffeeJson(text: string): Coffee {
+	const parsed: unknown = JSON.parse(text);
+	if (!isCoffee(parsed)) {
+		throw new Error("Expected tool output to conform to Coffee interface");
+	}
+	return parsed;
+}
+
+Given(
+	"the get-a-coffee module is registered",
+	(world: QuickPickleWorldInterface) => {
+		const repo = new InMemoryCoffeeRepository();
+		const service = new GetACoffeeService(repo);
+		world.getACoffeeController = new GetACoffeeController(service);
+		world.server = new McpServer({ name: "test", version: "0.0.0" });
+		registerGetACoffeeModule(world.server, repo);
+	},
+);
 
 When(
 	"I call the {string} tool with name {string}",
-	(world, toolName: string, name: string) => {
+	(world: QuickPickleWorldInterface, toolName: string, name: string) => {
 		expect(toolName).toBe("get-a-coffee");
 		world.toolResponse = world.getACoffeeController.handle({ name });
 		const text = world.toolResponse.content[0].text;
 		if (text !== "Coffee not found") {
-			world.parsedCoffee = JSON.parse(text) as Coffee;
+			world.parsedCoffee = parseCoffeeJson(text);
 		} else {
 			world.parsedCoffee = undefined;
 		}
@@ -42,20 +76,20 @@ When(
 
 Then(
 	"the response text should contain {string}",
-	(world, expected: string) => {
+	(world: QuickPickleWorldInterface, expected: string) => {
 		expect(world.toolResponse.content[0].text).toContain(expected);
 	},
 );
 
 Then(
 	"the response text should contain a price of {float}",
-	(world, price: number) => {
+	(world: QuickPickleWorldInterface, price: number) => {
 		expect(world.parsedCoffee).toBeDefined();
 		expect(world.parsedCoffee!.price).toBe(price);
 	},
 );
 
-Then("the response text should be {string}", (world, expected: string) => {
+Then("the response text should be {string}", (world: QuickPickleWorldInterface, expected: string) => {
 	expect(world.toolResponse.content[0].text).toBe(expected);
 });
 
@@ -63,7 +97,7 @@ Then("the response text should be {string}", (world, expected: string) => {
 
 Then(
 	"the coffee in the response should conform to the Coffee interface",
-	(world) => {
+	(world: QuickPickleWorldInterface) => {
 		expect(world.parsedCoffee).toBeDefined();
 		const coffeeKeys = [
 			"id",
@@ -81,7 +115,7 @@ Then(
 
 Then(
 	"the {string} tool should have an input schema requiring {string}",
-	(_world, _toolName: string, field: string) => {
+	(_world: QuickPickleWorldInterface, _toolName: string, field: string) => {
 		const schema = GetACoffeeInputSchema;
 		const result = schema.safeParse({});
 		expect(result.success).toBe(false);

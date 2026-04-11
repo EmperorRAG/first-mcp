@@ -1,4 +1,10 @@
-import { Given, When, Then, After } from "quickpickle";
+import {
+	Given,
+	When,
+	Then,
+	After,
+	type QuickPickleWorldInterface,
+} from "quickpickle";
 import { expect } from "vitest";
 import { McpServer } from "@modelcontextprotocol/server";
 import { isInitializeRequest } from "@modelcontextprotocol/server";
@@ -11,7 +17,10 @@ import { createMcpServer } from "../../server/mcp-server/mcp-server.js";
 import { registerCoffeeDomain } from "../coffee.domain.js";
 import type { ServerConfig } from "../../config/mcp-server/mcp-server.config.js";
 import type { Coffee } from "../shared/type/coffee.types.js";
-import type { Server as HttpServer } from "node:http";
+import type {
+	IncomingHttpHeaders,
+	Server as HttpServer,
+} from "node:http";
 
 const testConfig: ServerConfig = {
 	name: "test-server",
@@ -36,7 +45,7 @@ declare module "quickpickle" {
 }
 
 // Cleanup after each scenario
-After(async (world) => {
+After(async (world: QuickPickleWorldInterface) => {
 	if (world.mcpClient) {
 		try {
 			await world.mcpClient.close();
@@ -62,20 +71,123 @@ After(async (world) => {
 
 // --- Helper types ---
 
-interface RegisteredTool {
-	description?: string;
-	inputSchema?: Record<string, unknown>;
-	handler?: (...args: unknown[]) => Promise<unknown>;
+function getObjectProperty(value: unknown, key: string): unknown {
+	if (typeof value !== "object" || value === null) {
+		return undefined;
+	}
+	return Reflect.get(value, key);
 }
 
-interface ServerWithTools {
-	_registeredTools: Record<string, RegisteredTool>;
+function getSessionId(headers: IncomingHttpHeaders): string | undefined {
+	const value = headers["mcp-session-id"];
+	if (Array.isArray(value)) {
+		return value[0];
+	}
+	return value;
 }
 
-function getRegisteredTools(
-	server: McpServer,
-): Record<string, RegisteredTool> {
-	return (server as unknown as ServerWithTools)._registeredTools;
+function getRegisteredTools(server: McpServer): Record<string, unknown> {
+	const tools = Reflect.get(server, "_registeredTools");
+	if (typeof tools !== "object" || tools === null) {
+		throw new Error("Server does not expose _registeredTools");
+	}
+	return Object.fromEntries(Object.entries(tools));
+}
+
+function getRegisteredTool(
+	tools: Record<string, unknown>,
+	name: string,
+): Record<string, unknown> | undefined {
+	const tool = tools[name];
+	if (typeof tool !== "object" || tool === null) {
+		return undefined;
+	}
+	return Object.fromEntries(Object.entries(tool));
+}
+
+function getSchemaShape(schema: unknown): Record<string, unknown> | undefined {
+	const definition = getObjectProperty(schema, "def");
+	const shape = getObjectProperty(definition, "shape");
+	if (typeof shape !== "object" || shape === null) {
+		return undefined;
+	}
+	return Object.fromEntries(Object.entries(shape));
+}
+
+function getTextContent(content: unknown): string | undefined {
+	if (!Array.isArray(content)) {
+		return undefined;
+	}
+
+	for (const item of content) {
+		if (getObjectProperty(item, "type") === "text") {
+			const text = getObjectProperty(item, "text");
+			if (typeof text === "string") {
+				return text;
+			}
+		}
+	}
+
+	return undefined;
+}
+
+function isCoffee(value: unknown): value is Coffee {
+	return (
+		typeof getObjectProperty(value, "id") === "number"
+		&& typeof getObjectProperty(value, "name") === "string"
+		&& typeof getObjectProperty(value, "size") === "string"
+		&& typeof getObjectProperty(value, "price") === "number"
+		&& typeof getObjectProperty(value, "iced") === "boolean"
+		&& typeof getObjectProperty(value, "caffeineMg") === "number"
+	);
+}
+
+function parseCoffeeJson(text: string): Coffee {
+	const parsed: unknown = JSON.parse(text);
+	if (!isCoffee(parsed)) {
+		throw new Error("Expected tool output to conform to Coffee interface");
+	}
+	return parsed;
+}
+
+function parseCoffeeArrayJson(text: string): Coffee[] {
+	const parsed: unknown = JSON.parse(text);
+	if (!Array.isArray(parsed) || !parsed.every(isCoffee)) {
+		throw new Error("Expected tool output to conform to Coffee[] interface");
+	}
+	return parsed;
+}
+
+function parseToolsListPayload(payload: unknown): string[] {
+	const result = getObjectProperty(payload, "result");
+	const tools = getObjectProperty(result, "tools");
+	if (!Array.isArray(tools)) {
+		throw new Error("Invalid tools/list payload");
+	}
+
+	const names: string[] = [];
+	for (const tool of tools) {
+		const name = getObjectProperty(tool, "name");
+		if (typeof name === "string") {
+			names.push(name);
+		}
+	}
+
+	return names;
+}
+
+function parseToolCallText(payload: unknown): string | undefined {
+	const result = getObjectProperty(payload, "result");
+	const content = getObjectProperty(result, "content");
+	return getTextContent(content);
+}
+
+function parseHealthStatus(payload: unknown): string {
+	const status = getObjectProperty(payload, "status");
+	if (typeof status !== "string") {
+		throw new Error("Invalid health payload");
+	}
+	return status;
 }
 
 // --- Helper to parse SSE response into JSON ---
@@ -98,36 +210,36 @@ const MCP_HEADERS = {
 
 // --- Integration & Contract steps ---
 
-Given("the coffee domain is registered on a server", (world) => {
+Given("the coffee domain is registered on a server", (world: QuickPickleWorldInterface) => {
 	world.server = new McpServer({ name: "test", version: "0.0.0" });
 	registerCoffeeDomain(world.server);
 });
 
-When("I list the registered tools", (world) => {
+When("I list the registered tools", (world: QuickPickleWorldInterface) => {
 	const tools = getRegisteredTools(world.server);
 	world.toolNames = Object.keys(tools);
 });
 
-Then("the tool list should include {string}", (world, name: string) => {
+Then("the tool list should include {string}", (world: QuickPickleWorldInterface, name: string) => {
 	expect(world.toolNames).toContain(name);
 });
 
-When("I call {string} through the domain", (world, toolName: string) => {
+When("I call {string} through the domain", (world: QuickPickleWorldInterface, toolName: string) => {
 	const tools = getRegisteredTools(world.server);
-	const tool = tools[toolName];
+	const tool = getRegisteredTool(tools, toolName);
 	if (!tool) throw new Error(`Tool ${toolName} not found`);
 });
 
 When(
 	"I call {string} with name {string} through the domain",
-	(_world, _toolName: string, _name: string) => {
+	(_world: QuickPickleWorldInterface, _toolName: string, _name: string) => {
 		// Shared data consistency validated by domain registration using shared repo
 	},
 );
 
 Then(
 	'the coffee from "get-a-coffee" should appear in the "get-coffees" list',
-	() => {
+	(_world: QuickPickleWorldInterface) => {
 		// Validated by domain registration having a shared repo —
 		// same InMemoryCoffeeRepository instance serves both modules.
 		expect(true).toBe(true);
@@ -138,35 +250,33 @@ Then(
 
 Then(
 	"the {string} tool should have a description",
-	(world, toolName: string) => {
+	(world: QuickPickleWorldInterface, toolName: string) => {
 		const tools = getRegisteredTools(world.server);
-		const tool = tools[toolName];
+		const tool = getRegisteredTool(tools, toolName);
 		expect(tool).toBeDefined();
-		expect(tool.description).toBeTruthy();
+		expect(getObjectProperty(tool, "description")).toBeTruthy();
 	},
 );
 
 Then(
 	"the {string} tool should not require input",
-	(world, toolName: string) => {
+	(world: QuickPickleWorldInterface, toolName: string) => {
 		const tools = getRegisteredTools(world.server);
-		const tool = tools[toolName];
+		const tool = getRegisteredTool(tools, toolName);
 		expect(tool).toBeDefined();
-		expect(tool.inputSchema).toBeUndefined();
+		expect(getObjectProperty(tool, "inputSchema")).toBeUndefined();
 	},
 );
 
 Then(
 	"the {string} tool should require a {string} input",
-	(world, toolName: string, field: string) => {
+	(world: QuickPickleWorldInterface, toolName: string, field: string) => {
 		const tools = getRegisteredTools(world.server);
-		const tool = tools[toolName];
+		const tool = getRegisteredTool(tools, toolName);
 		expect(tool).toBeDefined();
-		expect(tool.inputSchema).toBeDefined();
-		const schema = tool.inputSchema as {
-			def?: { shape?: Record<string, unknown> };
-		};
-		expect(schema.def?.shape).toHaveProperty(field);
+		const shape = getSchemaShape(getObjectProperty(tool, "inputSchema"));
+		expect(shape).toBeDefined();
+		expect(shape).toHaveProperty(field);
 	},
 );
 
@@ -200,9 +310,7 @@ function startTestServer(): Promise<{
 		});
 
 		app.post("/mcp", async (req, res) => {
-			const sessionId = req.headers["mcp-session-id"] as
-				| string
-				| undefined;
+			const sessionId = getSessionId(req.headers);
 
 			if (sessionId && transports.has(sessionId)) {
 				await transports
@@ -236,9 +344,7 @@ function startTestServer(): Promise<{
 		});
 
 		app.get("/mcp", async (req, res) => {
-			const sessionId = req.headers["mcp-session-id"] as
-				| string
-				| undefined;
+			const sessionId = getSessionId(req.headers);
 
 			if (sessionId && transports.has(sessionId)) {
 				await transports
@@ -253,9 +359,7 @@ function startTestServer(): Promise<{
 		});
 
 		app.delete("/mcp", async (req, res) => {
-			const sessionId = req.headers["mcp-session-id"] as
-				| string
-				| undefined;
+			const sessionId = getSessionId(req.headers);
 
 			if (sessionId && transports.has(sessionId)) {
 				const transport = transports.get(sessionId)!;
@@ -285,7 +389,7 @@ function startTestServer(): Promise<{
 
 // --- E2E In-Process steps ---
 
-Given("an MCP server with in-process client", async (world) => {
+Given("an MCP server with in-process client", async (world: QuickPickleWorldInterface) => {
 	const result = await startTestServer();
 	world.httpServer = result.httpServer;
 	world.baseUrl = result.baseUrl;
@@ -298,33 +402,31 @@ Given("an MCP server with in-process client", async (world) => {
 	await world.mcpClient.connect(transport);
 });
 
-When("I initialize the MCP session", () => {
+When("I initialize the MCP session", (_world: QuickPickleWorldInterface) => {
 	// Connection was established in the Given step (connect performs initialize)
 });
 
-When("I list tools via the MCP client", async (world) => {
+When("I list tools via the MCP client", async (world: QuickPickleWorldInterface) => {
 	const result = await world.mcpClient.listTools();
 	world.toolNames = result.tools.map((t) => t.name);
 });
 
 Then(
 	"the tool list should contain {string} and {string}",
-	(world, tool1: string, tool2: string) => {
+	(world: QuickPickleWorldInterface, tool1: string, tool2: string) => {
 		expect(world.toolNames).toContain(tool1);
 		expect(world.toolNames).toContain(tool2);
 	},
 );
 
-When("I call {string} via the MCP client", async (world, toolName: string) => {
+When("I call {string} via the MCP client", async (world: QuickPickleWorldInterface, toolName: string) => {
 	const result = await world.mcpClient.callTool({ name: toolName });
 	world.mcpResponse = result;
-	if (result.content && Array.isArray(result.content)) {
-		const textContent = result.content.find(
-			(c: Record<string, unknown>) => c.type === "text",
-		) as { text: string } | undefined;
+	if (Array.isArray(result.content)) {
+		const textContent = getTextContent(result.content);
 		if (textContent) {
 			try {
-				world.allCoffees = JSON.parse(textContent.text) as Coffee[];
+				world.allCoffees = parseCoffeeArrayJson(textContent);
 			} catch {
 				world.allCoffees = [];
 			}
@@ -334,28 +436,24 @@ When("I call {string} via the MCP client", async (world, toolName: string) => {
 
 Then(
 	"the MCP response should contain {int} coffees",
-	(world, count: number) => {
+	(world: QuickPickleWorldInterface, count: number) => {
 		expect(world.allCoffees).toHaveLength(count);
 	},
 );
 
 When(
 	"I call {string} with name {string} via the MCP client",
-	async (world, toolName: string, name: string) => {
+	async (world: QuickPickleWorldInterface, toolName: string, name: string) => {
 		const result = await world.mcpClient.callTool({
 			name: toolName,
 			arguments: { name },
 		});
 		world.mcpResponse = result;
-		if (result.content && Array.isArray(result.content)) {
-			const textContent = result.content.find(
-				(c: Record<string, unknown>) => c.type === "text",
-			) as { text: string } | undefined;
+		if (Array.isArray(result.content)) {
+			const textContent = getTextContent(result.content);
 			if (textContent) {
 				try {
-					world.singleCoffee = JSON.parse(
-						textContent.text,
-					) as Coffee;
+					world.singleCoffee = parseCoffeeJson(textContent);
 				} catch {
 					world.singleCoffee = undefined;
 				}
@@ -366,7 +464,7 @@ When(
 
 Then(
 	"the MCP response should contain a coffee named {string}",
-	(world, name: string) => {
+	(world: QuickPickleWorldInterface, name: string) => {
 		expect(world.singleCoffee).toBeDefined();
 		expect(world.singleCoffee!.name).toBe(name);
 	},
@@ -374,14 +472,14 @@ Then(
 
 // --- E2E HTTP steps ---
 
-Given("an MCP HTTP server is running", async (world) => {
+Given("an MCP HTTP server is running", async (world: QuickPickleWorldInterface) => {
 	const result = await startTestServer();
 	world.httpServer = result.httpServer;
 	world.baseUrl = result.baseUrl;
 	world.transports = result.transports;
 });
 
-When("I send an initialize request via HTTP", async (world) => {
+When("I send an initialize request via HTTP", async (world: QuickPickleWorldInterface) => {
 	const response = await fetch(`${world.baseUrl}/mcp`, {
 		method: "POST",
 		headers: {
@@ -402,12 +500,12 @@ When("I send an initialize request via HTTP", async (world) => {
 	world.httpResponse = response;
 });
 
-Then("I should receive a valid session ID", (world) => {
+Then("I should receive a valid session ID", (world: QuickPickleWorldInterface) => {
 	expect(world.sessionId).toBeDefined();
 	expect(world.sessionId!.length).toBeGreaterThan(0);
 });
 
-When("I list tools via HTTP", async (world) => {
+When("I list tools via HTTP", async (world: QuickPickleWorldInterface) => {
 	const response = await fetch(`${world.baseUrl}/mcp`, {
 		method: "POST",
 		headers: {
@@ -421,21 +519,19 @@ When("I list tools via HTTP", async (world) => {
 			params: {},
 		}),
 	});
-	const data = (await parseSseResponse(response)) as {
-		result: { tools: { name: string }[] };
-	};
-	world.toolNames = data.result.tools.map((t) => t.name);
+	const payload = await parseSseResponse(response);
+	world.toolNames = parseToolsListPayload(payload);
 });
 
 Then(
 	"the HTTP tool list should contain {string} and {string}",
-	(world, tool1: string, tool2: string) => {
+	(world: QuickPickleWorldInterface, tool1: string, tool2: string) => {
 		expect(world.toolNames).toContain(tool1);
 		expect(world.toolNames).toContain(tool2);
 	},
 );
 
-When("I call {string} via HTTP", async (world, toolName: string) => {
+When("I call {string} via HTTP", async (world: QuickPickleWorldInterface, toolName: string) => {
 	const response = await fetch(`${world.baseUrl}/mcp`, {
 		method: "POST",
 		headers: {
@@ -449,15 +545,11 @@ When("I call {string} via HTTP", async (world, toolName: string) => {
 			params: { name: toolName, arguments: {} },
 		}),
 	});
-	const data = (await parseSseResponse(response)) as {
-		result: { content: { type: string; text: string }[] };
-	};
-	const textContent = data.result.content.find(
-		(c) => c.type === "text",
-	);
+	const payload = await parseSseResponse(response);
+	const textContent = parseToolCallText(payload);
 	if (textContent) {
 		try {
-			world.allCoffees = JSON.parse(textContent.text) as Coffee[];
+			world.allCoffees = parseCoffeeArrayJson(textContent);
 		} catch {
 			world.allCoffees = [];
 		}
@@ -466,24 +558,22 @@ When("I call {string} via HTTP", async (world, toolName: string) => {
 
 Then(
 	"the HTTP response should contain {int} coffees",
-	(world, count: number) => {
+	(world: QuickPickleWorldInterface, count: number) => {
 		expect(world.allCoffees).toHaveLength(count);
 	},
 );
 
-When("I request the health endpoint", async (world) => {
+When("I request the health endpoint", async (world: QuickPickleWorldInterface) => {
 	world.httpResponse = await fetch(`${world.baseUrl}/health`);
 });
 
-Then("the health response should be ok", async (world) => {
+Then("the health response should be ok", async (world: QuickPickleWorldInterface) => {
 	expect(world.httpResponse!.status).toBe(200);
-	const data = (await world.httpResponse!.json()) as {
-		status: string;
-	};
-	expect(data.status).toBe("ok");
+	const status = parseHealthStatus(await world.httpResponse!.json());
+	expect(status).toBe("ok");
 });
 
-When("I terminate the session via HTTP", async (world) => {
+When("I terminate the session via HTTP", async (world: QuickPickleWorldInterface) => {
 	world.httpResponse = await fetch(`${world.baseUrl}/mcp`, {
 		method: "DELETE",
 		headers: {
@@ -492,6 +582,6 @@ When("I terminate the session via HTTP", async (world) => {
 	});
 });
 
-Then("the session should be terminated", (world) => {
+Then("the session should be terminated", (world: QuickPickleWorldInterface) => {
 	expect(world.httpResponse!.status).toBe(200);
 });

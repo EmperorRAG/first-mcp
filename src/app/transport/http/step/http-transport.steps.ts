@@ -1,13 +1,22 @@
-import { Given, When, Then, After } from "quickpickle";
+import {
+	Given,
+	When,
+	Then,
+	After,
+	type QuickPickleWorldInterface,
+} from "quickpickle";
 import { expect } from "vitest";
 import { randomUUID } from "node:crypto";
-import { McpServer, isInitializeRequest } from "@modelcontextprotocol/server";
+import { isInitializeRequest } from "@modelcontextprotocol/server";
 import { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
 import { createMcpExpressApp } from "@modelcontextprotocol/express";
 import cors from "cors";
 import { createMcpServer } from "../../../server/mcp-server/mcp-server.js";
 import type { ServerConfig } from "../../../config/mcp-server/mcp-server.config.js";
-import type { Server as HttpServer } from "node:http";
+import type {
+	IncomingHttpHeaders,
+	Server as HttpServer,
+} from "node:http";
 
 const testConfig: ServerConfig = {
 	name: "test-server",
@@ -23,6 +32,21 @@ declare module "quickpickle" {
 		httpResponse: Response | undefined;
 		responseBody: Record<string, unknown>;
 	}
+}
+
+function getSessionId(headers: IncomingHttpHeaders): string | undefined {
+	const value = headers["mcp-session-id"];
+	if (Array.isArray(value)) {
+		return value[0];
+	}
+	return value;
+}
+
+function toResponseBody(value: unknown): Record<string, unknown> {
+	if (typeof value !== "object" || value === null || Array.isArray(value)) {
+		return {};
+	}
+	return Object.fromEntries(Object.entries(value));
 }
 
 function startTestHttpServer(): Promise<{
@@ -53,9 +77,7 @@ function startTestHttpServer(): Promise<{
 		});
 
 		app.post("/mcp", async (req, res) => {
-			const sessionId = req.headers["mcp-session-id"] as
-				| string
-				| undefined;
+			const sessionId = getSessionId(req.headers);
 
 			if (sessionId && transports.has(sessionId)) {
 				await transports
@@ -89,9 +111,7 @@ function startTestHttpServer(): Promise<{
 		});
 
 		app.get("/mcp", async (req, res) => {
-			const sessionId = req.headers["mcp-session-id"] as
-				| string
-				| undefined;
+			const sessionId = getSessionId(req.headers);
 
 			if (sessionId && transports.has(sessionId)) {
 				await transports
@@ -106,9 +126,7 @@ function startTestHttpServer(): Promise<{
 		});
 
 		app.delete("/mcp", async (req, res) => {
-			const sessionId = req.headers["mcp-session-id"] as
-				| string
-				| undefined;
+			const sessionId = getSessionId(req.headers);
 
 			if (sessionId && transports.has(sessionId)) {
 				const transport = transports.get(sessionId)!;
@@ -136,7 +154,7 @@ function startTestHttpServer(): Promise<{
 	});
 }
 
-After(async (world) => {
+After(async (world: QuickPickleWorldInterface) => {
 	if (world.httpServer) {
 		await new Promise<void>((resolve) => {
 			world.httpServer.close(() => resolve());
@@ -155,20 +173,18 @@ After(async (world) => {
 
 // Integration steps
 
-Given("an HTTP transport server is started", async (world) => {
+Given("an HTTP transport server is started", async (world: QuickPickleWorldInterface) => {
 	const result = await startTestHttpServer();
 	world.httpServer = result.httpServer;
 	world.baseUrl = result.baseUrl;
 	world.transports = result.transports;
 });
 
-When("I request GET {string}", async (world, path: string) => {
-	world.httpResponse = await fetch(`${world.baseUrl}${path}`);
+When("I request GET {string}", async (world: QuickPickleWorldInterface, path: string) => {
+	const response = await fetch(`${world.baseUrl}${path}`);
+	world.httpResponse = response;
 	try {
-		world.responseBody = (await world.httpResponse.clone().json()) as Record<
-			string,
-			unknown
-		>;
+		world.responseBody = toResponseBody(await response.clone().json());
 	} catch {
 		world.responseBody = {};
 	}
@@ -176,8 +192,8 @@ When("I request GET {string}", async (world, path: string) => {
 
 When(
 	"I send a POST to {string} with an invalid body",
-	async (world, path: string) => {
-		world.httpResponse = await fetch(`${world.baseUrl}${path}`, {
+	async (world: QuickPickleWorldInterface, path: string) => {
+		const response = await fetch(`${world.baseUrl}${path}`, {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -185,39 +201,34 @@ When(
 			},
 			body: JSON.stringify({ invalid: true }),
 		});
+		world.httpResponse = response;
 		try {
-			world.responseBody =
-				(await world.httpResponse.clone().json()) as Record<
-					string,
-					unknown
-				>;
+			world.responseBody = toResponseBody(await response.clone().json());
 		} catch {
 			world.responseBody = {};
 		}
 	},
 );
 
-When("I send DELETE to {string}", async (world, path: string) => {
-	world.httpResponse = await fetch(`${world.baseUrl}${path}`, {
+When("I send DELETE to {string}", async (world: QuickPickleWorldInterface, path: string) => {
+	const response = await fetch(`${world.baseUrl}${path}`, {
 		method: "DELETE",
 	});
+	world.httpResponse = response;
 	try {
-		world.responseBody = (await world.httpResponse.clone().json()) as Record<
-			string,
-			unknown
-		>;
+		world.responseBody = toResponseBody(await response.clone().json());
 	} catch {
 		world.responseBody = {};
 	}
 });
 
-Then("the response status should be {int}", (world, status: number) => {
-	expect(world.httpResponse.status).toBe(status);
+Then("the response status should be {int}", (world: QuickPickleWorldInterface, status: number) => {
+	expect(world.httpResponse!.status).toBe(status);
 });
 
 Then(
 	"the response body should have status {string}",
-	(world, status: string) => {
+	(world: QuickPickleWorldInterface, status: string) => {
 		expect(world.responseBody.status).toBe(status);
 	},
 );
@@ -226,15 +237,15 @@ Then(
 
 Then(
 	"the response content-type should be {string}",
-	(world, contentType: string) => {
-		const ct = world.httpResponse.headers.get("content-type") ?? "";
+	(world: QuickPickleWorldInterface, contentType: string) => {
+		const ct = world.httpResponse!.headers.get("content-type") ?? "";
 		expect(ct).toContain(contentType);
 	},
 );
 
 Then(
 	"the response body should have a {string} field of type {string}",
-	(world, field: string, type: string) => {
+	(world: QuickPickleWorldInterface, field: string, type: string) => {
 		expect(world.responseBody).toHaveProperty(field);
 		expect(typeof world.responseBody[field]).toBe(type);
 	},
@@ -242,7 +253,7 @@ Then(
 
 Then(
 	"the response body should have an {string} field",
-	(world, field: string) => {
+	(world: QuickPickleWorldInterface, field: string) => {
 		expect(world.responseBody).toHaveProperty(field);
 	},
 );
