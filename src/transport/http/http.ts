@@ -4,7 +4,7 @@ import { isInitializeRequest } from "@modelcontextprotocol/server";
 import { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
 import { createMcpExpressApp } from "@modelcontextprotocol/express";
 import cors from "cors";
-import { getPort } from "../config/server.config.js";
+import { getPort } from "../../config/server/server.config.js";
 
 export function startHttpServer(
 	createServer: () => McpServer,

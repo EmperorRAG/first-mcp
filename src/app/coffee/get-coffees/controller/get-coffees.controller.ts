@@ -1,4 +1,4 @@
-import type { ToolTextResponse } from "../../../../common/types/tool-response.js";
+import type { ToolTextResponse } from "../../../../common/types/tool-response/tool-response.js";
 import type { GetCoffeesService } from "../service/get-coffees.service.js";
 
 export class GetCoffeesController {

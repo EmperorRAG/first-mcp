@@ -1,6 +1,6 @@
-import { createServer } from "./server.js";
-import { startHttpServer } from "./transport/http.js";
-import { startStdioServer } from "./transport/stdio.js";
+import { createServer } from "./server/server.js";
+import { startHttpServer } from "./transport/http/http.js";
+import { startStdioServer } from "./transport/stdio/stdio.js";
 
 async function main() {
 	const useStdio = process.argv.includes("--stdio");

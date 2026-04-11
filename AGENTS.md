@@ -9,12 +9,19 @@ MCP (Model Context Protocol) server with dual transport using a domain-driven mo
 ```plaintext
 src/
 ├── main.ts                             — entry point (--stdio flag selects transport)
-├── server.ts                           — createServer() factory, registers domains
-├── config/server.config.ts             — PORT, server name/version
+├── server/
+│   └── server.ts                       — createServer() factory, registers domains
+├── config/
+│   └── server/
+│       └── server.config.ts            — PORT, server name/version
 ├── transport/
-│   ├── http.ts                         — Express Streamable HTTP transport
-│   └── stdio.ts                        — Stdio transport for VS Code
-├── common/types/tool-response.ts       — shared ToolTextResponse type
+│   ├── http/
+│   │   └── http.ts                     — Express Streamable HTTP transport
+│   └── stdio/
+│       └── stdio.ts                    — Stdio transport for VS Code
+├── common/types/
+│   └── tool-response/
+│       └── tool-response.ts            — shared ToolTextResponse type
 └── app/
     └── coffee/                         — domain
         ├── coffee.domain.ts            — domain barrel (registers all tool modules)
@@ -79,21 +86,38 @@ Feature files live in `docs/features/` organized by scope. Step definitions live
 #### Feature File Locations
 
 ```plaintext
-docs/features/coffee/
-├── components/coffee-repository/   — component-level (repository isolation)
-│   ├── coffee-repository.unit.feature
-│   ├── coffee-repository.integration.feature
-│   └── coffee-repository.contract.feature
-├── services/
-│   ├── get-coffees/                — service-level (tool → controller → service → repo)
-│   │   ├── get-coffees.integration.feature
-│   │   └── get-coffees.contract.feature
-│   └── get-a-coffee/
-│       ├── get-a-coffee.integration.feature
-│       └── get-a-coffee.contract.feature
-├── coffee-domain.integration.feature  — domain-level (cross-tool registration)
-├── coffee-domain.contract.feature     — domain-level (tool metadata contracts)
-└── coffee-domain.e2e.feature          — E2E (MCP client + HTTP transport)
+docs/features/
+├── coffee/
+│   ├── components/coffee-repository/   — component-level (repository isolation)
+│   │   ├── coffee-repository.unit.feature
+│   │   ├── coffee-repository.integration.feature
+│   │   └── coffee-repository.contract.feature
+│   ├── services/
+│   │   ├── get-coffees/                — service-level (tool → controller → service → repo)
+│   │   │   ├── get-coffees.integration.feature
+│   │   │   └── get-coffees.contract.feature
+│   │   └── get-a-coffee/
+│   │       ├── get-a-coffee.integration.feature
+│   │       └── get-a-coffee.contract.feature
+│   ├── coffee-domain.integration.feature  — domain-level (cross-tool registration)
+│   ├── coffee-domain.contract.feature     — domain-level (tool metadata contracts)
+│   └── coffee-domain.e2e.feature          — E2E (MCP client + HTTP transport)
+├── server/
+│   └── components/
+│       ├── server-config/              — server config module
+│       │   ├── server-config.unit.feature
+│       │   └── server-config.contract.feature
+│       └── server-factory/             — createServer factory
+│           ├── server-factory.unit.feature
+│           └── server-factory.contract.feature
+└── transport/
+    ├── components/
+    │   └── stdio-transport/            — stdio transport module
+    │       └── stdio-transport.unit.feature
+    └── services/
+        └── http-transport/             — HTTP transport integration
+            ├── http-transport.integration.feature
+            └── http-transport.contract.feature
 ```
 
 #### Step Definition Locations
@@ -104,6 +128,10 @@ src/app/coffee/
 ├── get-coffees/step/get-coffees.steps.ts              — service steps
 ├── get-a-coffee/step/get-a-coffee.steps.ts            — service steps
 └── step/coffee-domain.steps.ts                        — domain + E2E steps
+src/config/server/step/server-config.steps.ts          — server config component steps
+src/server/step/server-factory.steps.ts                — server factory component steps
+src/transport/http/step/http-transport.steps.ts         — HTTP transport service steps
+src/transport/stdio/step/stdio-transport.steps.ts       — stdio transport component steps
 ```
 
 #### Vitest Projects
@@ -124,7 +152,7 @@ src/app/coffee/
 
 - **ES Modules**: Project uses `"type": "module"` — use `import`/`export`, not `require`
 - **Module-service pattern**: Each MCP tool gets its own module-service folder under its domain with singular-named layer subfolders (`tool/`, `controller/`, `service/`, `dto/`, `module/`). Specs are co-located alongside implementation files
-- **Domain registration**: Domain barrels (`*.domain.ts`) create shared resources and register tool modules. `src/server.ts` registers domains
+- **Domain registration**: Domain barrels (`*.domain.ts`) create shared resources and register tool modules. `src/server/server.ts` registers domains
 - **Tool registration**: Use `server.registerTool(name, config, handler)` inside `*.tool.ts` files — the older `server.tool()` is deprecated
 - **Input validation**: Use Zod schemas in `*.dto.ts` files, referenced by tool `inputSchema` and validated in controllers
 - **Tool responses**: Controllers return `ToolTextResponse` type: `{ content: [{ type: "text", text: string }] }`

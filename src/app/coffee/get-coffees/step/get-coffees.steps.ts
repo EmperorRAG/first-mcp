@@ -5,7 +5,7 @@ import { InMemoryCoffeeRepository } from "../../shared/repository/coffee.reposit
 import { registerGetCoffeesModule } from "../module/get-coffees.module.js";
 import { GetCoffeesService } from "../service/get-coffees.service.js";
 import { GetCoffeesController } from "../controller/get-coffees.controller.js";
-import type { ToolTextResponse } from "../../../../common/types/tool-response.js";
+import type { ToolTextResponse } from "../../../../common/types/tool-response/tool-response.js";
 import type { Coffee } from "../../shared/coffee.types.js";
 
 declare module "quickpickle" {

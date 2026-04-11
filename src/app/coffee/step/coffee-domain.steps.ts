@@ -7,7 +7,7 @@ import { createMcpExpressApp } from "@modelcontextprotocol/express";
 import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
 import { randomUUID } from "node:crypto";
 import cors from "cors";
-import { createServer } from "../../../server.js";
+import { createServer } from "../../../server/server.js";
 import { registerCoffeeDomain } from "../coffee.domain.js";
 import type { Coffee } from "../shared/coffee.types.js";
 import type { Server as HttpServer } from "node:http";
