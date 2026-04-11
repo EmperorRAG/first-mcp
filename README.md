@@ -62,3 +62,22 @@ The project includes a `.vscode/mcp.json` config that uses stdio mode. Open the 
 ## Docker Networking (n8n integration)
 
 When running inside the `first-n8n` Docker Compose stack, this server is available to other containers at `http://coffee-mate-mcp:3001/sse` on the `demo` network. See the `first-n8n` project for the full stack setup.
+
+## API Documentation
+
+TypeScript API docs are generated as Markdown in `docs/api/` using [TypeDoc](https://typedoc.org/) with [typedoc-plugin-markdown](https://github.com/typedoc2md/typedoc-plugin-markdown) and [typedoc-plugin-remark](https://github.com/typedoc2md/typedoc-plugin-markdown/tree/main/packages/typedoc-plugin-remark). Generated files are committed and enforced in CI.
+
+### Commands
+
+```bash
+npm run docs          # Generate + remark-format docs (commit the result)
+npm run docs:lint     # Lint committed docs/api with remark
+```
+
+### Workflow
+
+1. Make source changes
+2. Run `npm run docs` to regenerate API docs
+3. Commit the updated `docs/api/` alongside your code changes
+
+CI runs `npm run docs` then `git diff --exit-code docs/api` — the build fails if committed docs are out of sync with the source.

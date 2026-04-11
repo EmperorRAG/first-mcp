@@ -1,0 +1,25 @@
+{
+	"$schema": "https://typedoc.org/schema.json",
+	"entryPoints": [
+		"./src"
+	],
+	"entryPointStrategy": "expand",
+	"out": "docs/api",
+	"tsconfig": "tsconfig.json",
+	"plugin": [
+		"typedoc-plugin-markdown",
+		"typedoc-plugin-remark"
+	],
+	"exclude": [
+		"src/**/*.spec.ts",
+		"src/**/*.steps.ts",
+		"src/app/testing/**"
+	],
+	"excludePrivate": true,
+	"excludeInternal": true,
+	"readme": "none",
+	"router": "member",
+	"entryFileName": "index",
+	"disableSources": true,
+	"remarkPlugins": []
+}
