@@ -59,13 +59,66 @@ src/
 ```bash
 npm install              # Install dependencies
 npm run build            # Compile TypeScript (src/ → build/)
-npm test                 # Run all tests (Vitest)
+npm test                 # Run all tests (Vitest — unit + Gherkin)
+npm run test:unit        # Unit tests only (*.spec.ts)
+npm run test:component   # Component Gherkin features
+npm run test:service     # Service Gherkin features
+npm run test:domain      # Domain Gherkin features (integration + E2E)
+npm run test:feature     # All Gherkin features (component + service + domain)
 npm run test:watch       # Watch mode
 npm run test:coverage    # Coverage report
 docker build -t coffee-mate-mcp .  # Build Docker image
 ```
 
 After code changes, always run `npm run build` before testing the MCP server. When running inside Docker Compose (via `first-n8n`), use `--build` flag to pick up source changes.
+
+### Gherkin / BDD Tests
+
+Feature files live in `docs/features/` organized by scope. Step definitions live alongside source in `src/` under `step/` subfolders. [quickpickle](https://github.com/dnotes/quickpickle) integrates Gherkin with Vitest.
+
+#### Feature File Locations
+
+```
+docs/features/coffee/
+├── components/coffee-repository/   — component-level (repository isolation)
+│   ├── coffee-repository.unit.feature
+│   ├── coffee-repository.integration.feature
+│   └── coffee-repository.contract.feature
+├── services/
+│   ├── get-coffees/                — service-level (tool → controller → service → repo)
+│   │   ├── get-coffees.integration.feature
+│   │   └── get-coffees.contract.feature
+│   └── get-a-coffee/
+│       ├── get-a-coffee.integration.feature
+│       └── get-a-coffee.contract.feature
+├── coffee-domain.integration.feature  — domain-level (cross-tool registration)
+├── coffee-domain.contract.feature     — domain-level (tool metadata contracts)
+└── coffee-domain.e2e.feature          — E2E (MCP client + HTTP transport)
+```
+
+#### Step Definition Locations
+
+```
+src/app/coffee/
+├── shared/repository/step/coffee-repository.steps.ts  — component steps
+├── get-coffees/step/get-coffees.steps.ts              — service steps
+├── get-a-coffee/step/get-a-coffee.steps.ts            — service steps
+└── step/coffee-domain.steps.ts                        — domain + E2E steps
+```
+
+#### Vitest Projects
+
+| Project | Scope | Includes |
+|---|---|---|
+| `unit` | Unit tests | `src/**/*.spec.ts` |
+| `component` | Component features | `docs/features/**/components/**/*.feature` |
+| `service` | Service features | `docs/features/**/services/**/*.feature` |
+| `domain` | Domain + E2E features | `docs/features/coffee/*.feature` |
+
+#### E2E Tags
+
+- `@in-process` — Uses `StreamableHTTPClientTransport` against loopback server
+- `@http` — Uses raw `fetch` against loopback server (health, session termination)
 
 ## Conventions
 
@@ -81,4 +134,6 @@ After code changes, always run `npm run build` before testing the MCP server. Wh
 - **Session management**: Each `POST /mcp` initialize request creates a new `NodeStreamableHTTPServerTransport` and `McpServer` instance; subsequent requests reuse the transport via the `Mcp-Session-Id` header
 - **Port configuration**: `PORT` env var controls HTTP server port (default `3001`)
 - **Health endpoint**: `GET /health` returns `{ status: "ok" }` — used by Docker healthcheck
-- **Test framework**: Vitest with co-located `*.spec.ts` files. Specs are excluded from TypeScript build via `tsconfig.json`
+- **Test framework**: Vitest with co-located `*.spec.ts` files for unit tests. Gherkin `*.feature` files in `docs/features/` with co-located `*.steps.ts` in `src/` under `step/` subfolders. Both are excluded from TypeScript build via `tsconfig.json`
+- **Gherkin plugin**: quickpickle — each Vitest project that runs `.feature` files must include `plugins: [quickpickle()]` and reference step files via `setupFiles`
+- **Step definitions**: Use `Given`/`When`/`Then` from `"quickpickle"`. World state is passed as the first argument. Step files use `.steps.ts` extension

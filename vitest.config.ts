@@ -1,7 +1,52 @@
 import { defineConfig } from "vitest/config";
+import { quickpickle } from "quickpickle";
 
 export default defineConfig({
+	plugins: [quickpickle()],
 	test: {
-		include: ["src/**/*.spec.ts"],
+		projects: [
+			{
+				test: {
+					name: "unit",
+					include: ["src/**/*.spec.ts"],
+				},
+			},
+			{
+				plugins: [quickpickle()],
+				test: {
+					name: "component",
+					include: [
+						"docs/features/**/components/**/*.feature",
+					],
+					setupFiles: [
+						"src/app/coffee/shared/repository/step/coffee-repository.steps.ts",
+					],
+				},
+			},
+			{
+				plugins: [quickpickle()],
+				test: {
+					name: "service",
+					include: [
+						"docs/features/**/services/**/*.feature",
+					],
+					setupFiles: [
+						"src/app/coffee/get-coffees/step/get-coffees.steps.ts",
+						"src/app/coffee/get-a-coffee/step/get-a-coffee.steps.ts",
+					],
+				},
+			},
+			{
+				plugins: [quickpickle()],
+				test: {
+					name: "domain",
+					include: ["docs/features/coffee/*.feature"],
+					setupFiles: [
+						"src/app/coffee/step/coffee-domain.steps.ts",
+					],
+					testTimeout: 15000,
+				},
+			},
+		],
 	},
 });
