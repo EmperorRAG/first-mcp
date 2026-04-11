@@ -60,5 +60,13 @@ jobs:
         run: |
           FQDN=$(az containerapp show --name ${{ env.CONTAINER_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} --query "properties.configuration.ingress.fqdn" --output tsv)
           echo "App URL: https://$FQDN"
-          sleep 10
-          curl -sf "https://$FQDN/health" || (echo "Health check failed" && exit 1)
+          for i in 1 2 3 4 5; do
+            sleep 15
+            if curl -sf "https://$FQDN/health"; then
+              echo "Health check passed"
+              exit 0
+            fi
+            echo "Attempt $i failed, retrying..."
+          done
+          echo "Health check failed after 5 attempts"
+          exit 1
