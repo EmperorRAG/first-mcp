@@ -1,0 +1,19 @@
+{
+	"remark.requireConfig": true,
+	"[markdown]": {
+		"editor.defaultFormatter": "unifiedjs.vscode-remark",
+		"editor.formatOnSave": true
+	},
+	"[instructions]": {
+		"editor.defaultFormatter": "unifiedjs.vscode-remark",
+		"editor.formatOnSave": true
+	},
+	"[chatagent]": {
+		"editor.defaultFormatter": "unifiedjs.vscode-remark",
+		"editor.formatOnSave": true
+	},
+	"[prompt]": {
+		"editor.defaultFormatter": "unifiedjs.vscode-remark",
+		"editor.formatOnSave": true
+	}
+}
