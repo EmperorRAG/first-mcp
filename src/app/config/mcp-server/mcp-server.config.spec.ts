@@ -4,6 +4,7 @@ import {
 	SERVER_VERSION,
 	DEFAULT_PORT,
 	getPort,
+	createServerConfig,
 } from "./mcp-server.config.js";
 
 describe("server.config", () => {
@@ -31,5 +32,26 @@ describe("server.config", () => {
 	it("getPort returns PORT env value as number", () => {
 		process.env.PORT = "4000";
 		expect(getPort()).toBe(4000);
+	});
+});
+
+describe("createServerConfig", () => {
+	afterEach(() => {
+		delete process.env.PORT;
+	});
+
+	it("returns a frozen config object with default values", () => {
+		delete process.env.PORT;
+		const config = createServerConfig();
+		expect(config.name).toBe(SERVER_NAME);
+		expect(config.version).toBe(SERVER_VERSION);
+		expect(config.port).toBe(DEFAULT_PORT);
+		expect(Object.isFrozen(config)).toBe(true);
+	});
+
+	it("reads PORT from environment", () => {
+		process.env.PORT = "5000";
+		const config = createServerConfig();
+		expect(config.port).toBe(5000);
 	});
 });

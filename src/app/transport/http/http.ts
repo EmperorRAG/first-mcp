@@ -4,13 +4,12 @@ import { isInitializeRequest } from "@modelcontextprotocol/server";
 import { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
 import { createMcpExpressApp } from "@modelcontextprotocol/express";
 import cors from "cors";
-import { getPort } from "../../config/mcp-server/mcp-server.config.js";
 
 export function startHttpServer(
 	createServer: () => McpServer,
+	port: number,
 ): void {
 	const app = createMcpExpressApp({ host: "0.0.0.0" });
-	const PORT = getPort();
 
 	app.use(
 		cors({
@@ -98,8 +97,8 @@ export function startHttpServer(
 		res.status(400).json({ error: "Invalid or missing session" });
 	});
 
-	const httpServer = app.listen(PORT, () => {
-		console.error(`MCP Server running on http://0.0.0.0:${PORT}`);
+	const httpServer = app.listen(port, () => {
+		console.error(`MCP Server running on http://0.0.0.0:${port}`);
 	});
 
 	process.on("SIGINT", () => {

@@ -6,6 +6,13 @@ import {
 	SERVER_NAME,
 	SERVER_VERSION,
 } from "../../../config/mcp-server/mcp-server.config.js";
+import type { ServerConfig } from "../../../config/mcp-server/mcp-server.config.js";
+
+const testConfig: ServerConfig = {
+	name: SERVER_NAME,
+	version: SERVER_VERSION,
+	port: 0,
+};
 
 declare module "quickpickle" {
 	interface QuickPickleWorldInterface {
@@ -14,7 +21,7 @@ declare module "quickpickle" {
 }
 
 When("I create a server instance", (world) => {
-	world.serverInstance = createMcpServer();
+	world.serverInstance = createMcpServer(testConfig);
 });
 
 Then("the server should be an McpServer", (world) => {

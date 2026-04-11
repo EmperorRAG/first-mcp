@@ -1,11 +1,11 @@
 import { McpServer } from "@modelcontextprotocol/server";
-import { SERVER_NAME, SERVER_VERSION } from "../../config/mcp-server/mcp-server.config.js";
+import type { ServerConfig } from "../../config/mcp-server/mcp-server.config.js";
 import { registerCoffeeDomain } from "../../coffee/coffee.domain.js";
 
-export function createMcpServer(): McpServer {
+export function createMcpServer(config: ServerConfig): McpServer {
 	const server = new McpServer({
-		name: SERVER_NAME,
-		version: SERVER_VERSION,
+		name: config.name,
+		version: config.version,
 	});
 
 	registerCoffeeDomain(server);

@@ -9,8 +9,15 @@ import { randomUUID } from "node:crypto";
 import cors from "cors";
 import { createMcpServer } from "../../server/mcp-server/mcp-server.js";
 import { registerCoffeeDomain } from "../coffee.domain.js";
+import type { ServerConfig } from "../../config/mcp-server/mcp-server.config.js";
 import type { Coffee } from "../shared/type/coffee.types.js";
 import type { Server as HttpServer } from "node:http";
+
+const testConfig: ServerConfig = {
+	name: "test-server",
+	version: "0.0.1",
+	port: 0,
+};
 
 declare module "quickpickle" {
 	interface QuickPickleWorldInterface {
@@ -219,7 +226,7 @@ function startTestServer(): Promise<{
 					}
 				};
 
-				const server = createMcpServer();
+				const server = createMcpServer(testConfig);
 				await server.connect(transport);
 				await transport.handleRequest(req, res, req.body);
 				return;

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { GetCoffeesController } from "./get-coffees.controller.js";
-import type { GetCoffeesService } from "../service/get-coffees.service.js";
+import type { GetCoffeesServiceClass } from "../service/get-coffees.service.js";
 import type { Coffee } from "../../shared/type/coffee.types.js";
 
 describe("GetCoffeesController", () => {
@@ -11,7 +11,7 @@ describe("GetCoffeesController", () => {
 
 	const mockService = {
 		execute: vi.fn(() => mockCoffees),
-	} as unknown as GetCoffeesService;
+	} as unknown as GetCoffeesServiceClass;
 
 	it("returns a ToolTextResponse with JSON array", () => {
 		const controller = new GetCoffeesController(mockService);

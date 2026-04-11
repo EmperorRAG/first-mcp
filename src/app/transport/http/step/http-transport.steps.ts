@@ -6,14 +6,21 @@ import { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
 import { createMcpExpressApp } from "@modelcontextprotocol/express";
 import cors from "cors";
 import { createMcpServer } from "../../../server/mcp-server/mcp-server.js";
+import type { ServerConfig } from "../../../config/mcp-server/mcp-server.config.js";
 import type { Server as HttpServer } from "node:http";
+
+const testConfig: ServerConfig = {
+	name: "test-server",
+	version: "0.0.1",
+	port: 0,
+};
 
 declare module "quickpickle" {
 	interface QuickPickleWorldInterface {
 		httpServer: HttpServer;
 		baseUrl: string;
 		transports: Map<string, NodeStreamableHTTPServerTransport>;
-		httpResponse: Response;
+		httpResponse: Response | undefined;
 		responseBody: Record<string, unknown>;
 	}
 }
@@ -72,7 +79,7 @@ function startTestHttpServer(): Promise<{
 					}
 				};
 
-				const server = createMcpServer();
+				const server = createMcpServer(testConfig);
 				await server.connect(transport);
 				await transport.handleRequest(req, res, req.body);
 				return;
