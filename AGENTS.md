@@ -111,11 +111,10 @@ docs/features/
 │           ├── server-factory.unit.feature
 │           └── server-factory.contract.feature
 └── transport/
-    ├── components/
-    │   └── stdio-transport/            — stdio transport module
-    │       └── stdio-transport.unit.feature
-    └── services/
-        └── http-transport/             — HTTP transport integration
+    └── components/
+        ├── stdio-transport/            — stdio transport module
+        │   └── stdio-transport.unit.feature
+        └── http-transport/             — HTTP transport component
             ├── http-transport.integration.feature
             └── http-transport.contract.feature
 ```
@@ -130,7 +129,7 @@ src/app/coffee/
 └── step/coffee-domain.steps.ts                        — domain + E2E steps
 src/config/server/step/server-config.steps.ts          — server config component steps
 src/server/step/server-factory.steps.ts                — server factory component steps
-src/transport/http/step/http-transport.steps.ts         — HTTP transport service steps
+src/transport/http/step/http-transport.steps.ts         — HTTP transport component steps
 src/transport/stdio/step/stdio-transport.steps.ts       — stdio transport component steps
 ```
 
