@@ -14,9 +14,6 @@
 		"src/**/*"
 	],
 	"exclude": [
-		"node_modules",
-		"src/**/*.spec.ts",
-		"src/**/*.steps.ts",
-		"vitest.config.ts"
+		"node_modules"
 	]
 }

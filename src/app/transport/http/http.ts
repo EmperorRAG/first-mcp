@@ -102,12 +102,15 @@ export function startHttpServer(
 		console.error(`MCP Server running on http://0.0.0.0:${PORT}`);
 	});
 
-	process.on("SIGINT", async () => {
+	process.on("SIGINT", () => {
 		httpServer.close();
-		for (const [, transport] of transports) {
-			await transport.close();
-		}
-		transports.clear();
-		process.exit(0);
+		const closeAll = async (): Promise<void> => {
+			for (const [, transport] of transports) {
+				await transport.close();
+			}
+			transports.clear();
+			process.exit(0);
+		};
+		void closeAll();
 	});
 }

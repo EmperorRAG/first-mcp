@@ -211,7 +211,7 @@ Then("the response status should be {int}", (world, status: number) => {
 Then(
 	"the response body should have status {string}",
 	(world, status: string) => {
-		expect(world.responseBody["status"]).toBe(status);
+		expect(world.responseBody.status).toBe(status);
 	},
 );
 

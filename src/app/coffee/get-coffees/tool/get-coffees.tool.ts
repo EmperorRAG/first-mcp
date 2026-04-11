@@ -10,6 +10,6 @@ export function registerGetCoffeesTool(
 		{
 			description: "Get a list of all coffees",
 		},
-		async () => controller.handle(),
+		() => controller.handle(),
 	);
 }

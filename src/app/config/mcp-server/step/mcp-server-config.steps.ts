@@ -14,7 +14,7 @@ declare module "quickpickle" {
 }
 
 After(() => {
-	delete process.env["PORT"];
+	delete process.env.PORT;
 });
 
 // Unit steps
@@ -36,13 +36,13 @@ Then("DEFAULT_PORT should be {int}", (_world, expected: number) => {
 });
 
 Given("the PORT environment variable is not set", () => {
-	delete process.env["PORT"];
+	delete process.env.PORT;
 });
 
 Given(
 	"the PORT environment variable is set to {string}",
 	(_world, value: string) => {
-		process.env["PORT"] = value;
+		process.env.PORT = value;
 	},
 );
 

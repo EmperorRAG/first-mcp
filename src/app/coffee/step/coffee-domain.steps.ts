@@ -61,9 +61,9 @@ interface RegisteredTool {
 	handler?: (...args: unknown[]) => Promise<unknown>;
 }
 
-type ServerWithTools = {
+interface ServerWithTools {
 	_registeredTools: Record<string, RegisteredTool>;
-};
+}
 
 function getRegisteredTools(
 	server: McpServer,
@@ -415,7 +415,7 @@ When("I list tools via HTTP", async (world) => {
 		}),
 	});
 	const data = (await parseSseResponse(response)) as {
-		result: { tools: Array<{ name: string }> };
+		result: { tools: { name: string }[] };
 	};
 	world.toolNames = data.result.tools.map((t) => t.name);
 });
@@ -443,7 +443,7 @@ When("I call {string} via HTTP", async (world, toolName: string) => {
 		}),
 	});
 	const data = (await parseSseResponse(response)) as {
-		result: { content: Array<{ type: string; text: string }> };
+		result: { content: { type: string; text: string }[] };
 	};
 	const textContent = data.result.content.find(
 		(c) => c.type === "text",

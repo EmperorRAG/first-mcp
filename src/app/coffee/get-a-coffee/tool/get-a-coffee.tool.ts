@@ -13,6 +13,6 @@ export function registerGetACoffeeTool(
 				"Retrieve the data for a specific coffee based on its name",
 			inputSchema: GetACoffeeInputSchema,
 		},
-		async ({ name }) => controller.handle({ name }),
+		({ name }) => controller.handle({ name }),
 	);
 }

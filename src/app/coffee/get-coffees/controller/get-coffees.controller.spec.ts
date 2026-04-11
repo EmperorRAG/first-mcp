@@ -20,7 +20,7 @@ describe("GetCoffeesController", () => {
 		expect(result.content).toHaveLength(1);
 		expect(result.content[0].type).toBe("text");
 
-		const parsed = JSON.parse(result.content[0].text);
+		const parsed: unknown = JSON.parse(result.content[0].text);
 		expect(parsed).toEqual(mockCoffees);
 	});
 });

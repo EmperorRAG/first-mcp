@@ -8,7 +8,7 @@ import {
 
 describe("server.config", () => {
 	afterEach(() => {
-		delete process.env["PORT"];
+		delete process.env.PORT;
 	});
 
 	it("exports SERVER_NAME as 'coffee-mate'", () => {
@@ -24,12 +24,12 @@ describe("server.config", () => {
 	});
 
 	it("getPort returns DEFAULT_PORT when PORT env is not set", () => {
-		delete process.env["PORT"];
+		delete process.env.PORT;
 		expect(getPort()).toBe(DEFAULT_PORT);
 	});
 
 	it("getPort returns PORT env value as number", () => {
-		process.env["PORT"] = "4000";
+		process.env.PORT = "4000";
 		expect(getPort()).toBe(4000);
 	});
 });
