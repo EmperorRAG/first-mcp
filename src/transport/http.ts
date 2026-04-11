@@ -9,7 +9,7 @@ import { getPort } from "../config/server.config.js";
 export function startHttpServer(
 	createServer: () => McpServer,
 ): void {
-	const app = createMcpExpressApp();
+	const app = createMcpExpressApp({ host: "0.0.0.0" });
 	const PORT = getPort();
 
 	app.use(

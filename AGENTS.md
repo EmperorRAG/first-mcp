@@ -6,7 +6,7 @@ MCP (Model Context Protocol) server with dual transport using a domain-driven mo
 
 ### Module-Service Structure
 
-```
+```plaintext
 src/
 ├── main.ts                             — entry point (--stdio flag selects transport)
 ├── server.ts                           — createServer() factory, registers domains
@@ -78,7 +78,7 @@ Feature files live in `docs/features/` organized by scope. Step definitions live
 
 #### Feature File Locations
 
-```
+```plaintext
 docs/features/coffee/
 ├── components/coffee-repository/   — component-level (repository isolation)
 │   ├── coffee-repository.unit.feature
@@ -98,7 +98,7 @@ docs/features/coffee/
 
 #### Step Definition Locations
 
-```
+```plaintext
 src/app/coffee/
 ├── shared/repository/step/coffee-repository.steps.ts  — component steps
 ├── get-coffees/step/get-coffees.steps.ts              — service steps
