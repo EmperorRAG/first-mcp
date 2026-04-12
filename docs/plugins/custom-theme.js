@@ -4,6 +4,7 @@ import { MarkdownTheme, MarkdownThemeContext } from "typedoc-plugin-markdown";
 class CoffeeMateThemeContext extends MarkdownThemeContext { }
 
 class CoffeeMateTheme extends MarkdownTheme {
+	/** @param {import('typedoc-plugin-markdown').MarkdownPageEvent<import('typedoc').Reflection>} page */
 	getRenderContext(page) {
 		return new CoffeeMateThemeContext(this, page, this.application.options);
 	}

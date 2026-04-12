@@ -14,7 +14,7 @@ layer: Service
 
 > **Service Layer**
 
-Defined in: [coffee/get-coffees/service/get-coffees.service.ts:26](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/coffee/get-coffees/service/get-coffees.service.ts#L26)
+Defined in: [coffee/get-coffees/service/get-coffees.service.ts:26](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-coffees/service/get-coffees.service.ts#L26)
 
 Retrieves all coffee drinks from the repository.
 
@@ -38,7 +38,7 @@ Delegates to [CoffeeRepository.findAll](../../../../shared/repository/coffee/cof
 new GetCoffeesService(repo: CoffeeRepository): GetCoffeesService;
 ```
 
-Defined in: [coffee/get-coffees/service/get-coffees.service.ts:28](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/coffee/get-coffees/service/get-coffees.service.ts#L28)
+Defined in: [coffee/get-coffees/service/get-coffees.service.ts:28](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-coffees/service/get-coffees.service.ts#L28)
 
 #### Parameters
 
@@ -58,7 +58,7 @@ Defined in: [coffee/get-coffees/service/get-coffees.service.ts:28](https://githu
 execute(): Coffee[];
 ```
 
-Defined in: [coffee/get-coffees/service/get-coffees.service.ts:35](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/coffee/get-coffees/service/get-coffees.service.ts#L35)
+Defined in: [coffee/get-coffees/service/get-coffees.service.ts:35](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-coffees/service/get-coffees.service.ts#L35)
 
 Returns all coffee drinks from the repository.
 
@@ -74,4 +74,4 @@ An array of all available coffee drinks.
 
 ---
 
-_Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)_
+*Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)*

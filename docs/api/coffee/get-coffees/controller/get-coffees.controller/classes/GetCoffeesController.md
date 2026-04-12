@@ -14,7 +14,7 @@ layer: Controller
 
 > **Controller Layer**
 
-Defined in: [coffee/get-coffees/controller/get-coffees.controller.ts:28](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/coffee/get-coffees/controller/get-coffees.controller.ts#L28)
+Defined in: [coffee/get-coffees/controller/get-coffees.controller.ts:28](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-coffees/controller/get-coffees.controller.ts#L28)
 
 Handles get-coffees requests by delegating to the service layer.
 
@@ -40,7 +40,7 @@ JSON-serialized [ToolTextResponse](../../../../../common/type/tool-response/tool
 new GetCoffeesController(service: GetCoffeesServiceClass): GetCoffeesController;
 ```
 
-Defined in: [coffee/get-coffees/controller/get-coffees.controller.ts:30](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/coffee/get-coffees/controller/get-coffees.controller.ts#L30)
+Defined in: [coffee/get-coffees/controller/get-coffees.controller.ts:30](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-coffees/controller/get-coffees.controller.ts#L30)
 
 #### Parameters
 
@@ -60,7 +60,7 @@ Defined in: [coffee/get-coffees/controller/get-coffees.controller.ts:30](https:/
 handle(): ToolTextResponse;
 ```
 
-Defined in: [coffee/get-coffees/controller/get-coffees.controller.ts:37](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/coffee/get-coffees/controller/get-coffees.controller.ts#L37)
+Defined in: [coffee/get-coffees/controller/get-coffees.controller.ts:37](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-coffees/controller/get-coffees.controller.ts#L37)
 
 Retrieves all coffees and returns them as a JSON response.
 
@@ -76,4 +76,4 @@ A JSON-serialized array of all available coffees.
 
 ---
 
-_Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)_
+*Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)*

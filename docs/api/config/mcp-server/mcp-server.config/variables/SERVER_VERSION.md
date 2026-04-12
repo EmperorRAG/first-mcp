@@ -15,10 +15,10 @@ type: variable
 const SERVER_VERSION: "1.0.0" = "1.0.0";
 ```
 
-Defined in: [config/mcp-server/mcp-server.config.ts:20](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/config/mcp-server/mcp-server.config.ts#L20)
+Defined in: [config/mcp-server/mcp-server.config.ts:20](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/config/mcp-server/mcp-server.config.ts#L20)
 
 MCP server version used in protocol handshake.
 
 ---
 
-_Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)_
+*Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)*

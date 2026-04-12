@@ -15,10 +15,10 @@ type: variable
 const DEFAULT_PORT: 3001 = 3001;
 ```
 
-Defined in: [config/mcp-server/mcp-server.config.ts:22](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/config/mcp-server/mcp-server.config.ts#L22)
+Defined in: [config/mcp-server/mcp-server.config.ts:22](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/config/mcp-server/mcp-server.config.ts#L22)
 
 Default TCP port when the `PORT` environment variable is not set.
 
 ---
 
-_Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)_
+*Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)*

@@ -14,7 +14,7 @@ layer: Service
 
 > **Service Layer**
 
-Defined in: [coffee/get-a-coffee/service/get-a-coffee.service.ts:9](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/coffee/get-a-coffee/service/get-a-coffee.service.ts#L9)
+Defined in: [coffee/get-a-coffee/service/get-a-coffee.service.ts:9](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-a-coffee/service/get-a-coffee.service.ts#L9)
 
 Service contract for retrieving a single coffee by name.
 
@@ -32,7 +32,7 @@ execute(name: string):
   | undefined;
 ```
 
-Defined in: [coffee/get-a-coffee/service/get-a-coffee.service.ts:16](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/coffee/get-a-coffee/service/get-a-coffee.service.ts#L16)
+Defined in: [coffee/get-a-coffee/service/get-a-coffee.service.ts:16](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-a-coffee/service/get-a-coffee.service.ts#L16)
 
 Retrieves a coffee by its exact name.
 
@@ -51,4 +51,4 @@ The matching coffee, or `undefined` if not found.
 
 ---
 
-_Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)_
+*Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)*

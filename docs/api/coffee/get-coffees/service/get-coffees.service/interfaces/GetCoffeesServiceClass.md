@@ -14,7 +14,7 @@ layer: Service
 
 > **Service Layer**
 
-Defined in: [coffee/get-coffees/service/get-coffees.service.ts:9](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/coffee/get-coffees/service/get-coffees.service.ts#L9)
+Defined in: [coffee/get-coffees/service/get-coffees.service.ts:9](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-coffees/service/get-coffees.service.ts#L9)
 
 Service contract for retrieving all coffee drinks.
 
@@ -30,7 +30,7 @@ Service contract for retrieving all coffee drinks.
 execute(): Coffee[];
 ```
 
-Defined in: [coffee/get-coffees/service/get-coffees.service.ts:15](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/coffee/get-coffees/service/get-coffees.service.ts#L15)
+Defined in: [coffee/get-coffees/service/get-coffees.service.ts:15](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-coffees/service/get-coffees.service.ts#L15)
 
 Retrieves all available coffee drinks.
 
@@ -42,4 +42,4 @@ An array of all coffees in the catalog.
 
 ---
 
-_Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)_
+*Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)*

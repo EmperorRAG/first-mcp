@@ -15,7 +15,7 @@ type: function
 function registerCoffeeDomain(server: McpServer): void;
 ```
 
-Defined in: [coffee/coffee.domain.ts:16](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/coffee/coffee.domain.ts#L16)
+Defined in: [coffee/coffee.domain.ts:16](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/coffee.domain.ts#L16)
 
 Registers all coffee domain tool modules on the MCP server.
 
@@ -37,4 +37,4 @@ the get-coffees and get-a-coffee module-service chains via
 
 ---
 
-_Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)_
+*Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)*

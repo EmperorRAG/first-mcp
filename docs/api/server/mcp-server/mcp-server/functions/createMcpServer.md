@@ -15,7 +15,7 @@ type: function
 function createMcpServer(config: ServerConfig): McpServer;
 ```
 
-Defined in: [server/mcp-server/mcp-server.ts:22](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/server/mcp-server/mcp-server.ts#L22)
+Defined in: [server/mcp-server/mcp-server.ts:22](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/server/mcp-server/mcp-server.ts#L22)
 
 Creates and configures a new MCP server instance.
 
@@ -46,4 +46,4 @@ const server = createMcpServer(config);
 
 ---
 
-_Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)_
+*Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)*

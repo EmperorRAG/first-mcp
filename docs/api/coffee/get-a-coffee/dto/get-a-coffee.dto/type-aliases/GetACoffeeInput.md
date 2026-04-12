@@ -15,7 +15,7 @@ type: type
 type GetACoffeeInput = z.infer<typeof GetACoffeeInputSchema>;
 ```
 
-Defined in: [coffee/get-a-coffee/dto/get-a-coffee.dto.ts:18](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/coffee/get-a-coffee/dto/get-a-coffee.dto.ts#L18)
+Defined in: [coffee/get-a-coffee/dto/get-a-coffee.dto.ts:18](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-a-coffee/dto/get-a-coffee.dto.ts#L18)
 
 Validated input type for the get-a-coffee operation.
 
@@ -25,4 +25,4 @@ Inferred from [GetACoffeeInputSchema](../variables/GetACoffeeInputSchema.md). Co
 
 ---
 
-_Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)_
+*Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)*

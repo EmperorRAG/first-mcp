@@ -14,7 +14,7 @@ layer: Controller
 
 > **Controller Layer**
 
-Defined in: [coffee/get-a-coffee/controller/get-a-coffee.controller.ts:13](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/coffee/get-a-coffee/controller/get-a-coffee.controller.ts#L13)
+Defined in: [coffee/get-a-coffee/controller/get-a-coffee.controller.ts:13](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-a-coffee/controller/get-a-coffee.controller.ts#L13)
 
 Controller contract for the get-a-coffee operation.
 
@@ -36,7 +36,7 @@ handle(input: {
 }): ToolTextResponse;
 ```
 
-Defined in: [coffee/get-a-coffee/controller/get-a-coffee.controller.ts:20](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/coffee/get-a-coffee/controller/get-a-coffee.controller.ts#L20)
+Defined in: [coffee/get-a-coffee/controller/get-a-coffee.controller.ts:20](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-a-coffee/controller/get-a-coffee.controller.ts#L20)
 
 Handles a get-a-coffee request.
 
@@ -55,4 +55,4 @@ A tool response with the coffee data or a "not found" message.
 
 ---
 
-_Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)_
+*Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)*

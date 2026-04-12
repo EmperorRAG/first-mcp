@@ -15,7 +15,7 @@ type: function
 function getPort(): number;
 ```
 
-Defined in: [config/mcp-server/mcp-server.config.ts:29](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/config/mcp-server/mcp-server.config.ts#L29)
+Defined in: [config/mcp-server/mcp-server.config.ts:29](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/config/mcp-server/mcp-server.config.ts#L29)
 
 Reads the TCP port from the `PORT` environment variable.
 
@@ -27,4 +27,4 @@ The parsed port number, or [DEFAULT\_PORT](../variables/DEFAULT_PORT.md) if unse
 
 ---
 
-_Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)_
+*Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)*

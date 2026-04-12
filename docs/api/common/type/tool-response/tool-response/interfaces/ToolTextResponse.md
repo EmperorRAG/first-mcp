@@ -11,7 +11,7 @@ type: interface
 
 # ToolTextResponse
 
-Defined in: [common/type/tool-response/tool-response.ts:8](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/common/type/tool-response/tool-response.ts#L8)
+Defined in: [common/type/tool-response/tool-response.ts:8](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/common/type/tool-response/tool-response.ts#L8)
 
 Standard response shape returned by MCP tool controllers.
 
@@ -30,8 +30,8 @@ Controllers return this type; the MCP SDK forwards it to the client.
 
 | Property                                | Type                                       | Description                                              | Defined in                                                                                                                                                                                    |
 | --------------------------------------- | ------------------------------------------ | -------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| <a id="property-content"></a> `content` | { `type`: `"text"`; `text`: `string`; }\[] | Array of text content blocks returned to the MCP client. | [common/type/tool-response/tool-response.ts:11](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/common/type/tool-response/tool-response.ts#L11) |
+| <a id="property-content"></a> `content` | { `type`: `"text"`; `text`: `string`; }\[] | Array of text content blocks returned to the MCP client. | [common/type/tool-response/tool-response.ts:11](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/common/type/tool-response/tool-response.ts#L11) |
 
 ---
 
-_Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)_
+*Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)*

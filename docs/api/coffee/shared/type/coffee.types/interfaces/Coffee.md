@@ -11,7 +11,7 @@ type: interface
 
 # Coffee
 
-Defined in: [coffee/shared/type/coffee.types.ts:8](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/coffee/shared/type/coffee.types.ts#L8)
+Defined in: [coffee/shared/type/coffee.types.ts:8](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/shared/type/coffee.types.ts#L8)
 
 Represents a coffee drink available in the catalog.
 
@@ -24,13 +24,13 @@ the drink's identity, sizing, pricing, and caffeine content.
 
 | Property                                      | Type      | Description                                                        | Defined in                                                                                                                                                                    |
 | --------------------------------------------- | --------- | ------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| <a id="property-id"></a> `id`                 | `number`  | Unique identifier for the coffee drink.                            | [coffee/shared/type/coffee.types.ts:10](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/coffee/shared/type/coffee.types.ts#L10) |
-| <a id="property-name"></a> `name`             | `string`  | Display name of the coffee drink (e.g., "Flat White", "Espresso"). | [coffee/shared/type/coffee.types.ts:12](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/coffee/shared/type/coffee.types.ts#L12) |
-| <a id="property-size"></a> `size`             | `string`  | Cup size (e.g., "Small", "Medium", "Large").                       | [coffee/shared/type/coffee.types.ts:14](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/coffee/shared/type/coffee.types.ts#L14) |
-| <a id="property-price"></a> `price`           | `number`  | Price in dollars.                                                  | [coffee/shared/type/coffee.types.ts:16](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/coffee/shared/type/coffee.types.ts#L16) |
-| <a id="property-iced"></a> `iced`             | `boolean` | Whether the drink is served iced.                                  | [coffee/shared/type/coffee.types.ts:18](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/coffee/shared/type/coffee.types.ts#L18) |
-| <a id="property-caffeinemg"></a> `caffeineMg` | `number`  | Caffeine content in milligrams.                                    | [coffee/shared/type/coffee.types.ts:20](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/coffee/shared/type/coffee.types.ts#L20) |
+| <a id="property-id"></a> `id`                 | `number`  | Unique identifier for the coffee drink.                            | [coffee/shared/type/coffee.types.ts:10](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/shared/type/coffee.types.ts#L10) |
+| <a id="property-name"></a> `name`             | `string`  | Display name of the coffee drink (e.g., "Flat White", "Espresso"). | [coffee/shared/type/coffee.types.ts:12](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/shared/type/coffee.types.ts#L12) |
+| <a id="property-size"></a> `size`             | `string`  | Cup size (e.g., "Small", "Medium", "Large").                       | [coffee/shared/type/coffee.types.ts:14](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/shared/type/coffee.types.ts#L14) |
+| <a id="property-price"></a> `price`           | `number`  | Price in dollars.                                                  | [coffee/shared/type/coffee.types.ts:16](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/shared/type/coffee.types.ts#L16) |
+| <a id="property-iced"></a> `iced`             | `boolean` | Whether the drink is served iced.                                  | [coffee/shared/type/coffee.types.ts:18](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/shared/type/coffee.types.ts#L18) |
+| <a id="property-caffeinemg"></a> `caffeineMg` | `number`  | Caffeine content in milligrams.                                    | [coffee/shared/type/coffee.types.ts:20](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/shared/type/coffee.types.ts#L20) |
 
 ---
 
-_Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)_
+*Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)*

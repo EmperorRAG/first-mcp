@@ -2,6 +2,7 @@
 import { ReflectionKind } from "typedoc";
 import { MarkdownPageEvent } from "typedoc-plugin-markdown";
 
+/** @type {Partial<Record<import('typedoc').ReflectionKind, string>>} */
 const kindLabels = {
 	[ReflectionKind.Class]: "class",
 	[ReflectionKind.Interface]: "interface",
@@ -23,6 +24,7 @@ const layerPatterns = [
 	{ pattern: /\/server\//, label: "Server Factory" },
 ];
 
+/** @param {import('typedoc').DeclarationReflection | null | undefined} model */
 function detectLayer(model) {
 	const sources = model?.sources;
 	if (!sources?.length) return null;
@@ -41,11 +43,11 @@ function detectLayer(model) {
  */
 export function load(app) {
 	app.renderer.on(MarkdownPageEvent.BEGIN, (page) => {
+		if (!page.isReflectionEvent()) return;
 		const model = page.model;
-		if (!model) return;
 
 		const kind = kindLabels[model.kind] ?? "unknown";
-		const layer = detectLayer(model);
+		const layer = detectLayer(/** @type {import('typedoc').DeclarationReflection} */(model));
 
 		page.frontmatter = {
 			...page.frontmatter,
@@ -56,7 +58,8 @@ export function load(app) {
 	});
 
 	app.renderer.on(MarkdownPageEvent.END, (page) => {
-		const layer = detectLayer(page.model);
+		if (!page.isReflectionEvent()) return;
+		const layer = detectLayer(/** @type {import('typedoc').DeclarationReflection} */(page.model));
 		if (layer && page.contents) {
 			page.contents = page.contents.replace(
 				/^(# .+\n)/m,

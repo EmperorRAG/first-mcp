@@ -18,7 +18,7 @@ layer: Tool
 function registerGetACoffeeTool(server: McpServer, controller: GetACoffeeControllerClass): void;
 ```
 
-Defined in: [coffee/get-a-coffee/tool/get-a-coffee.tool.ts:17](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/coffee/get-a-coffee/tool/get-a-coffee.tool.ts#L17)
+Defined in: [coffee/get-a-coffee/tool/get-a-coffee.tool.ts:17](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-a-coffee/tool/get-a-coffee.tool.ts#L17)
 
 Registers the `get-a-coffee` MCP tool on the server.
 
@@ -44,4 +44,4 @@ coffee by name. Uses [GetACoffeeInputSchema](../../../dto/get-a-coffee.dto/varia
 
 ---
 
-_Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)_
+*Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)*

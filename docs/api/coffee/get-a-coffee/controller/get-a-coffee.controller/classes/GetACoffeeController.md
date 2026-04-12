@@ -14,7 +14,7 @@ layer: Controller
 
 > **Controller Layer**
 
-Defined in: [coffee/get-a-coffee/controller/get-a-coffee.controller.ts:34](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/coffee/get-a-coffee/controller/get-a-coffee.controller.ts#L34)
+Defined in: [coffee/get-a-coffee/controller/get-a-coffee.controller.ts:34](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-a-coffee/controller/get-a-coffee.controller.ts#L34)
 
 Handles get-a-coffee requests by delegating to the service layer.
 
@@ -41,7 +41,7 @@ message when no match exists.
 new GetACoffeeController(service: GetACoffeeServiceClass): GetACoffeeController;
 ```
 
-Defined in: [coffee/get-a-coffee/controller/get-a-coffee.controller.ts:36](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/coffee/get-a-coffee/controller/get-a-coffee.controller.ts#L36)
+Defined in: [coffee/get-a-coffee/controller/get-a-coffee.controller.ts:36](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-a-coffee/controller/get-a-coffee.controller.ts#L36)
 
 #### Parameters
 
@@ -63,7 +63,7 @@ handle(input: {
 }): ToolTextResponse;
 ```
 
-Defined in: [coffee/get-a-coffee/controller/get-a-coffee.controller.ts:44](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/coffee/get-a-coffee/controller/get-a-coffee.controller.ts#L44)
+Defined in: [coffee/get-a-coffee/controller/get-a-coffee.controller.ts:44](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-a-coffee/controller/get-a-coffee.controller.ts#L44)
 
 Looks up a coffee by name and returns the result.
 
@@ -86,4 +86,4 @@ A JSON-serialized coffee or a "not found" message.
 
 ---
 
-_Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)_
+*Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)*

@@ -15,7 +15,7 @@ type: function
 function createServerConfig(): ServerConfig;
 ```
 
-Defined in: [config/mcp-server/mcp-server.config.ts:42](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/config/mcp-server/mcp-server.config.ts#L42)
+Defined in: [config/mcp-server/mcp-server.config.ts:42](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/config/mcp-server/mcp-server.config.ts#L42)
 
 Creates a frozen server configuration with environment-aware defaults.
 
@@ -32,4 +32,4 @@ to [DEFAULT\_PORT](../variables/DEFAULT_PORT.md). The returned object is frozen 
 
 ---
 
-_Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)_
+*Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)*

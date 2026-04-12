@@ -18,7 +18,7 @@ layer: Tool
 function registerGetCoffeesTool(server: McpServer, controller: GetCoffeesControllerClass): void;
 ```
 
-Defined in: [coffee/get-coffees/tool/get-coffees.tool.ts:16](https://github.com/EmperorRAG/first-mcp/blob/bebb00834a0d3b82f6fe38604c706f1af373051f/src/app/coffee/get-coffees/tool/get-coffees.tool.ts#L16)
+Defined in: [coffee/get-coffees/tool/get-coffees.tool.ts:16](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-coffees/tool/get-coffees.tool.ts#L16)
 
 Registers the `get-coffees` MCP tool on the server.
 
@@ -44,4 +44,4 @@ available coffees. This tool has no input parameters.
 
 ---
 
-_Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)_
+*Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)*
