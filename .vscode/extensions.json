@@ -1,5 +1,7 @@
 {
 	"recommendations": [
-		"unifiedjs.vscode-remark"
+		"unifiedjs.vscode-remark",
+		"github.vscode-pull-request-github",
+		"github.vscode-github-actions"
 	]
 }
