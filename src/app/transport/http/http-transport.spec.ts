@@ -9,7 +9,7 @@ import { startHttpServer, type HttpServerHandle } from "./http-transport.js";
 
 function createTestServer(): McpServer {
 	const server = new McpServer({ name: "test", version: "1.0.0" });
-	server.registerTool("echo", { description: "Echo test" }, async () => ({
+	server.registerTool("echo", { description: "Echo test" }, () => ({
 		content: [{ type: "text" as const, text: "hello" }],
 	}));
 	return server;
@@ -35,7 +35,7 @@ describe("http-transport (raw Node.js)", () => {
 		const addr = handle.address()!;
 		const res = await fetch(`http://127.0.0.1:${addr.port}/health`);
 		expect(res.status).toBe(200);
-		const body = await res.json();
+		const body: unknown = await res.json();
 		expect(body).toEqual({ status: "ok" });
 	});
 

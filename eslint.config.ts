@@ -29,7 +29,10 @@ export default defineConfig(
 	{
 		files: ["src/**/*.steps.ts"],
 		rules: {
-			"@typescript-eslint/consistent-type-assertions": "off",
+			"@typescript-eslint/consistent-type-assertions": [
+				"error",
+				{ assertionStyle: "never" },
+			],
 			"@typescript-eslint/no-unsafe-argument": "off",
 			"@typescript-eslint/no-unsafe-assignment": "off",
 			"@typescript-eslint/no-unsafe-call": "off",
@@ -41,6 +44,10 @@ export default defineConfig(
 	{
 		files: ["src/**/*.spec.ts"],
 		rules: {
+			"@typescript-eslint/consistent-type-assertions": [
+				"error",
+				{ assertionStyle: "never" },
+			],
 			"@typescript-eslint/unbound-method": "off",
 		},
 	},

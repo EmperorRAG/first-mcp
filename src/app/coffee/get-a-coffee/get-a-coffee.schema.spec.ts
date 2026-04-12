@@ -12,10 +12,8 @@ import {
 
 describe("GetACoffeeInput schema", () => {
 	it("JSON Schema has a name property of type string", () => {
-		const schema = GetACoffeeInputJsonSchema as Record<string, unknown>;
-		expect(schema).toHaveProperty("type", "object");
-		const properties = schema.properties as Record<string, unknown>;
-		expect(properties).toHaveProperty("name");
+		expect(GetACoffeeInputJsonSchema).toHaveProperty("type", "object");
+		expect(GetACoffeeInputJsonSchema).toHaveProperty("properties.name");
 	});
 
 	it("StandardSchema validates valid input", () => {
