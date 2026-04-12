@@ -6,6 +6,12 @@ import { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
 import { createMcpExpressApp } from "@modelcontextprotocol/express";
 import cors from "cors";
 
+/**
+ * Extracts the MCP session ID from HTTP request headers.
+ *
+ * @param headers - Incoming HTTP request headers.
+ * @returns The session ID string, or `undefined` if the header is missing.
+ */
 function getSessionId(headers: IncomingHttpHeaders): string | undefined {
 	const value = headers["mcp-session-id"];
 	if (Array.isArray(value)) {
@@ -14,6 +20,28 @@ function getSessionId(headers: IncomingHttpHeaders): string | undefined {
 	return value;
 }
 
+/**
+ * Starts the Streamable HTTP transport for the MCP server.
+ *
+ * @param createServer - Factory function that creates a new MCP server per session.
+ * @param port - TCP port to listen on.
+ *
+ * @remarks
+ * Exposes four endpoints:
+ * - `POST /mcp` — handles MCP protocol messages and session initialization
+ * - `GET /mcp` — SSE backward-compatible streaming
+ * - `DELETE /mcp` — terminates a session
+ * - `GET /health` — health check returning `{ status: "ok" }`
+ *
+ * Each initialize request creates a new `NodeStreamableHTTPServerTransport`
+ * and MCP server instance. Subsequent requests reuse the transport via the
+ * `Mcp-Session-Id` header.
+ *
+ * @example
+ * ```ts
+ * startHttpServer(() => createMcpServer(config), config.port);
+ * ```
+ */
 export function startHttpServer(
 	createServer: () => McpServer,
 	port: number,
