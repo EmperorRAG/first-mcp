@@ -14,14 +14,14 @@ layer: Controller
 
 > **Controller Layer**
 
-Defined in: [coffee/get-a-coffee/controller/get-a-coffee.controller.ts:34](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-a-coffee/controller/get-a-coffee.controller.ts#L34)
+Defined in: [coffee/get-a-coffee/controller/get-a-coffee.controller.ts:40](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/coffee/get-a-coffee/controller/get-a-coffee.controller.ts#L40)
 
 Handles get-a-coffee requests by delegating to the service layer.
 
 ## Remarks
 
 Receives validated input, queries the service for the coffee, and formats
-the result as a [ToolTextResponse](../../../../../common/type/tool-response/tool-response/interfaces/ToolTextResponse.md). Returns a "Coffee not found"
+the result as a [ToolTextResponse](../../../../../type/tool-response/tool-response/interfaces/ToolTextResponse.md). Returns a "Coffee not found"
 message when no match exists.
 
 ## See
@@ -41,7 +41,7 @@ message when no match exists.
 new GetACoffeeController(service: GetACoffeeServiceClass): GetACoffeeController;
 ```
 
-Defined in: [coffee/get-a-coffee/controller/get-a-coffee.controller.ts:36](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-a-coffee/controller/get-a-coffee.controller.ts#L36)
+Defined in: [coffee/get-a-coffee/controller/get-a-coffee.controller.ts:42](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/coffee/get-a-coffee/controller/get-a-coffee.controller.ts#L42)
 
 #### Parameters
 
@@ -63,7 +63,7 @@ handle(input: {
 }): ToolTextResponse;
 ```
 
-Defined in: [coffee/get-a-coffee/controller/get-a-coffee.controller.ts:44](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-a-coffee/controller/get-a-coffee.controller.ts#L44)
+Defined in: [coffee/get-a-coffee/controller/get-a-coffee.controller.ts:50](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/coffee/get-a-coffee/controller/get-a-coffee.controller.ts#L50)
 
 Looks up a coffee by name and returns the result.
 
@@ -76,7 +76,7 @@ Looks up a coffee by name and returns the result.
 
 #### Returns
 
-[`ToolTextResponse`](../../../../../common/type/tool-response/tool-response/interfaces/ToolTextResponse.md)
+[`ToolTextResponse`](../../../../../type/tool-response/tool-response/interfaces/ToolTextResponse.md)
 
 A JSON-serialized coffee or a "not found" message.
 

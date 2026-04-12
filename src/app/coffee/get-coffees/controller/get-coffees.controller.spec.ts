@@ -1,3 +1,8 @@
+/**
+ * Unit tests for `GetCoffeesController.handle()` JSON array response formatting.
+ *
+ * @module
+ */
 import { describe, it, expect, vi } from "vitest";
 import { GetCoffeesController } from "./get-coffees.controller.js";
 import { defaultCoffeeList } from "../../../testing/factory/coffee.factory.js";

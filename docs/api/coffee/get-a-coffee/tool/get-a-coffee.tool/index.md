@@ -14,6 +14,9 @@ layer: Tool
 
 > **Tool Layer**
 
+MCP tool registration for get-a-coffee — registers name, description, input schema,
+and delegates to the controller.
+
 ## Functions
 
 | Function                                                      | Description                                          |

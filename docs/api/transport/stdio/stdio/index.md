@@ -11,6 +11,8 @@ type: module
 
 # transport/stdio/stdio
 
+Stdio transport — connects an McpServer to `StdioServerTransport` for local VS Code integration.
+
 ## Functions
 
 | Function                                          | Description                                           |

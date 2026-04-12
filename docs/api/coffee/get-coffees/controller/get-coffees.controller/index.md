@@ -14,6 +14,9 @@ layer: Controller
 
 > **Controller Layer**
 
+Controller for the get-coffees tool — delegates to the service and formats
+the MCP tool response.
+
 ## Interfaces
 
 | Interface                                                            | Description                                        |

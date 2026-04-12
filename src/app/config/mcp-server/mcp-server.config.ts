@@ -1,4 +1,9 @@
 /**
+ * MCP server configuration constants and factory.
+ *
+ * @module
+ */
+/**
  * Configuration shape for the MCP server instance.
  *
  * @remarks

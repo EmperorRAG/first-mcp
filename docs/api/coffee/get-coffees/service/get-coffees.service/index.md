@@ -14,6 +14,8 @@ layer: Service
 
 > **Service Layer**
 
+Service for retrieving all Coffee entities from the repository.
+
 ## Interfaces
 
 | Interface                                                      | Description                                        |

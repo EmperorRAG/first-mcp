@@ -14,7 +14,7 @@ layer: Service
 
 > **Service Layer**
 
-Defined in: [coffee/get-coffees/service/get-coffees.service.ts:9](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-coffees/service/get-coffees.service.ts#L9)
+Defined in: [coffee/get-coffees/service/get-coffees.service.ts:14](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/coffee/get-coffees/service/get-coffees.service.ts#L14)
 
 Service contract for retrieving all coffee drinks.
 
@@ -30,7 +30,7 @@ Service contract for retrieving all coffee drinks.
 execute(): Coffee[];
 ```
 
-Defined in: [coffee/get-coffees/service/get-coffees.service.ts:15](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-coffees/service/get-coffees.service.ts#L15)
+Defined in: [coffee/get-coffees/service/get-coffees.service.ts:20](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/coffee/get-coffees/service/get-coffees.service.ts#L20)
 
 Retrieves all available coffee drinks.
 

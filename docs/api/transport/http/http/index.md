@@ -11,6 +11,9 @@ type: module
 
 # transport/http/http
 
+Streamable HTTP transport — Express server with session management, health endpoint,
+and SSE backward compatibility.
+
 ## Functions
 
 | Function                                        | Description                                              |

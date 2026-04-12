@@ -1,3 +1,9 @@
+/**
+ * BDD step definitions for MCP server configuration.
+ * Covers unit and contract scenarios for server name, version, and port resolution.
+ *
+ * @module
+ */
 import {
 	Given,
 	When,

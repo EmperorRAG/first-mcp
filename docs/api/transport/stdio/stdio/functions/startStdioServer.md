@@ -15,7 +15,7 @@ type: function
 function startStdioServer(server: McpServer): Promise<void>;
 ```
 
-Defined in: [transport/stdio/stdio.ts:20](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/transport/stdio/stdio.ts#L20)
+Defined in: [transport/stdio/stdio.ts:25](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/transport/stdio/stdio.ts#L25)
 
 Starts the stdio transport for local MCP integration.
 

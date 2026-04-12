@@ -1,3 +1,9 @@
+/**
+ * BDD step definitions for the MCP server factory.
+ * Covers unit and contract scenarios for `createMcpServer`.
+ *
+ * @module
+ */
 import { When, Then, type QuickPickleWorldInterface } from "quickpickle";
 import { expect } from "vitest";
 import { McpServer } from "@modelcontextprotocol/server";

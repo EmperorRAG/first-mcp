@@ -1,3 +1,9 @@
+/**
+ * BDD step definitions for the stdio transport component.
+ * Covers module-loaded checks for `startStdioServer`.
+ *
+ * @module
+ */
 import { Given, Then, type QuickPickleWorldInterface } from "quickpickle";
 import { expect } from "vitest";
 import { startStdioServer } from "../stdio.js";

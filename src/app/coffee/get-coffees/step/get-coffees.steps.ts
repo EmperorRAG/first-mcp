@@ -1,3 +1,9 @@
+/**
+ * BDD step definitions for the get-coffees service module.
+ * Covers integration and contract scenarios for listing all coffees via controller.
+ *
+ * @module
+ */
 import {
 	Given,
 	When,

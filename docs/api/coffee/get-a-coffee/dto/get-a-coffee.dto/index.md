@@ -11,6 +11,8 @@ type: module
 
 # coffee/get-a-coffee/dto/get-a-coffee.dto
 
+Zod input schema and inferred types for the get-a-coffee tool.
+
 ## Variables
 
 | Variable                                                    | Description                                        |

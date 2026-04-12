@@ -11,6 +11,8 @@ type: module
 
 # coffee/shared/type/coffee.types
 
+Core domain types for the coffee catalog.
+
 ## Interfaces
 
 | Interface                      | Description                                         |

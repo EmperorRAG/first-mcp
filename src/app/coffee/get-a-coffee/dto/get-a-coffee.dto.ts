@@ -1,3 +1,8 @@
+/**
+ * Zod input schema and inferred types for the get-a-coffee tool.
+ *
+ * @module
+ */
 import * as z from "zod/v4";
 
 /**

@@ -14,14 +14,14 @@ layer: Controller
 
 > **Controller Layer**
 
-Defined in: [coffee/get-coffees/controller/get-coffees.controller.ts:28](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-coffees/controller/get-coffees.controller.ts#L28)
+Defined in: [coffee/get-coffees/controller/get-coffees.controller.ts:34](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/coffee/get-coffees/controller/get-coffees.controller.ts#L34)
 
 Handles get-coffees requests by delegating to the service layer.
 
 ## Remarks
 
 Queries the service for all coffees and formats the result as a
-JSON-serialized [ToolTextResponse](../../../../../common/type/tool-response/tool-response/interfaces/ToolTextResponse.md).
+JSON-serialized [ToolTextResponse](../../../../../type/tool-response/tool-response/interfaces/ToolTextResponse.md).
 
 ## See
 
@@ -40,7 +40,7 @@ JSON-serialized [ToolTextResponse](../../../../../common/type/tool-response/tool
 new GetCoffeesController(service: GetCoffeesServiceClass): GetCoffeesController;
 ```
 
-Defined in: [coffee/get-coffees/controller/get-coffees.controller.ts:30](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-coffees/controller/get-coffees.controller.ts#L30)
+Defined in: [coffee/get-coffees/controller/get-coffees.controller.ts:36](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/coffee/get-coffees/controller/get-coffees.controller.ts#L36)
 
 #### Parameters
 
@@ -60,13 +60,13 @@ Defined in: [coffee/get-coffees/controller/get-coffees.controller.ts:30](https:/
 handle(): ToolTextResponse;
 ```
 
-Defined in: [coffee/get-coffees/controller/get-coffees.controller.ts:37](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-coffees/controller/get-coffees.controller.ts#L37)
+Defined in: [coffee/get-coffees/controller/get-coffees.controller.ts:43](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/coffee/get-coffees/controller/get-coffees.controller.ts#L43)
 
 Retrieves all coffees and returns them as a JSON response.
 
 #### Returns
 
-[`ToolTextResponse`](../../../../../common/type/tool-response/tool-response/interfaces/ToolTextResponse.md)
+[`ToolTextResponse`](../../../../../type/tool-response/tool-response/interfaces/ToolTextResponse.md)
 
 A JSON-serialized array of all available coffees.
 

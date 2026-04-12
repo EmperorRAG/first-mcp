@@ -1,3 +1,9 @@
+/**
+ * MCP tool registration for get-coffees — registers name, description, and delegates
+ * to the controller.
+ *
+ * @module
+ */
 import type { McpServer } from "@modelcontextprotocol/server";
 import type { GetCoffeesControllerClass } from "../controller/get-coffees.controller.js";
 

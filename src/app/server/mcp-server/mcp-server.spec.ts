@@ -1,3 +1,9 @@
+/**
+ * Unit tests for the `createMcpServer` factory, verifying it returns an McpServer
+ * instance and registers all coffee domain tools.
+ *
+ * @module
+ */
 import { describe, it, expect } from "vitest";
 import { McpServer } from "@modelcontextprotocol/server";
 import { createMcpServer } from "./mcp-server.js";

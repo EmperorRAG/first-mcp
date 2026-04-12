@@ -1,3 +1,8 @@
+/**
+ * Unit tests for `GetACoffeeService.execute()` with a mocked repository.
+ *
+ * @module
+ */
 import { describe, it, expect } from "vitest";
 import { GetACoffeeService } from "./get-a-coffee.service.js";
 import { flatWhiteCoffee } from "../../../testing/factory/coffee.factory.js";

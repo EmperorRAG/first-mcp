@@ -1,3 +1,8 @@
+/**
+ * Coffee domain barrel — creates shared repository and registers all tool modules.
+ *
+ * @module
+ */
 import type { McpServer } from "@modelcontextprotocol/server";
 import { InMemoryCoffeeRepository } from "./shared/repository/coffee/coffee.repository.js";
 import { registerGetCoffeesModule } from "./get-coffees/module/get-coffees.module.js";

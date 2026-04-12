@@ -14,6 +14,8 @@ layer: Service
 
 > **Service Layer**
 
+Service for retrieving a single Coffee by name from the repository.
+
 ## Interfaces
 
 | Interface                                                      | Description                                              |

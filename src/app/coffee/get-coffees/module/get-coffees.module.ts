@@ -1,3 +1,8 @@
+/**
+ * Wires the get-coffees module: repository to service to controller to tool registration.
+ *
+ * @module
+ */
 import type { McpServer } from "@modelcontextprotocol/server";
 import type { CoffeeRepository } from "../../shared/repository/coffee/coffee.repository.js";
 import { GetCoffeesService } from "../service/get-coffees.service.js";

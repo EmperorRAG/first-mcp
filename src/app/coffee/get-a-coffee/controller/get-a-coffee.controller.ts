@@ -1,3 +1,9 @@
+/**
+ * Controller for the get-a-coffee tool — validates input, delegates to the service,
+ * and formats the MCP tool response.
+ *
+ * @module
+ */
 import type { ToolTextResponse } from "../../../type/tool-response/tool-response.js";
 import type { GetACoffeeServiceClass } from "../service/get-a-coffee.service.js";
 import type { GetACoffeeInput } from "../dto/get-a-coffee.dto.js";

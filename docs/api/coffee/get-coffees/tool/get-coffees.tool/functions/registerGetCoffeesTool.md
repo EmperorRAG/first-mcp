@@ -18,7 +18,7 @@ layer: Tool
 function registerGetCoffeesTool(server: McpServer, controller: GetCoffeesControllerClass): void;
 ```
 
-Defined in: [coffee/get-coffees/tool/get-coffees.tool.ts:16](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-coffees/tool/get-coffees.tool.ts#L16)
+Defined in: [coffee/get-coffees/tool/get-coffees.tool.ts:22](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/coffee/get-coffees/tool/get-coffees.tool.ts#L22)
 
 Registers the `get-coffees` MCP tool on the server.
 

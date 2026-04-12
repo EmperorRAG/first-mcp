@@ -1,3 +1,8 @@
+/**
+ * Vitest mock factories for coffee domain repositories, services, controllers, and tool registration.
+ *
+ * @module
+ */
 import { vi } from "vitest";
 import type { McpServer } from "@modelcontextprotocol/server";
 import type { Coffee } from "../../coffee/shared/type/coffee.types.js";
@@ -10,6 +15,12 @@ import { defaultCoffeeList, flatWhiteCoffee } from "./coffee.factory.js";
 import { createToolTextResponse } from "../utility/tool-response.utility.js";
 import { isFunctionValue } from "../utility/reflect.utility.js";
 
+/**
+ * Creates a mock CoffeeRepository with stubbed `findAll` and `findByName` methods.
+ *
+ * @param coffees - Coffee list returned by `findAll` and searched by `findByName`.
+ * @returns A Vitest-mocked CoffeeRepository.
+ */
 export function createMockCoffeeRepository(
 	coffees: Coffee[] = defaultCoffeeList,
 ): CoffeeRepository {
@@ -21,6 +32,12 @@ export function createMockCoffeeRepository(
 	};
 }
 
+/**
+ * Creates a mock GetCoffeesService that returns the given coffee list.
+ *
+ * @param coffees - Coffee list returned by `execute`.
+ * @returns A Vitest-mocked GetCoffeesServiceClass.
+ */
 export function createMockGetCoffeesService(
 	coffees: Coffee[] = defaultCoffeeList,
 ): GetCoffeesServiceClass {
@@ -29,6 +46,12 @@ export function createMockGetCoffeesService(
 	};
 }
 
+/**
+ * Creates a mock GetACoffeeService that returns a coffee when the name matches.
+ *
+ * @param coffee - Coffee entity returned when the lookup name matches the flat white fixture.
+ * @returns A Vitest-mocked GetACoffeeServiceClass.
+ */
 export function createMockGetACoffeeService(
 	coffee: Coffee | undefined = flatWhiteCoffee,
 ): GetACoffeeServiceClass {
@@ -39,6 +62,12 @@ export function createMockGetACoffeeService(
 	};
 }
 
+/**
+ * Creates a mock GetCoffeesController that returns a pre-built tool response.
+ *
+ * @param text - JSON text to wrap in a ToolTextResponse.
+ * @returns A Vitest-mocked GetCoffeesControllerClass.
+ */
 export function createMockGetCoffeesController(
 	text = "[]",
 ): GetCoffeesControllerClass {
@@ -48,6 +77,12 @@ export function createMockGetCoffeesController(
 	};
 }
 
+/**
+ * Creates a mock GetACoffeeController that returns a pre-built tool response.
+ *
+ * @param text - JSON text to wrap in a ToolTextResponse.
+ * @returns A Vitest-mocked GetACoffeeControllerClass.
+ */
 export function createMockGetACoffeeController(
 	text = "{}",
 ): GetACoffeeControllerClass {
@@ -57,6 +92,16 @@ export function createMockGetACoffeeController(
 	};
 }
 
+/**
+ * Spies on `server.registerTool` and captures the registered tool name, config, and handler.
+ *
+ * @remarks
+ * Wraps the original `registerTool` with a Vitest spy that records each invocation.
+ * The returned accessor functions throw if `registerTool` was never called.
+ *
+ * @param server - The McpServer instance to spy on.
+ * @returns An object with accessor functions for call count, tool name, config, and handler.
+ */
 export function captureRegisterToolHandler(server: McpServer): {
 	getCallCount: () => number;
 	getRegisteredToolName: () => string;

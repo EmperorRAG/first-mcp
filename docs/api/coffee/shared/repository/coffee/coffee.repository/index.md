@@ -14,6 +14,8 @@ layer: Repository
 
 > **Repository Layer**
 
+Coffee repository interface and in-memory implementation for data access.
+
 ## Interfaces
 
 | Interface                                          | Description                                        |

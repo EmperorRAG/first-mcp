@@ -14,7 +14,7 @@ layer: Service
 
 > **Service Layer**
 
-Defined in: [coffee/get-a-coffee/service/get-a-coffee.service.ts:27](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-a-coffee/service/get-a-coffee.service.ts#L27)
+Defined in: [coffee/get-a-coffee/service/get-a-coffee.service.ts:32](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/coffee/get-a-coffee/service/get-a-coffee.service.ts#L32)
 
 Retrieves a single coffee drink from the repository by name.
 
@@ -38,7 +38,7 @@ Delegates to [CoffeeRepository.findByName](../../../../shared/repository/coffee/
 new GetACoffeeService(repo: CoffeeRepository): GetACoffeeService;
 ```
 
-Defined in: [coffee/get-a-coffee/service/get-a-coffee.service.ts:29](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-a-coffee/service/get-a-coffee.service.ts#L29)
+Defined in: [coffee/get-a-coffee/service/get-a-coffee.service.ts:34](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/coffee/get-a-coffee/service/get-a-coffee.service.ts#L34)
 
 #### Parameters
 
@@ -60,7 +60,7 @@ execute(name: string):
   | undefined;
 ```
 
-Defined in: [coffee/get-a-coffee/service/get-a-coffee.service.ts:37](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/get-a-coffee/service/get-a-coffee.service.ts#L37)
+Defined in: [coffee/get-a-coffee/service/get-a-coffee.service.ts:42](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/coffee/get-a-coffee/service/get-a-coffee.service.ts#L42)
 
 Finds a coffee drink by name.
 

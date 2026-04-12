@@ -15,7 +15,7 @@ type: variable
 const SERVER_NAME: "coffee-mate" = "coffee-mate";
 ```
 
-Defined in: [config/mcp-server/mcp-server.config.ts:18](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/config/mcp-server/mcp-server.config.ts#L18)
+Defined in: [config/mcp-server/mcp-server.config.ts:23](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/config/mcp-server/mcp-server.config.ts#L23)
 
 MCP server name used in protocol handshake.
 

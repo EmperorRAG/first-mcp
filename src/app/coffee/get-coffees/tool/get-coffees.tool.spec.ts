@@ -1,3 +1,8 @@
+/**
+ * Unit tests for `registerGetCoffeesTool` wiring, tool configuration, and handler invocation.
+ *
+ * @module
+ */
 import { describe, it, expect, vi } from "vitest";
 import { McpServer } from "@modelcontextprotocol/server";
 import { registerGetCoffeesTool } from "./get-coffees.tool.js";

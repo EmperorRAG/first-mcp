@@ -11,6 +11,8 @@ type: module
 
 # config/mcp-server/mcp-server.config
 
+MCP server configuration constants and factory.
+
 ## Interfaces
 
 | Interface                                  | Description                                      |

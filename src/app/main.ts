@@ -1,3 +1,8 @@
+/**
+ * Application entry point — resolves transport mode (`--stdio` or HTTP) and starts the server.
+ *
+ * @module
+ */
 import { createServerConfig } from "./config/mcp-server/mcp-server.config.js";
 import { createMcpServer } from "./server/mcp-server/mcp-server.js";
 import { startHttpServer } from "./transport/http/http.js";

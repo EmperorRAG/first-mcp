@@ -1,4 +1,9 @@
 /**
+ * Shared MCP tool response type used by all controllers.
+ *
+ * @module
+ */
+/**
  * Standard response shape returned by MCP tool controllers.
  *
  * @remarks

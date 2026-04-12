@@ -11,7 +11,7 @@ type: interface
 
 # ServerConfig
 
-Defined in: [config/mcp-server/mcp-server.config.ts:8](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/config/mcp-server/mcp-server.config.ts#L8)
+Defined in: [config/mcp-server/mcp-server.config.ts:13](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/config/mcp-server/mcp-server.config.ts#L13)
 
 Configuration shape for the MCP server instance.
 
@@ -24,9 +24,9 @@ Created by [createServerConfig](../functions/createServerConfig.md) with environ
 
 | Property                                | Modifier   | Type     | Description                                              | Defined in                                                                                                                                                                            |
 | --------------------------------------- | ---------- | -------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| <a id="property-name"></a> `name`       | `readonly` | `string` | MCP server name advertised during protocol handshake.    | [config/mcp-server/mcp-server.config.ts:10](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/config/mcp-server/mcp-server.config.ts#L10) |
-| <a id="property-version"></a> `version` | `readonly` | `string` | MCP server version advertised during protocol handshake. | [config/mcp-server/mcp-server.config.ts:12](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/config/mcp-server/mcp-server.config.ts#L12) |
-| <a id="property-port"></a> `port`       | `readonly` | `number` | TCP port the HTTP transport listens on.                  | [config/mcp-server/mcp-server.config.ts:14](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/config/mcp-server/mcp-server.config.ts#L14) |
+| <a id="property-name"></a> `name`       | `readonly` | `string` | MCP server name advertised during protocol handshake.    | [config/mcp-server/mcp-server.config.ts:15](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/config/mcp-server/mcp-server.config.ts#L15) |
+| <a id="property-version"></a> `version` | `readonly` | `string` | MCP server version advertised during protocol handshake. | [config/mcp-server/mcp-server.config.ts:17](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/config/mcp-server/mcp-server.config.ts#L17) |
+| <a id="property-port"></a> `port`       | `readonly` | `number` | TCP port the HTTP transport listens on.                  | [config/mcp-server/mcp-server.config.ts:19](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/config/mcp-server/mcp-server.config.ts#L19) |
 
 ---
 

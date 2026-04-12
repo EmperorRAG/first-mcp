@@ -18,7 +18,7 @@ export default {
 
 	// Theme (Section 4.2) — set per-output below
 
-	exclude: ["src/**/*.spec.ts", "src/**/*.steps.ts", "src/app/testing/**"],
+	exclude: [],
 	excludePrivate: true,
 	excludeInternal: true,
 
@@ -51,12 +51,16 @@ export default {
 		unusedMergeModuleWith: true,
 	},
 	requiredToBeDocumented: [
-		"Interface", "Class", "TypeAlias", "Function", "Method", "Property",
+		"Module", "Interface", "Class", "TypeAlias", "Function", "Method", "Property",
 	],
 	intentionallyNotDocumented: [
 		"coffee/get-a-coffee/dto/get-a-coffee.dto.GetACoffeeInputSchema.__type.name",
 		"type/tool-response/tool-response.ToolTextResponse.content.__type.type",
 		"type/tool-response/tool-response.ToolTextResponse.content.__type.text",
+		"testing/factory/mock-coffee.factory.captureRegisterToolHandler.__type.getCallCount",
+		"testing/factory/mock-coffee.factory.captureRegisterToolHandler.__type.getRegisteredToolName",
+		"testing/factory/mock-coffee.factory.captureRegisterToolHandler.__type.getRegisteredToolConfig",
+		"testing/factory/mock-coffee.factory.captureRegisterToolHandler.__type.getHandler",
 	],
 	treatValidationWarningsAsErrors: true,
 

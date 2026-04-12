@@ -1,3 +1,9 @@
+/**
+ * BDD step definitions for the HTTP transport component.
+ * Covers integration and contract scenarios for session management, health endpoint, and SSE.
+ *
+ * @module
+ */
 import {
 	Given,
 	When,

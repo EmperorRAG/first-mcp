@@ -1,3 +1,8 @@
+/**
+ * Service for retrieving all Coffee entities from the repository.
+ *
+ * @module
+ */
 import type { Coffee } from "../../shared/type/coffee.types.js";
 import type { CoffeeRepository } from "../../shared/repository/coffee/coffee.repository.js";
 

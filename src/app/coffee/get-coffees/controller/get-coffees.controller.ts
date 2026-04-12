@@ -1,3 +1,9 @@
+/**
+ * Controller for the get-coffees tool — delegates to the service and formats
+ * the MCP tool response.
+ *
+ * @module
+ */
 import type { ToolTextResponse } from "../../../type/tool-response/tool-response.js";
 import type { GetCoffeesServiceClass } from "../service/get-coffees.service.js";
 

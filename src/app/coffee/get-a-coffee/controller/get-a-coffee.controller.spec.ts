@@ -1,3 +1,8 @@
+/**
+ * Unit tests for `GetACoffeeController.handle()` response formatting and not-found behavior.
+ *
+ * @module
+ */
 import { describe, it, expect } from "vitest";
 import { GetACoffeeController } from "./get-a-coffee.controller.js";
 import { flatWhiteCoffee } from "../../../testing/factory/coffee.factory.js";

@@ -1,3 +1,8 @@
+/**
+ * Factory for creating an McpServer instance with all domains registered.
+ *
+ * @module
+ */
 import { McpServer } from "@modelcontextprotocol/server";
 import type { ServerConfig } from "../../config/mcp-server/mcp-server.config.js";
 import { registerCoffeeDomain } from "../../coffee/coffee.domain.js";

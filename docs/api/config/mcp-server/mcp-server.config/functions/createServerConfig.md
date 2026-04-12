@@ -15,7 +15,7 @@ type: function
 function createServerConfig(): ServerConfig;
 ```
 
-Defined in: [config/mcp-server/mcp-server.config.ts:42](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/config/mcp-server/mcp-server.config.ts#L42)
+Defined in: [config/mcp-server/mcp-server.config.ts:47](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/config/mcp-server/mcp-server.config.ts#L47)
 
 Creates a frozen server configuration with environment-aware defaults.
 

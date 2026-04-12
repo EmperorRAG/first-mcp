@@ -11,6 +11,8 @@ type: module
 
 # coffee/coffee.domain
 
+Coffee domain barrel — creates shared repository and registers all tool modules.
+
 ## Functions
 
 | Function                                                  | Description                                                 |

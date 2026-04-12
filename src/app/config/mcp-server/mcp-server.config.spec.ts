@@ -1,3 +1,9 @@
+/**
+ * Unit tests for MCP server configuration: `SERVER_NAME`, `SERVER_VERSION`,
+ * `DEFAULT_PORT`, `getPort()`, and `createServerConfig()`.
+ *
+ * @module
+ */
 import { describe, it, expect, afterEach } from "vitest";
 import {
 	SERVER_NAME,

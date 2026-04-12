@@ -1,3 +1,9 @@
+/**
+ * BDD step definitions for the coffee domain.
+ * Covers integration, contract, and E2E scenarios for domain registration and tool invocation.
+ *
+ * @module
+ */
 import {
 	Given,
 	When,

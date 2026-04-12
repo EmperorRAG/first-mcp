@@ -1,3 +1,8 @@
+/**
+ * Stdio transport — connects an McpServer to `StdioServerTransport` for local VS Code integration.
+ *
+ * @module
+ */
 import type { McpServer } from "@modelcontextprotocol/server";
 import { StdioServerTransport } from "@modelcontextprotocol/server";
 

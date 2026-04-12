@@ -1,4 +1,9 @@
 /**
+ * Core domain types for the coffee catalog.
+ *
+ * @module
+ */
+/**
  * Represents a coffee drink available in the catalog.
  *
  * @remarks

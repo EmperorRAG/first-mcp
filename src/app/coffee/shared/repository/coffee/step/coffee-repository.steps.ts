@@ -1,3 +1,9 @@
+/**
+ * BDD step definitions for the coffee repository component.
+ * Covers unit, integration, and contract scenarios for `findAll` and `findByName`.
+ *
+ * @module
+ */
 import { Given, When, Then, type QuickPickleWorldInterface } from "quickpickle";
 import { expect } from "vitest";
 import { InMemoryCoffeeRepository } from "../coffee.repository.js";

@@ -11,6 +11,8 @@ type: module
 
 # server/mcp-server/mcp-server
 
+Factory for creating an McpServer instance with all domains registered.
+
 ## Functions
 
 | Function                                        | Description                                       |

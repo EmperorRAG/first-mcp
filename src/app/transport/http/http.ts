@@ -1,3 +1,9 @@
+/**
+ * Streamable HTTP transport — Express server with session management, health endpoint,
+ * and SSE backward compatibility.
+ *
+ * @module
+ */
 import { randomUUID } from "node:crypto";
 import type { IncomingHttpHeaders } from "node:http";
 import type { McpServer } from "@modelcontextprotocol/server";

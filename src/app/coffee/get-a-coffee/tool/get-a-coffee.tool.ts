@@ -1,3 +1,9 @@
+/**
+ * MCP tool registration for get-a-coffee — registers name, description, input schema,
+ * and delegates to the controller.
+ *
+ * @module
+ */
 import type { McpServer } from "@modelcontextprotocol/server";
 import { GetACoffeeInputSchema } from "../dto/get-a-coffee.dto.js";
 import type { GetACoffeeControllerClass } from "../controller/get-a-coffee.controller.js";

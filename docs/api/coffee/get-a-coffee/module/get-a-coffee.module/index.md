@@ -11,6 +11,8 @@ type: module
 
 # coffee/get-a-coffee/module/get-a-coffee.module
 
+Wires the get-a-coffee module: repository to service to controller to tool registration.
+
 ## Functions
 
 | Function                                                          | Description                                                             |

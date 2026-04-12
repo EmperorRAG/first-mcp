@@ -11,6 +11,8 @@ type: module
 
 # main
 
+Application entry point — resolves transport mode (`--stdio` or HTTP) and starts the server.
+
 ---
 
 *Auto-generated API documentation — [source](https://github.com/EmperorRAG/first-mcp)*

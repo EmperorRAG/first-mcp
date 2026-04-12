@@ -15,7 +15,7 @@ type: function
 function startHttpServer(createServer: () => McpServer, port: number): void;
 ```
 
-Defined in: [transport/http/http.ts:45](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/transport/http/http.ts#L45)
+Defined in: [transport/http/http.ts:51](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/transport/http/http.ts#L51)
 
 Starts the Streamable HTTP transport for the MCP server.
 

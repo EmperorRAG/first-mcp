@@ -14,7 +14,7 @@ layer: Repository
 
 > **Repository Layer**
 
-Defined in: [coffee/shared/repository/coffee/coffee.repository.ts:12](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/shared/repository/coffee/coffee.repository.ts#L12)
+Defined in: [coffee/shared/repository/coffee/coffee.repository.ts:17](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/coffee/shared/repository/coffee/coffee.repository.ts#L17)
 
 Data access contract for coffee drink persistence.
 
@@ -35,7 +35,7 @@ Implementations may use in-memory storage, databases, or external APIs.
 findAll(): Coffee[];
 ```
 
-Defined in: [coffee/shared/repository/coffee/coffee.repository.ts:14](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/shared/repository/coffee/coffee.repository.ts#L14)
+Defined in: [coffee/shared/repository/coffee/coffee.repository.ts:19](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/coffee/shared/repository/coffee/coffee.repository.ts#L19)
 
 Retrieves all coffee drinks in the catalog.
 
@@ -53,7 +53,7 @@ findByName(name: string):
   | undefined;
 ```
 
-Defined in: [coffee/shared/repository/coffee/coffee.repository.ts:22](https://github.com/EmperorRAG/first-mcp/blob/62c5385e7834255cbc79054e76ff8b2672403290/src/app/coffee/shared/repository/coffee/coffee.repository.ts#L22)
+Defined in: [coffee/shared/repository/coffee/coffee.repository.ts:27](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/coffee/shared/repository/coffee/coffee.repository.ts#L27)
 
 Finds a coffee drink by its exact name.
 

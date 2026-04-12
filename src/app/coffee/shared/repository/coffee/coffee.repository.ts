@@ -1,3 +1,8 @@
+/**
+ * Coffee repository interface and in-memory implementation for data access.
+ *
+ * @module
+ */
 import type { Coffee } from "../../type/coffee.types.js";
 
 /**

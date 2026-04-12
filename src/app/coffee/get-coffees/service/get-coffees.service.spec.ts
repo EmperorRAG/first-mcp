@@ -1,3 +1,8 @@
+/**
+ * Unit tests for `GetCoffeesService.execute()` delegation to the repository.
+ *
+ * @module
+ */
 import { describe, it, expect, vi } from "vitest";
 import { GetCoffeesService } from "./get-coffees.service.js";
 import { defaultCoffeeList } from "../../../testing/factory/coffee.factory.js";

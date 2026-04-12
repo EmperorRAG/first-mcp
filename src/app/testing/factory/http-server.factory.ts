@@ -1,3 +1,8 @@
+/**
+ * Factory for spinning up a test Express HTTP server with MCP Streamable HTTP transport.
+ *
+ * @module
+ */
 import { randomUUID } from "node:crypto";
 import type { Server as HttpServer } from "node:http";
 import { isInitializeRequest } from "@modelcontextprotocol/server";
@@ -7,12 +12,29 @@ import { createMcpExpressApp } from "@modelcontextprotocol/express";
 import cors from "cors";
 import { getSessionId } from "../utility/reflect.utility.js";
 
+/**
+ * Result of spinning up a test HTTP server with MCP transport support.
+ */
 export interface TestHttpServerSetup {
+	/** The Node.js HTTP server instance. */
 	httpServer: HttpServer;
+	/** Base URL (`http://127.0.0.1:{port}`) for sending requests. */
 	baseUrl: string;
+	/** Map of session IDs to their active transports. */
 	transports: Map<string, NodeStreamableHTTPServerTransport>;
 }
 
+/**
+ * Creates an Express HTTP server wired with MCP Streamable HTTP transport, session
+ * management, health endpoint, and SSE backward compatibility for E2E tests.
+ *
+ * @remarks
+ * The server listens on an OS-assigned port (`0`) and resolves with the base URL.
+ * Callers must close `httpServer` after the test to free the port.
+ *
+ * @param createServer - Factory function that returns a fresh McpServer per session.
+ * @returns A promise resolving to the server, base URL, and active transport map.
+ */
 export function createTestHttpServer(
 	createServer: () => McpServer,
 ): Promise<TestHttpServerSetup> {

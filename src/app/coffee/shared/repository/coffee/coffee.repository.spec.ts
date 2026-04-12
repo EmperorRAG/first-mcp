@@ -1,3 +1,8 @@
+/**
+ * Unit tests for `InMemoryCoffeeRepository.findAll()` and `findByName()`.
+ *
+ * @module
+ */
 import { describe, it, expect } from "vitest";
 import { InMemoryCoffeeRepository } from "./coffee.repository.js";
 import { flatWhiteCoffee } from "../../../../testing/factory/coffee.factory.js";

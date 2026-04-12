@@ -15,6 +15,9 @@ const kindLabels = {
 };
 
 const layerPatterns = [
+	{ pattern: /\.spec\./, label: "Unit Test" },
+	{ pattern: /\.steps\./, label: "BDD Steps" },
+	{ pattern: /\/testing\//, label: "Test Support" },
 	{ pattern: /\/tool\//, label: "Tool" },
 	{ pattern: /\/controller\//, label: "Controller" },
 	{ pattern: /\/service\//, label: "Service" },
