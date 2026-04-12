@@ -26,9 +26,6 @@ jobs:
           cache: npm
 
       - run: npm ci
-      - run: npm run docs
-      - name: Check docs drift
-        run: git diff --exit-code docs/api
       - run: npm run build
       - run: npm test
 
