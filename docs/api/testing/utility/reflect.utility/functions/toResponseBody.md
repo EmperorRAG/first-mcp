@@ -15,7 +15,7 @@ type: function
 function toResponseBody(value: unknown): Record<string, unknown>;
 ```
 
-Defined in: [testing/utility/reflect.utility.ts:57](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/testing/utility/reflect.utility.ts#L57)
+Defined in: [testing/utility/reflect.utility.ts:57](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/testing/utility/reflect.utility.ts#L57)
 
 Converts an unknown value to a plain key-value record via `Object.entries`.
 

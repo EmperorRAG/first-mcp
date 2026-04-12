@@ -15,7 +15,7 @@ type: variable
 const defaultTestServerConfig: ServerConfig;
 ```
 
-Defined in: [testing/factory/server-config.factory.ts:9](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/testing/factory/server-config.factory.ts#L9)
+Defined in: [testing/factory/server-config.factory.ts:9](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/testing/factory/server-config.factory.ts#L9)
 
 Default ServerConfig fixture with port `0` for OS-assigned port in tests.
 

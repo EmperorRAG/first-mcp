@@ -14,7 +14,7 @@ layer: Service
 
 > **Service Layer**
 
-Defined in: [coffee/get-a-coffee/service/get-a-coffee.service.ts:14](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/coffee/get-a-coffee/service/get-a-coffee.service.ts#L14)
+Defined in: [coffee/get-a-coffee/service/get-a-coffee.service.ts:14](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/coffee/get-a-coffee/service/get-a-coffee.service.ts#L14)
 
 Service contract for retrieving a single coffee by name.
 
@@ -32,7 +32,7 @@ execute(name: string):
   | undefined;
 ```
 
-Defined in: [coffee/get-a-coffee/service/get-a-coffee.service.ts:21](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/coffee/get-a-coffee/service/get-a-coffee.service.ts#L21)
+Defined in: [coffee/get-a-coffee/service/get-a-coffee.service.ts:21](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/coffee/get-a-coffee/service/get-a-coffee.service.ts#L21)
 
 Retrieves a coffee by its exact name.
 

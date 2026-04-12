@@ -15,7 +15,7 @@ type: variable
 const flatWhiteCoffee: Coffee;
 ```
 
-Defined in: [testing/factory/coffee.factory.ts:9](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/testing/factory/coffee.factory.ts#L9)
+Defined in: [testing/factory/coffee.factory.ts:9](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/testing/factory/coffee.factory.ts#L9)
 
 Pre-built flat white Coffee fixture for unit and integration tests.
 

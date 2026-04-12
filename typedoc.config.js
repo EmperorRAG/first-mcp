@@ -61,6 +61,8 @@ export default {
 		"testing/factory/mock-coffee.factory.captureRegisterToolHandler.__type.getRegisteredToolName",
 		"testing/factory/mock-coffee.factory.captureRegisterToolHandler.__type.getRegisteredToolConfig",
 		"testing/factory/mock-coffee.factory.captureRegisterToolHandler.__type.getHandler",
+		"coffee/step/coffee-domain.shared.steps.MCP_HEADERS.__type.Content-Type",
+		"coffee/step/coffee-domain.shared.steps.MCP_HEADERS.__type.Accept",
 	],
 	treatValidationWarningsAsErrors: true,
 

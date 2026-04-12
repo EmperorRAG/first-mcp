@@ -15,7 +15,7 @@ type: function
 function createMockCoffeeRepository(coffees?: Coffee[]): CoffeeRepository;
 ```
 
-Defined in: [testing/factory/mock-coffee.factory.ts:24](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/testing/factory/mock-coffee.factory.ts#L24)
+Defined in: [testing/factory/mock-coffee.factory.ts:24](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/testing/factory/mock-coffee.factory.ts#L24)
 
 Creates a mock CoffeeRepository with stubbed `findAll` and `findByName` methods.
 

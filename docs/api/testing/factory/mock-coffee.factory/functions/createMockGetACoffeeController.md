@@ -15,7 +15,7 @@ type: function
 function createMockGetACoffeeController(text?: string): GetACoffeeControllerClass;
 ```
 
-Defined in: [testing/factory/mock-coffee.factory.ts:86](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/testing/factory/mock-coffee.factory.ts#L86)
+Defined in: [testing/factory/mock-coffee.factory.ts:86](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/testing/factory/mock-coffee.factory.ts#L86)
 
 Creates a mock GetACoffeeController that returns a pre-built tool response.
 

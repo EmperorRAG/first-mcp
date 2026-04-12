@@ -17,7 +17,7 @@ const GetACoffeeInputSchema: ZodObject<{
 }, $strip>;
 ```
 
-Defined in: [coffee/get-a-coffee/dto/get-a-coffee.dto.ts:15](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/coffee/get-a-coffee/dto/get-a-coffee.dto.ts#L15)
+Defined in: [coffee/get-a-coffee/dto/get-a-coffee.dto.ts:15](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/coffee/get-a-coffee/dto/get-a-coffee.dto.ts#L15)
 
 Zod validation schema for get-a-coffee tool input.
 

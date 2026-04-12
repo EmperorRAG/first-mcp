@@ -14,7 +14,7 @@ layer: Controller
 
 > **Controller Layer**
 
-Defined in: [coffee/get-a-coffee/controller/get-a-coffee.controller.ts:40](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/coffee/get-a-coffee/controller/get-a-coffee.controller.ts#L40)
+Defined in: [coffee/get-a-coffee/controller/get-a-coffee.controller.ts:40](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/coffee/get-a-coffee/controller/get-a-coffee.controller.ts#L40)
 
 Handles get-a-coffee requests by delegating to the service layer.
 
@@ -41,7 +41,7 @@ message when no match exists.
 new GetACoffeeController(service: GetACoffeeServiceClass): GetACoffeeController;
 ```
 
-Defined in: [coffee/get-a-coffee/controller/get-a-coffee.controller.ts:42](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/coffee/get-a-coffee/controller/get-a-coffee.controller.ts#L42)
+Defined in: [coffee/get-a-coffee/controller/get-a-coffee.controller.ts:42](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/coffee/get-a-coffee/controller/get-a-coffee.controller.ts#L42)
 
 #### Parameters
 
@@ -63,7 +63,7 @@ handle(input: {
 }): ToolTextResponse;
 ```
 
-Defined in: [coffee/get-a-coffee/controller/get-a-coffee.controller.ts:50](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/coffee/get-a-coffee/controller/get-a-coffee.controller.ts#L50)
+Defined in: [coffee/get-a-coffee/controller/get-a-coffee.controller.ts:50](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/coffee/get-a-coffee/controller/get-a-coffee.controller.ts#L50)
 
 Looks up a coffee by name and returns the result.
 

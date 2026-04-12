@@ -15,7 +15,7 @@ type: function
 function parseCoffeeArrayJson(text: string): Coffee[];
 ```
 
-Defined in: [testing/utility/coffee-parser.utility.ts:48](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/testing/utility/coffee-parser.utility.ts#L48)
+Defined in: [testing/utility/coffee-parser.utility.ts:48](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/testing/utility/coffee-parser.utility.ts#L48)
 
 Parses a JSON string and validates it as an array of Coffee entities.
 

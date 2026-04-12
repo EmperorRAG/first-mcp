@@ -14,7 +14,7 @@ layer: Controller
 
 > **Controller Layer**
 
-Defined in: [coffee/get-coffees/controller/get-coffees.controller.ts:15](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/coffee/get-coffees/controller/get-coffees.controller.ts#L15)
+Defined in: [coffee/get-coffees/controller/get-coffees.controller.ts:15](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/coffee/get-coffees/controller/get-coffees.controller.ts#L15)
 
 Controller contract for the get-coffees operation.
 
@@ -30,7 +30,7 @@ Controller contract for the get-coffees operation.
 handle(): ToolTextResponse;
 ```
 
-Defined in: [coffee/get-coffees/controller/get-coffees.controller.ts:21](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/coffee/get-coffees/controller/get-coffees.controller.ts#L21)
+Defined in: [coffee/get-coffees/controller/get-coffees.controller.ts:21](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/coffee/get-coffees/controller/get-coffees.controller.ts#L21)
 
 Handles a get-coffees request.
 

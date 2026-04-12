@@ -15,7 +15,7 @@ type: function
 function registerGetACoffeeModule(server: McpServer, repo: CoffeeRepository): void;
 ```
 
-Defined in: [coffee/get-a-coffee/module/get-a-coffee.module.ts:24](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/coffee/get-a-coffee/module/get-a-coffee.module.ts#L24)
+Defined in: [coffee/get-a-coffee/module/get-a-coffee.module.ts:24](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/coffee/get-a-coffee/module/get-a-coffee.module.ts#L24)
 
 Wires the get-a-coffee module-service chain and registers the MCP tool.
 

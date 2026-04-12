@@ -11,7 +11,7 @@ type: interface
 
 # TestHttpServerSetup
 
-Defined in: [testing/factory/http-server.factory.ts:18](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/testing/factory/http-server.factory.ts#L18)
+Defined in: [testing/factory/http-server.factory.ts:18](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/testing/factory/http-server.factory.ts#L18)
 
 Result of spinning up a test HTTP server with MCP transport support.
 
@@ -19,9 +19,9 @@ Result of spinning up a test HTTP server with MCP transport support.
 
 | Property                                      | Type                                                 | Description                                                | Defined in                                                                                                                                                                            |
 | --------------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| <a id="property-httpserver"></a> `httpServer` | `Server`                                             | The Node.js HTTP server instance.                          | [testing/factory/http-server.factory.ts:20](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/testing/factory/http-server.factory.ts#L20) |
-| <a id="property-baseurl"></a> `baseUrl`       | `string`                                             | Base URL (`http://127.0.0.1:{port}`) for sending requests. | [testing/factory/http-server.factory.ts:22](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/testing/factory/http-server.factory.ts#L22) |
-| <a id="property-transports"></a> `transports` | `Map`<`string`, `NodeStreamableHTTPServerTransport`> | Map of session IDs to their active transports.             | [testing/factory/http-server.factory.ts:24](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/testing/factory/http-server.factory.ts#L24) |
+| <a id="property-httpserver"></a> `httpServer` | `Server`                                             | The Node.js HTTP server instance.                          | [testing/factory/http-server.factory.ts:20](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/testing/factory/http-server.factory.ts#L20) |
+| <a id="property-baseurl"></a> `baseUrl`       | `string`                                             | Base URL (`http://127.0.0.1:{port}`) for sending requests. | [testing/factory/http-server.factory.ts:22](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/testing/factory/http-server.factory.ts#L22) |
+| <a id="property-transports"></a> `transports` | `Map`<`string`, `NodeStreamableHTTPServerTransport`> | Map of session IDs to their active transports.             | [testing/factory/http-server.factory.ts:24](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/testing/factory/http-server.factory.ts#L24) |
 
 ---
 

@@ -14,7 +14,7 @@ layer: Controller
 
 > **Controller Layer**
 
-Defined in: [coffee/get-coffees/controller/get-coffees.controller.ts:34](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/coffee/get-coffees/controller/get-coffees.controller.ts#L34)
+Defined in: [coffee/get-coffees/controller/get-coffees.controller.ts:34](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/coffee/get-coffees/controller/get-coffees.controller.ts#L34)
 
 Handles get-coffees requests by delegating to the service layer.
 
@@ -40,7 +40,7 @@ JSON-serialized [ToolTextResponse](../../../../../type/tool-response/tool-respon
 new GetCoffeesController(service: GetCoffeesServiceClass): GetCoffeesController;
 ```
 
-Defined in: [coffee/get-coffees/controller/get-coffees.controller.ts:36](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/coffee/get-coffees/controller/get-coffees.controller.ts#L36)
+Defined in: [coffee/get-coffees/controller/get-coffees.controller.ts:36](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/coffee/get-coffees/controller/get-coffees.controller.ts#L36)
 
 #### Parameters
 
@@ -60,7 +60,7 @@ Defined in: [coffee/get-coffees/controller/get-coffees.controller.ts:36](https:/
 handle(): ToolTextResponse;
 ```
 
-Defined in: [coffee/get-coffees/controller/get-coffees.controller.ts:43](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/coffee/get-coffees/controller/get-coffees.controller.ts#L43)
+Defined in: [coffee/get-coffees/controller/get-coffees.controller.ts:43](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/coffee/get-coffees/controller/get-coffees.controller.ts#L43)
 
 Retrieves all coffees and returns them as a JSON response.
 

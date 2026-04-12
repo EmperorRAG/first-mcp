@@ -20,7 +20,7 @@ function captureRegisterToolHandler(server: McpServer): {
 };
 ```
 
-Defined in: [testing/factory/mock-coffee.factory.ts:105](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/testing/factory/mock-coffee.factory.ts#L105)
+Defined in: [testing/factory/mock-coffee.factory.ts:105](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/testing/factory/mock-coffee.factory.ts#L105)
 
 Spies on `server.registerTool` and captures the registered tool name, config, and handler.
 
@@ -45,10 +45,10 @@ An object with accessor functions for call count, tool name, config, and handler
 
 | Name                        | Type                                         | Defined in                                                                                                                                                                              |
 | --------------------------- | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `getCallCount()`            | () => `number`                               | [testing/factory/mock-coffee.factory.ts:106](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/testing/factory/mock-coffee.factory.ts#L106) |
-| `getRegisteredToolName()`   | () => `string`                               | [testing/factory/mock-coffee.factory.ts:107](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/testing/factory/mock-coffee.factory.ts#L107) |
-| `getRegisteredToolConfig()` | () => `unknown`                              | [testing/factory/mock-coffee.factory.ts:108](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/testing/factory/mock-coffee.factory.ts#L108) |
-| `getHandler()`              | () => (...`args`: `unknown`\[]) => `unknown` | [testing/factory/mock-coffee.factory.ts:109](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/testing/factory/mock-coffee.factory.ts#L109) |
+| `getCallCount()`            | () => `number`                               | [testing/factory/mock-coffee.factory.ts:106](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/testing/factory/mock-coffee.factory.ts#L106) |
+| `getRegisteredToolName()`   | () => `string`                               | [testing/factory/mock-coffee.factory.ts:107](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/testing/factory/mock-coffee.factory.ts#L107) |
+| `getRegisteredToolConfig()` | () => `unknown`                              | [testing/factory/mock-coffee.factory.ts:108](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/testing/factory/mock-coffee.factory.ts#L108) |
+| `getHandler()`              | () => (...`args`: `unknown`\[]) => `unknown` | [testing/factory/mock-coffee.factory.ts:109](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/testing/factory/mock-coffee.factory.ts#L109) |
 
 ## Remarks
 

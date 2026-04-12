@@ -15,7 +15,7 @@ type: function
 function registerCoffeeDomain(server: McpServer): void;
 ```
 
-Defined in: [coffee/coffee.domain.ts:21](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/coffee/coffee.domain.ts#L21)
+Defined in: [coffee/coffee.domain.ts:21](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/coffee/coffee.domain.ts#L21)
 
 Registers all coffee domain tool modules on the MCP server.
 

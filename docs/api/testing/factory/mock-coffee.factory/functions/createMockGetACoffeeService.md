@@ -17,7 +17,7 @@ function createMockGetACoffeeService(coffee?:
   | undefined): GetACoffeeServiceClass;
 ```
 
-Defined in: [testing/factory/mock-coffee.factory.ts:55](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/testing/factory/mock-coffee.factory.ts#L55)
+Defined in: [testing/factory/mock-coffee.factory.ts:55](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/testing/factory/mock-coffee.factory.ts#L55)
 
 Creates a mock GetACoffeeService that returns a coffee when the name matches.
 

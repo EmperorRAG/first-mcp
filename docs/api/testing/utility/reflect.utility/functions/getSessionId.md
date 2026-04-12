@@ -15,7 +15,7 @@ type: function
 function getSessionId(headers: IncomingHttpHeaders): string | undefined;
 ```
 
-Defined in: [testing/utility/reflect.utility.ts:43](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/testing/utility/reflect.utility.ts#L43)
+Defined in: [testing/utility/reflect.utility.ts:43](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/testing/utility/reflect.utility.ts#L43)
 
 Extracts the `Mcp-Session-Id` header from an HTTP request.
 

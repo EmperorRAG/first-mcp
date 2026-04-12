@@ -11,7 +11,7 @@ type: interface
 
 # ToolTextResponse
 
-Defined in: [type/tool-response/tool-response.ts:13](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/type/tool-response/tool-response.ts#L13)
+Defined in: [type/tool-response/tool-response.ts:13](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/type/tool-response/tool-response.ts#L13)
 
 Standard response shape returned by MCP tool controllers.
 
@@ -30,7 +30,7 @@ Controllers return this type; the MCP SDK forwards it to the client.
 
 | Property                                | Type                                       | Description                                              | Defined in                                                                                                                                                                      |
 | --------------------------------------- | ------------------------------------------ | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| <a id="property-content"></a> `content` | { `type`: `"text"`; `text`: `string`; }\[] | Array of text content blocks returned to the MCP client. | [type/tool-response/tool-response.ts:16](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/type/tool-response/tool-response.ts#L16) |
+| <a id="property-content"></a> `content` | { `type`: `"text"`; `text`: `string`; }\[] | Array of text content blocks returned to the MCP client. | [type/tool-response/tool-response.ts:16](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/type/tool-response/tool-response.ts#L16) |
 
 ---
 

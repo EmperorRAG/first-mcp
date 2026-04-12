@@ -15,7 +15,7 @@ type: function
 function createCoffee(overrides?: Partial<Coffee>): Coffee;
 ```
 
-Defined in: [testing/factory/coffee.factory.ts:40](https://github.com/EmperorRAG/first-mcp/blob/1df9da293b0f83cbdcf2bdd1886c4a53f0e3e2c8/src/app/testing/factory/coffee.factory.ts#L40)
+Defined in: [testing/factory/coffee.factory.ts:40](https://github.com/EmperorRAG/first-mcp/blob/4112cd2ee9b9b05525039f4b7b060594d2aa7744/src/app/testing/factory/coffee.factory.ts#L40)
 
 Creates a Coffee entity with optional property overrides.
 
