@@ -10,7 +10,7 @@ import { InMemoryCoffeeRepository } from "../../shared/repository/coffee/coffee.
 import { registerGetCoffeesModule } from "../module/get-coffees.module.js";
 import { GetCoffeesService } from "../service/get-coffees.service.js";
 import { GetCoffeesController } from "../controller/get-coffees.controller.js";
-import type { ToolTextResponse } from "../../../common/type/tool-response/tool-response.js";
+import type { ToolTextResponse } from "../../../type/tool-response/tool-response.js";
 import type { Coffee } from "../../shared/type/coffee.types.js";
 import { parseCoffeeArrayJson } from "../../../testing/utility/coffee-parser.utility.js";
 

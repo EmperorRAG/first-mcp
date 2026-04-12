@@ -55,8 +55,8 @@ export default {
 	],
 	intentionallyNotDocumented: [
 		"coffee/get-a-coffee/dto/get-a-coffee.dto.GetACoffeeInputSchema.__type.name",
-		"common/type/tool-response/tool-response.ToolTextResponse.content.__type.type",
-		"common/type/tool-response/tool-response.ToolTextResponse.content.__type.text",
+		"type/tool-response/tool-response.ToolTextResponse.content.__type.type",
+		"type/tool-response/tool-response.ToolTextResponse.content.__type.text",
 	],
 	treatValidationWarningsAsErrors: true,
 

@@ -11,7 +11,7 @@ import { registerGetACoffeeModule } from "../module/get-a-coffee.module.js";
 import { GetACoffeeService } from "../service/get-a-coffee.service.js";
 import { GetACoffeeController } from "../controller/get-a-coffee.controller.js";
 import { GetACoffeeInputSchema } from "../dto/get-a-coffee.dto.js";
-import type { ToolTextResponse } from "../../../common/type/tool-response/tool-response.js";
+import type { ToolTextResponse } from "../../../type/tool-response/tool-response.js";
 import type { Coffee } from "../../shared/type/coffee.types.js";
 import { parseCoffeeJson } from "../../../testing/utility/coffee-parser.utility.js";
 
