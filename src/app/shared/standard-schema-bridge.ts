@@ -25,6 +25,7 @@ export function toStandardSchema<A, I>(
 	schema: Schema.Schema<A, I>,
 ) {
 	const jsonSchema = JSONSchema.make(schema);
+	const jsonSchemaRecord: Record<string, unknown> = { ...jsonSchema };
 
 	return {
 		"~standard": {
@@ -43,14 +44,14 @@ export function toStandardSchema<A, I>(
 					issues: issues.map((issue) => ({
 						message: issue.message,
 						path: issue.path.map((p) => ({
-							key: p as PropertyKey,
+							key: p,
 						})),
 					})),
 				};
 			},
 			jsonSchema: {
-				input: () => jsonSchema as unknown as Record<string, unknown>,
-				output: () => jsonSchema as unknown as Record<string, unknown>,
+				input: () => jsonSchemaRecord,
+				output: () => jsonSchemaRecord,
 			},
 		},
 	};

@@ -5,7 +5,6 @@
  */
 import { Layer } from "effect";
 import type { ManagedRuntime } from "effect";
-import type { McpServer } from "@modelcontextprotocol/server";
 import {
 	InMemoryCoffeeRepository,
 } from "./repository/coffee-repository.js";

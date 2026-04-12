@@ -54,8 +54,7 @@ export function registerGetACoffeeTool(
 				"Retrieve the data for a specific coffee based on its name",
 			inputSchema: GetACoffeeInputStandard,
 		},
-		async (args) => {
-			const { name } = args as { name: string };
+		async ({ name }: { name: string }) => {
 			return runtime.runPromise(
 				Effect.gen(function* () {
 					const service = yield* GetACoffeeService;

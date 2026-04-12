@@ -8,7 +8,7 @@
  *
  * @module
  */
-import { createServer, type IncomingMessage, type ServerResponse, type Server } from "node:http";
+import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import type { AddressInfo } from "node:net";
 import { randomUUID } from "node:crypto";
 import type { McpServer } from "@modelcontextprotocol/server";
@@ -149,7 +149,7 @@ export function startHttpServer(
 		sendJson(res, 400, { error: "Invalid or missing session" });
 	}
 
-	const httpServer = createServer(async (req, res) => {
+	async function handleIncoming(req: IncomingMessage, res: ServerResponse): Promise<void> {
 		if (!isValidHost(req.headers.host)) {
 			sendJson(res, 403, { error: "DNS rebinding protection" });
 			return;
@@ -176,11 +176,15 @@ export function startHttpServer(
 			} else {
 				sendJson(res, 404, { error: "Not found" });
 			}
-		} catch (error) {
+		} catch {
 			if (!res.headersSent) {
 				sendJson(res, 500, { error: "Internal server error" });
 			}
 		}
+	}
+
+	const httpServer = createServer((req, res) => {
+		void handleIncoming(req, res);
 	});
 
 	httpServer.listen(port, "0.0.0.0", () => {
@@ -197,6 +201,9 @@ export function startHttpServer(
 
 	return {
 		close,
-		address: () => httpServer.address() as AddressInfo | null,
+		address: () => {
+			const addr = httpServer.address();
+			return typeof addr === "string" ? null : addr;
+		},
 	};
 }

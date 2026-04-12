@@ -31,7 +31,7 @@ describe("CoffeeDomainLive", () => {
 			}),
 		);
 		expect(coffee).toBeDefined();
-		expect(coffee!.name).toBe("Cappuccino");
+		expect(coffee.name).toBe("Cappuccino");
 		await runtime.dispose();
 	});
 });
