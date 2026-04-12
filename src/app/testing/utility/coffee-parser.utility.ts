@@ -3,7 +3,7 @@
  *
  * @module
  */
-import type { Coffee } from "../../coffee/shared/type/coffee.types.js";
+import type { Coffee } from "../../coffee/types.js";
 import { getObjectProperty } from "./reflect.utility.js";
 
 /**

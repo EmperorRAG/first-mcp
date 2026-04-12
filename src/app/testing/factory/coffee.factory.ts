@@ -3,7 +3,7 @@
  *
  * @module
  */
-import type { Coffee } from "../../coffee/shared/type/coffee.types.js";
+import type { Coffee } from "../../coffee/types.js";
 
 /** Pre-built flat white Coffee fixture for unit and integration tests. */
 export const flatWhiteCoffee: Coffee = {
