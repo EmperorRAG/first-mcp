@@ -8,10 +8,6 @@
 		"build": "tsc -p tsconfig.build.json",
 		"test": "vitest run",
 		"test:unit": "vitest run --project unit",
-		"test:component": "vitest run --project component",
-		"test:service": "vitest run --project service",
-		"test:domain": "vitest run --project domain",
-		"test:feature": "vitest run --project component --project service --project domain",
 		"test:watch": "vitest",
 		"test:coverage": "vitest run --coverage",
 		"docs": "typedoc && remark docs/api --output --quiet",
@@ -26,18 +22,15 @@
 	"license": "ISC",
 	"dependencies": {
 		"@cfworker/json-schema": "^4.1.1",
-		"@modelcontextprotocol/express": "^2.0.0-alpha.2",
+		"@effect/platform": "^0.96.0",
+		"@effect/platform-node": "^0.106.0",
 		"@modelcontextprotocol/node": "^2.0.0-alpha.2",
 		"@modelcontextprotocol/server": "^2.0.0-alpha.2",
-		"cors": "^2.8.6",
-		"express": "^5.2.1",
-		"zod": "^4.3.6"
+		"effect": "^3.21.0"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
 		"@modelcontextprotocol/client": "^2.0.0-alpha.2",
-		"@types/cors": "^2.8.19",
-		"@types/express": "^5.0.0",
 		"@types/node": "^22.14.1",
 		"eslint": "^10.2.0",
 		"jiti": "^2.6.1",
