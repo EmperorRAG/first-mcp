@@ -1,18 +1,46 @@
 /**
- * Unit tests for Effect-based `GetACoffeeService`.
+ * Unit tests for the {@link GetACoffeeService}.
+ *
+ * @remarks
+ * Each test runs the service inside an isolated Effect DI container
+ * backed by {@link InMemoryCoffeeRepository}.  Validates:
+ *
+ * - **Happy path** — `execute` returns the correct {@link Coffee}
+ *   when a matching name exists in the repository.
+ * - **Not-found path** — `execute` fails with
+ *   {@link CoffeeNotFoundError} whose `coffeeName` matches the input.
+ * - **catchTag recovery** — the tagged error can be caught and
+ *   mapped using `Effect.catchTag("CoffeeNotFoundError", …)`.
  *
  * @module
  */
 import { describe, it, expect } from "vitest";
 import { Cause, Effect, Exit, Layer } from "effect";
 import { GetACoffeeService } from "./get-a-coffee.service.js";
-import { CoffeeNotFoundError } from "../errors.js";
-import { InMemoryCoffeeRepository } from "../repository/coffee-repository.js";
+import { CoffeeNotFoundError } from "../../errors.js";
+import { InMemoryCoffeeRepository } from "../../repository/coffee-repository.js";
 
+/**
+ * Test-only {@link Layer} wiring {@link GetACoffeeService} to the
+ * {@link InMemoryCoffeeRepository}.
+ *
+ * @internal
+ */
 const TestLayer = GetACoffeeService.Default.pipe(
 	Layer.provide(InMemoryCoffeeRepository),
 );
 
+/**
+ * Provides the {@link TestLayer} to an effect requiring
+ * {@link GetACoffeeService}, producing a fully satisfied effect.
+ *
+ * @typeParam A - Success value type.
+ * @typeParam E - Error channel type.
+ * @param effect - An effect that depends on {@link GetACoffeeService}.
+ * @returns The same effect with its service dependency fulfilled.
+ *
+ * @internal
+ */
 const runWithService = <A, E>(
 	effect: Effect.Effect<A, E, GetACoffeeService>,
 ) => Effect.provide(effect, TestLayer);
