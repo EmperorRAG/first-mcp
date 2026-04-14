@@ -5,7 +5,7 @@
  * Validates the structural contract of {@link CoffeeNotFoundError}:
  * the `_tag` discriminant value, the `coffeeName` payload, and the
  * `Error` prototype chain.  These properties are critical for
- * {@link Effect.catchTag} pattern matching and standard JavaScript
+ * `Effect.catchTag` pattern matching and standard JavaScript
  * error handling to work correctly.
  *
  * @module

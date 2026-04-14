@@ -33,7 +33,7 @@ import { GetACoffeeInput, GetACoffeeInputStandard } from "./get-a-coffee.schema.
  *
  * - **`execute(name)`** — returns `Effect<Coffee, CoffeeNotFoundError>`.
  *   Looks up the coffee in the repository via
- *   {@link CoffeeRepository.findByName} and fails with
+ *   `CoffeeRepository.findByName` and fails with
  *   {@link CoffeeNotFoundError} when {@link Option.isNone} is true.
  * - **`executeFormatted(name)`** — wraps `execute` to produce an
  *   MCP-compatible `{ content: [{ type: "text", text }] }` response,

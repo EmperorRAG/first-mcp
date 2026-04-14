@@ -4,7 +4,7 @@
  * @remarks
  * Each test constructs the {@link AppConfig} service in an isolated Effect
  * pipeline, providing `AppConfig.Default` and overriding the
- * {@link ConfigProvider} with `ConfigProvider.fromMap` so that individual
+ * `ConfigProvider` with `ConfigProvider.fromMap` so that individual
  * configuration keys can be set (or omitted) deterministically.  This
  * avoids any dependency on real environment variables.
  *
@@ -14,7 +14,7 @@
  *   the corresponding keys are absent from the config provider.
  * - Custom values are read correctly when present.
  * - Non-numeric `PORT` values produce an `Exit.Failure`, verifying that
- *   {@link Config.number} rejects invalid input at the config layer.
+ *   `Config.number` rejects invalid input at the config layer.
  *
  * @module
  */

@@ -198,8 +198,7 @@ export interface HttpServerHandle {
 	/**
 	 * Returns the network address the server is bound to, or `null` if
 	 * the server returned a UNIX socket path string (not applicable here
-	 * but part of the Node.js {@link import("node:net").Server.address}
-	 * contract).
+	 * but part of the Node.js `Server.address()` contract).
 	 *
 	 * @returns The bound {@link AddressInfo} containing `address`, `port`,
 	 *          and `family`, or `null`.

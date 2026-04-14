@@ -11,7 +11,24 @@ type: module
 
 # main
 
-Application entry point — resolves transport mode (`--stdio` or HTTP) and starts the server.
+Application entry point — resolves transport mode (`--stdio` or HTTP)
+and starts the MCP server.
+
+## Remarks
+
+Orchestrates the full server lifecycle:
+
+1. Composes the [AppLive](#) layer from [AppConfig](../config/app/app-config/classes/AppConfig.md) and
+   [CoffeeDomainLive](../service/coffee/domain/variables/CoffeeDomainLive.md).
+2. Creates a [ManagedRuntime](https://effect-ts.github.io/effect/) so Effect services are available
+   inside MCP tool handlers.
+3. Selects the transport based on `process.argv`:
+   - `--stdio` → [startStdioServer](../transport/stdio/stdio/functions/startStdioServer.md) (local VS Code integration)
+   - default  → [startHttpServer](../transport/http/http-transport/functions/startHttpServer.md) (Streamable HTTP for
+     network / Docker clients)
+4. Registers SIGTERM / SIGINT handlers that interrupt the root
+   [fiber](#), triggering [Effect.scoped](https://effect-ts.github.io/effect/) finalizers
+   (HTTP close, runtime dispose).
 
 ---
 

@@ -75,7 +75,7 @@ export function isCoffee(value: unknown): value is Coffee {
  *
  * @remarks
  * Calls `JSON.parse` then pipes the result through the pre-compiled
- * {@link decodeCoffee} decoder.  Throws a {@link ParseResult} error
+ * {@link decodeCoffee} decoder.  Throws a `ParseResult` error
  * if the parsed value does not conform to {@link CoffeeSchema}.
  *
  * @param text - A JSON string representing a {@link Coffee} object.

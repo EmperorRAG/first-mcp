@@ -6,8 +6,8 @@
  * Each test exercises the repository through the Effect dependency
  * injection system by providing {@link InMemoryCoffeeRepository} via
  * the {@link runWithRepo} helper.  This verifies both the
- * {@link CoffeeRepositoryShape} contract and the static
- * {@link coffeeDrinks | in-memory catalog} contents.
+ * `CoffeeRepositoryShape` contract and the static
+ * in-memory catalog contents.
  *
  * @module
  */

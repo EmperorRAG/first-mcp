@@ -4,7 +4,7 @@
  * @remarks
  * Each error extends {@link Data.TaggedError}, which adds a discriminant
  * `_tag` property to the `Error` subclass.  This enables exhaustive
- * pattern matching via {@link Effect.catchTag} in service and controller
+ * pattern matching via `Effect.catchTag` in service and controller
  * layers without resorting to `instanceof` checks.
  *
  * @module

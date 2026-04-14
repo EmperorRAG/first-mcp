@@ -37,7 +37,7 @@ import { Config, Effect } from "effect";
  * retains its literal type at the call site.
  *
  * Provide the service via `AppConfig.Default` (which uses the ambient
- * {@link ConfigProvider}) or swap in a custom {@link ConfigProvider} for
+ * `ConfigProvider`) or swap in a custom `ConfigProvider` for
  * testing.
  *
  * @example

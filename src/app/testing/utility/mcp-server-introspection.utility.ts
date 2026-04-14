@@ -4,10 +4,10 @@
  *
  * @deprecated All exports in this module are deprecated.  The
  * Effect-TS migration replaced the Zod-based tool schemas with
- * Effect Schema + {@link toStandardSchema}, making the
+ * Effect Schema + `toStandardSchema`, making the
  * `_registeredTools` reflection path unreliable.  Prefer testing
  * tool behavior through the MCP protocol (e.g., `tools/list` via
- * {@link StreamableHTTPClientTransport}) instead of reflecting on
+ * `StreamableHTTPClientTransport`) instead of reflecting on
  * server internals.
  *
  * @remarks
