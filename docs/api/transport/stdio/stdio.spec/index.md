@@ -14,7 +14,15 @@ layer: Unit Test
 
 > **Unit Test Layer**
 
-Unit tests for the stdio transport module, verifying `startStdioServer` is exported.
+Unit tests for the stdio transport module.
+
+## Remarks
+
+The stdio transport takes exclusive ownership of `process.stdin` /
+`process.stdout`, making full integration tests impractical within the
+same process.  This suite therefore limits itself to verifying the
+module's public export surface — confirming that [startStdioServer](../stdio/functions/startStdioServer.md)
+is present and callable.
 
 ---
 

@@ -5,7 +5,7 @@
  * This module defines the single source of truth for the {@link Coffee}
  * entity shape via an Effect {@link Schema.Struct}.  The
  * {@link CoffeeSchema} drives both runtime validation and JSON Schema
- * generation (through {@link toStandardSchema} in the MCP tool layer),
+ * generation (through `toStandardSchema` in the MCP tool layer),
  * while the {@link Coffee} type alias provides compile-time safety
  * throughout the domain, service, and repository layers.
  *
@@ -66,7 +66,7 @@ export const CoffeeSchema = Schema.Struct({
  * @remarks
  * Derived from {@link CoffeeSchema} via `typeof CoffeeSchema.Type`.  This
  * type alias is used throughout the coffee domain — in the
- * {@link CoffeeRepositoryShape} contract, service return types, and
+ * `CoffeeRepositoryShape` contract, service return types, and
  * controller response formatting — ensuring that any schema change
  * automatically propagates to all dependent code.
  */

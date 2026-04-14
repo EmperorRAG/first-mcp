@@ -54,16 +54,111 @@ export default {
 		"Module", "Interface", "Class", "TypeAlias", "Function", "Method", "Property",
 	],
 	intentionallyNotDocumented: [
-		"coffee/get-a-coffee/dto/get-a-coffee.dto.GetACoffeeInputSchema.__type.name",
-		"type/tool-response/tool-response.ToolTextResponse.content.__type.type",
-		"type/tool-response/tool-response.ToolTextResponse.content.__type.text",
-		"testing/factory/mock-coffee.factory.captureRegisterToolHandler.__type.getCallCount",
-		"testing/factory/mock-coffee.factory.captureRegisterToolHandler.__type.getRegisteredToolName",
-		"testing/factory/mock-coffee.factory.captureRegisterToolHandler.__type.getRegisteredToolConfig",
-		"testing/factory/mock-coffee.factory.captureRegisterToolHandler.__type.getHandler",
-		"coffee/step/coffee-domain.shared.steps.MCP_HEADERS.__type.Content-Type",
-		"coffee/step/coffee-domain.shared.steps.MCP_HEADERS.__type.Accept",
+		// ── AppConfig (Effect.Service anonymous return) ──────────────────
+		"config/app/app-config.AppConfig.__type.name",
+		"config/app/app-config.AppConfig.__type.version",
+		"config/app/app-config.AppConfig.__type.port",
+		"config/app/app-config.AppConfig.[unifySymbol].__type.effect",
+		"config/app/app-config.AppConfig.[unifySymbol].__type.effect.__type.name",
+		"config/app/app-config.AppConfig.[unifySymbol].__type.effect.__type.version",
+		"config/app/app-config.AppConfig.[unifySymbol].__type.effect.__type.port",
+		"config/app/app-config.AppConfig.name",
+		"config/app/app-config.AppConfig.version",
+		"config/app/app-config.AppConfig.port",
+
+		// ── toStandardSchema (return object literal) ────────────────────
+		"server/standard-schema-bridge.toStandardSchema.__type.~standard",
+		"server/standard-schema-bridge.toStandardSchema.__type.~standard.__type.version",
+		"server/standard-schema-bridge.toStandardSchema.__type.~standard.__type.vendor",
+		"server/standard-schema-bridge.toStandardSchema.__type.~standard.__type.validate",
+		"server/standard-schema-bridge.toStandardSchema.__type.~standard.__type.validate.__type.__type.value",
+		"server/standard-schema-bridge.toStandardSchema.__type.~standard.__type.validate.__type.__type.issues",
+		"server/standard-schema-bridge.toStandardSchema.__type.~standard.__type.validate.__type.__type.issues.__type.message",
+		"server/standard-schema-bridge.toStandardSchema.__type.~standard.__type.validate.__type.__type.issues.__type.path",
+		"server/standard-schema-bridge.toStandardSchema.__type.~standard.__type.validate.__type.__type.issues.__type.path.__type.key",
+		"server/standard-schema-bridge.toStandardSchema.__type.~standard.__type.jsonSchema",
+		"server/standard-schema-bridge.toStandardSchema.__type.~standard.__type.jsonSchema.__type.input",
+		"server/standard-schema-bridge.toStandardSchema.__type.~standard.__type.jsonSchema.__type.output",
+
+		// ── CoffeeNotFoundError (Data.TaggedError field) ────────────────
+		"service/coffee/errors.CoffeeNotFoundError.__type.coffeeName",
+		"service/coffee/errors.CoffeeNotFoundError.coffeeName",
+
+		// ── GetACoffeeInput (Schema.Struct field) ───────────────────────
+		"service/coffee/module/get-a-coffee/get-a-coffee.schema.GetACoffeeInput.__type.name",
+
+		// ── GetACoffeeInputStandard (~standard subtree) ─────────────────
+		"service/coffee/module/get-a-coffee/get-a-coffee.schema.GetACoffeeInputStandard.__type.~standard",
+		"service/coffee/module/get-a-coffee/get-a-coffee.schema.GetACoffeeInputStandard.__type.~standard.__type.version",
+		"service/coffee/module/get-a-coffee/get-a-coffee.schema.GetACoffeeInputStandard.__type.~standard.__type.vendor",
+		"service/coffee/module/get-a-coffee/get-a-coffee.schema.GetACoffeeInputStandard.__type.~standard.__type.validate",
+		"service/coffee/module/get-a-coffee/get-a-coffee.schema.GetACoffeeInputStandard.__type.~standard.__type.validate.__type.__type.value",
+		"service/coffee/module/get-a-coffee/get-a-coffee.schema.GetACoffeeInputStandard.__type.~standard.__type.validate.__type.__type.value.__type.name",
+		"service/coffee/module/get-a-coffee/get-a-coffee.schema.GetACoffeeInputStandard.__type.~standard.__type.validate.__type.__type.issues",
+		"service/coffee/module/get-a-coffee/get-a-coffee.schema.GetACoffeeInputStandard.__type.~standard.__type.validate.__type.__type.issues.__type.message",
+		"service/coffee/module/get-a-coffee/get-a-coffee.schema.GetACoffeeInputStandard.__type.~standard.__type.validate.__type.__type.issues.__type.path",
+		"service/coffee/module/get-a-coffee/get-a-coffee.schema.GetACoffeeInputStandard.__type.~standard.__type.validate.__type.__type.issues.__type.path.__type.key",
+		"service/coffee/module/get-a-coffee/get-a-coffee.schema.GetACoffeeInputStandard.__type.~standard.__type.jsonSchema",
+		"service/coffee/module/get-a-coffee/get-a-coffee.schema.GetACoffeeInputStandard.__type.~standard.__type.jsonSchema.__type.input",
+		"service/coffee/module/get-a-coffee/get-a-coffee.schema.GetACoffeeInputStandard.__type.~standard.__type.jsonSchema.__type.output",
+
+		// ── GetACoffeeService (Effect.Service anonymous return) ─────────
+		"service/coffee/module/get-a-coffee/get-a-coffee.service.GetACoffeeService.__type.execute",
+		"service/coffee/module/get-a-coffee/get-a-coffee.service.GetACoffeeService.__type.executeFormatted",
+		"service/coffee/module/get-a-coffee/get-a-coffee.service.GetACoffeeService.__type.executeFormatted.__type.__type.content",
+		"service/coffee/module/get-a-coffee/get-a-coffee.service.GetACoffeeService.__type.executeFormatted.__type.__type.content.__type.type",
+		"service/coffee/module/get-a-coffee/get-a-coffee.service.GetACoffeeService.__type.executeFormatted.__type.__type.content.__type.text",
+		"service/coffee/module/get-a-coffee/get-a-coffee.service.GetACoffeeService.[unifySymbol].__type.effect",
+		"service/coffee/module/get-a-coffee/get-a-coffee.service.GetACoffeeService.[unifySymbol].__type.effect.__type.execute",
+		"service/coffee/module/get-a-coffee/get-a-coffee.service.GetACoffeeService.[unifySymbol].__type.effect.__type.executeFormatted",
+		"service/coffee/module/get-a-coffee/get-a-coffee.service.GetACoffeeService.[unifySymbol].__type.effect.__type.executeFormatted.__type.__type.content",
+		"service/coffee/module/get-a-coffee/get-a-coffee.service.GetACoffeeService.execute",
+		"service/coffee/module/get-a-coffee/get-a-coffee.service.GetACoffeeService.executeFormatted",
+		"service/coffee/module/get-a-coffee/get-a-coffee.service.GetACoffeeService.executeFormatted.__type.__type.content",
+		"service/coffee/module/get-a-coffee/get-a-coffee.service.GetACoffeeService.executeFormatted.__type.__type.content.__type.type",
+		"service/coffee/module/get-a-coffee/get-a-coffee.service.GetACoffeeService.executeFormatted.__type.__type.content.__type.text",
+
+		// ── GetCoffeesService (Effect.Service anonymous return) ─────────
+		"service/coffee/module/get-coffees/get-coffees.service.GetCoffeesService.__type.execute",
+		"service/coffee/module/get-coffees/get-coffees.service.GetCoffeesService.__type.executeFormatted",
+		"service/coffee/module/get-coffees/get-coffees.service.GetCoffeesService.__type.executeFormatted.__type.content",
+		"service/coffee/module/get-coffees/get-coffees.service.GetCoffeesService.__type.executeFormatted.__type.content.__type.type",
+		"service/coffee/module/get-coffees/get-coffees.service.GetCoffeesService.__type.executeFormatted.__type.content.__type.text",
+		"service/coffee/module/get-coffees/get-coffees.service.GetCoffeesService.[unifySymbol].__type.effect",
+		"service/coffee/module/get-coffees/get-coffees.service.GetCoffeesService.[unifySymbol].__type.effect.__type.execute",
+		"service/coffee/module/get-coffees/get-coffees.service.GetCoffeesService.[unifySymbol].__type.effect.__type.executeFormatted",
+		"service/coffee/module/get-coffees/get-coffees.service.GetCoffeesService.[unifySymbol].__type.effect.__type.executeFormatted.__type.content",
+		"service/coffee/module/get-coffees/get-coffees.service.GetCoffeesService.[unifySymbol].__type.effect.__type.executeFormatted.__type.content.__type.type",
+		"service/coffee/module/get-coffees/get-coffees.service.GetCoffeesService.[unifySymbol].__type.effect.__type.executeFormatted.__type.content.__type.text",
+		"service/coffee/module/get-coffees/get-coffees.service.GetCoffeesService.execute",
+		"service/coffee/module/get-coffees/get-coffees.service.GetCoffeesService.executeFormatted",
+		"service/coffee/module/get-coffees/get-coffees.service.GetCoffeesService.executeFormatted.__type.content",
+		"service/coffee/module/get-coffees/get-coffees.service.GetCoffeesService.executeFormatted.__type.content.__type.type",
+		"service/coffee/module/get-coffees/get-coffees.service.GetCoffeesService.executeFormatted.__type.content.__type.text",
 	],
+
+	// External symbol link mappings (Section 2.5 — real documentation URLs)
+	externalSymbolLinkMappings: {
+		"effect": {
+			"*": "https://effect-ts.github.io/effect/",
+		},
+		"@modelcontextprotocol/server": {
+			"*": "https://github.com/modelcontextprotocol/typescript-sdk",
+		},
+		"@modelcontextprotocol/node": {
+			"*": "https://github.com/modelcontextprotocol/typescript-sdk",
+		},
+		"@types/node": {
+			"*": "https://nodejs.org/api/",
+		},
+		"typescript": {
+			"*": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference",
+		},
+		"coffee-mate": {
+			"*": "#",
+		},
+	},
+
 	treatValidationWarningsAsErrors: true,
 
 	// JSDoc compatibility (Section 2.1)

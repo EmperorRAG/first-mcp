@@ -5,7 +5,7 @@
  * Each test runs the service inside an isolated Effect DI container
  * backed by {@link InMemoryCoffeeRepository}.  Validates:
  *
- * - **Happy path** — `execute` returns the correct {@link Coffee}
+ * - **Happy path** — `execute` returns the correct `Coffee`
  *   when a matching name exists in the repository.
  * - **Not-found path** — `execute` fails with
  *   {@link CoffeeNotFoundError} whose `coffeeName` matches the input.

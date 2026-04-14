@@ -4,9 +4,9 @@
  *
  * @remarks
  * Provides low-level building blocks consumed by higher-level test
- * utilities such as {@link getRegisteredTools} in
+ * utilities such as `getRegisteredTools` in
  * `mcp-server-introspection.utility.ts` and
- * {@link parseToolsListPayload} in `mcp-response.utility.ts`.
+ * `parseToolsListPayload` in `mcp-response.utility.ts`.
  * Every function performs defensive `typeof` / `null` checks so
  * callers never need to narrow `unknown` manually.
  *
@@ -30,7 +30,7 @@ import type { IncomingHttpHeaders } from "node:http";
  * Returns `undefined` when `value` is not a non-null object, avoiding
  * the need for manual `typeof` / `null` guards at each call site.
  * Used extensively by {@link getStringProperty},
- * {@link getRegisteredTools}, {@link getSchemaShape}, and the
+ * `getRegisteredTools`, `getSchemaShape`, and the
  * MCP response parsers.
  *
  * @param value - The value to read from (may be any type).
@@ -71,7 +71,7 @@ export function getStringProperty(value: unknown, key: string): string | undefin
  *
  * @deprecated Superseded by the non-exported `getSessionId` helper
  * in `http-transport.ts`, which operates on the full
- * {@link IncomingMessage} instead of raw headers.  Will be removed
+ * `IncomingMessage` instead of raw headers.  Will be removed
  * in a future cleanup pass.
  *
  * @remarks
@@ -118,7 +118,7 @@ export function toResponseBody(value: unknown): Record<string, unknown> {
  * Uses a `typeof` check and returns a type predicate so callers can
  * safely invoke the value without additional casting.  Currently
  * consumed by the stdio transport spec to verify that
- * {@link startStdioServer} is a callable export.
+ * `startStdioServer` is a callable export.
  *
  * @param value - The value to check.
  * @returns `true` if `value` is a function; the compiler narrows the

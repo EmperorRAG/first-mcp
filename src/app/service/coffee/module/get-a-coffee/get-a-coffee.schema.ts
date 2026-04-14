@@ -44,7 +44,7 @@ export const GetACoffeeInput = Schema.Struct({ name: Schema.String });
  *
  * @remarks
  * Equivalent to `{ name: string }`.  Used as the parameter type for
- * {@link GetACoffeeService.execute} after schema validation.
+ * `GetACoffeeService.execute` after schema validation.
  */
 export type GetACoffeeInput = typeof GetACoffeeInput.Type;
 
@@ -63,7 +63,7 @@ export const GetACoffeeInputJsonSchema = JSONSchema.make(GetACoffeeInput);
  *
  * @remarks
  * Produced by {@link toStandardSchema}.  Passed as the `inputSchema`
- * option in {@link registerGetACoffeeTool} so the MCP SDK can
+ * option in `registerGetACoffeeTool` so the MCP SDK can
  * validate incoming tool calls at the protocol level.
  */
 export const GetACoffeeInputStandard = toStandardSchema(GetACoffeeInput);

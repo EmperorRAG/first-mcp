@@ -29,7 +29,7 @@ import { CoffeeRepository } from "../../repository/coffee-repository.js";
  * two accessors:
  *
  * - **`execute`** — returns `Effect<ReadonlyArray<Coffee>>` via
- *   {@link CoffeeRepository.findAll}.
+ *   `CoffeeRepository.findAll`.
  * - **`executeFormatted`** — wraps `execute` to produce an
  *   MCP-compatible `{ content: [{ type: "text", text }] }` response
  *   by JSON-serializing the full array.

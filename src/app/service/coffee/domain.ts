@@ -36,7 +36,7 @@ import {
  *
  * 1. {@link Layer.mergeAll} combines `GetCoffeesService.Default` and
  *    `GetACoffeeService.Default` into a single layer that requires
- *    {@link CoffeeRepository}.
+ *    `CoffeeRepository`.
  * 2. {@link Layer.provide} feeds {@link InMemoryCoffeeRepository} into
  *    that combined layer, eliminating the repository requirement.
  *

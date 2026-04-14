@@ -62,7 +62,7 @@ export function getTextContent(content: unknown): string | undefined {
  * Parses a `tools/list` JSON-RPC response and returns the tool names.
  *
  * @deprecated No longer imported by any test.  Use
- * {@link StreamableHTTPClientTransport} with a `tools/list` request
+ * `StreamableHTTPClientTransport` with a `tools/list` request
  * instead.
  *
  * @remarks
@@ -137,7 +137,7 @@ export function parseHealthStatus(payload: unknown): string {
  * JSON-parsing it.
  *
  * @deprecated No longer imported by any test.  The Streamable HTTP
- * transport replaced SSE; use {@link StreamableHTTPClientTransport}
+ * transport replaced SSE; use `StreamableHTTPClientTransport`
  * for E2E transport tests.
  *
  * @remarks

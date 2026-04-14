@@ -4,7 +4,7 @@
  *
  * @deprecated Both exports in this module are deprecated.  The
  * Effect-TS migration replaces `process.env.PORT` with
- * {@link AppConfig} backed by `Config.withDefault`, and tests now
+ * `AppConfig` backed by `Config.withDefault`, and tests now
  * use `ConfigProvider.fromMap` for isolation instead of mutating
  * environment variables.  Will be removed in a future cleanup pass.
  *

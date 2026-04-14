@@ -51,7 +51,7 @@ export const espressoCoffee: Coffee = {
  * Default list of {@link Coffee} fixtures used by mock repositories.
  *
  * @deprecated No longer imported by any test.  The Effect-TS
- * migration uses {@link InMemoryCoffeeRepository} with its own
+ * migration uses `InMemoryCoffeeRepository` with its own
  * built-in seed data.  Use individual fixtures
  * ({@link flatWhiteCoffee}, {@link espressoCoffee}) when specific
  * entities are needed.
