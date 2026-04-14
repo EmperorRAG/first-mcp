@@ -2,65 +2,73 @@
 
 ## Architecture
 
-MCP (Model Context Protocol) server with dual transport using a domain-driven module-service architecture. TypeScript source in `src/` compiles to `build/`. Entry point at `src/app/main.ts`.
+MCP (Model Context Protocol) server with dual transport using an Effect-TS domain-service architecture. TypeScript source in `src/` compiles to `build/`. Entry point at `src/app/main.ts`.
 
-### Module-Service Structure
+### Source Structure
 
 ```plaintext
 src/app/
 ├── main.ts                             — entry point (--stdio flag selects transport)
-├── server/
-│   └── mcp-server/
-│       └── mcp-server.ts              — createServer() factory, registers domains
 ├── config/
-│   └── mcp-server/
-│       └── mcp-server.config.ts       — PORT, server name/version
+│   └── app/
+│       ├── app-config.ts               — AppConfig Effect Service (PORT, server name/version)
+│       └── app-config.spec.ts
+├── server/
+│   ├── standard-schema-bridge.ts       — toStandardSchema() adapter (Effect Schema → MCP SDK)
+│   └── mcp/
+│       └── mcp-server.ts              — reserved for future MCP server helpers
 ├── transport/
 │   ├── http/
-│   │   └── http.ts                     — Express Streamable HTTP transport
+│   │   ├── http-transport.ts           — raw Node.js Streamable HTTP transport
+│   │   └── http-transport.spec.ts
 │   └── stdio/
-│       └── stdio.ts                    — Stdio transport for VS Code
-├── common/type/
-│   └── tool-response/
-│       └── tool-response.ts            — shared ToolTextResponse type
-└── coffee/                             — domain
-    ├── coffee.domain.ts                — domain barrel (registers all tool modules)
-    ├── shared/
-    │   ├── type/
-    │   │   └── coffee.types.ts         — Coffee interface
-    │   └── repository/
-    │       └── coffee/
-    │           ├── coffee.repository.ts      — CoffeeRepository interface + InMemory impl
-    │           └── coffee.repository.spec.ts
-    ├── get-coffees/                    — module-service per tool
-    │   ├── module/get-coffees.module.ts
-    │   ├── tool/get-coffees.tool.ts + .spec.ts
-    │   ├── controller/get-coffees.controller.ts + .spec.ts
-    │   └── service/get-coffees.service.ts + .spec.ts
-    └── get-a-coffee/
-        ├── module/get-a-coffee.module.ts
-        ├── tool/get-a-coffee.tool.ts + .spec.ts
-        ├── controller/get-a-coffee.controller.ts + .spec.ts
-        ├── service/get-a-coffee.service.ts + .spec.ts
-        └── dto/get-a-coffee.dto.ts
+│       ├── stdio.ts                    — Stdio transport for VS Code
+│       └── stdio.spec.ts
+├── service/
+│   └── coffee/                         — coffee domain
+│       ├── domain.ts                   — domain barrel (Layer composition + tool registration)
+│       ├── domain.spec.ts
+│       ├── types.ts                    — Coffee entity (Effect Schema.Struct)
+│       ├── errors.ts                   — CoffeeNotFoundError (Data.TaggedError)
+│       ├── errors.spec.ts
+│       ├── repository/
+│       │   ├── coffee-repository.ts    — CoffeeRepository tag + InMemory impl
+│       │   └── coffee-repository.spec.ts
+│       └── module/
+│           ├── get-coffees/
+│           │   ├── get-coffees.service.ts      — GetCoffeesService + registerGetCoffeesTool()
+│           │   └── get-coffees.service.spec.ts
+│           └── get-a-coffee/
+│               ├── get-a-coffee.service.ts     — GetACoffeeService + registerGetACoffeeTool()
+│               ├── get-a-coffee.service.spec.ts
+│               ├── get-a-coffee.schema.ts      — Effect Schema input + StandardSchema adapter
+│               └── get-a-coffee.schema.spec.ts
+└── testing/                            — test helpers (not shipped)
+    ├── factory/
+    │   └── coffee.factory.ts           — Coffee fixture builder
+    └── utility/
+        ├── coffee-parser.utility.ts    — coffee response parsing helpers
+        ├── env.utility.ts              — test environment config
+        ├── mcp-response.utility.ts     — MCP response assertion helpers
+        ├── mcp-server-introspection.utility.ts — tool introspection helpers
+        └── reflect.utility.ts          — MCP server reflection helpers
 ```
 
 ### Layer Responsibilities
 
 | Layer | Responsibility |
 |---|---|
-| **Tool** (`*.tool.ts`) | MCP `registerTool()` wiring — name, description, inputSchema. Thin delegate to controller |
-| **Controller** (`*.controller.ts`) | Input validation (Zod via DTOs), response formatting, error shaping. Protocol-agnostic |
-| **Service** (`*.service.ts`) | Business logic. Delegates to repository |
+| **Domain** (`domain.ts`) | Composes service Layers, provides repository, exports `registerCoffeeTools()` |
+| **Service** (`*.service.ts`) | Business logic + MCP `registerTool()` wiring via `registerXxxTool()`. Delegates to repository |
+| **Schema** (`*.schema.ts`) | Effect Schema input definitions, JSON Schema derivation, StandardSchema adapter |
 | **Repository** (`*.repository.ts`) | Data access interface. `InMemory*` impl for now (database-ready interface) |
-| **DTO** (`*.dto.ts`) | Zod input/output schemas |
-| **Types** (`*.types.ts`) | Domain interfaces and types |
-| **Module** (`*.module.ts`) | Wires repo → service → controller → tool |
-| **Domain** (`*.domain.ts`) | Creates shared resources (repo), registers all tool modules |
+| **Types** (`types.ts`) | Domain entities as Effect `Schema.Struct` definitions |
+| **Errors** (`errors.ts`) | Domain errors as `Data.TaggedError` — enables `Effect.catchTag` matching |
+| **Standard Schema Bridge** (`standard-schema-bridge.ts`) | Adapts Effect Schema to `StandardSchemaWithJSON` for MCP SDK |
 
 ### Transport Modes
 
-- **Streamable HTTP (default)**: Express HTTP server exposing `POST /mcp`, `GET /mcp` (SSE backward compat), `DELETE /mcp` (session termination), and `GET /health`. Uses `NodeStreamableHTTPServerTransport` with stateful sessions (`Mcp-Session-Id` header). `createMcpExpressApp()` provides DNS rebinding protection. Used for Docker and network-based clients.
+- **Streamable HTTP (default)**: Raw Node.js HTTP server exposing `POST /mcp`, `GET /mcp` (SSE backward compat), `DELETE /mcp` (session termination), and `GET /health`. Uses `NodeStreamableHTTPServerTransport` with stateful sessions (`Mcp-Session-Id` header). DNS rebinding protection validates `Host` header against loopback addresses. Sessions tracked in an Effect `Ref` holding a transport map. CORS headers added manually. Used for Docker and network-based clients.
 - **stdio (`--stdio` flag)**: `StdioServerTransport` for local VS Code MCP integration via `.vscode/mcp.json`.
 
 ## Build and Test
@@ -68,101 +76,33 @@ src/app/
 ```bash
 npm install              # Install dependencies
 npm run build            # Compile TypeScript (src/ → build/)
-npm test                 # Run all tests (Vitest — unit + Gherkin)
+npm test                 # Run all tests (Vitest)
 npm run test:unit        # Unit tests only (*.spec.ts)
-npm run test:component   # Component Gherkin features
-npm run test:service     # Service Gherkin features
-npm run test:domain      # Domain Gherkin features (integration + E2E)
-npm run test:feature     # All Gherkin features (component + service + domain)
 npm run test:watch       # Watch mode
 npm run test:coverage    # Coverage report
+npm run docs             # Generate TypeDoc API docs + remark formatting
+npm run docs:lint        # Lint committed docs/api with remark
+npm run lint:ts          # ESLint check
+npm run fix:ts           # ESLint auto-fix
+npm run lint:md          # Remark Markdown lint
+npm run format:md        # Remark Markdown auto-format
 docker build -t coffee-mate-mcp .  # Build Docker image
 ```
 
 After code changes, always run `npm run build` before testing the MCP server. When running inside Docker Compose (via `first-n8n`), use `--build` flag to pick up source changes.
 
-### Gherkin / BDD Tests
-
-Feature files live in `docs/features/` organized by scope. Step definitions live alongside source in `src/` under `step/` subfolders. [quickpickle](https://github.com/dnotes/quickpickle) integrates Gherkin with Vitest.
-
-#### Feature File Locations
-
-```plaintext
-docs/features/
-├── coffee/
-│   ├── components/coffee-repository/   — component-level (repository isolation)
-│   │   ├── coffee-repository.unit.feature
-│   │   ├── coffee-repository.integration.feature
-│   │   └── coffee-repository.contract.feature
-│   ├── services/
-│   │   ├── get-coffees/                — service-level (tool → controller → service → repo)
-│   │   │   ├── get-coffees.integration.feature
-│   │   │   └── get-coffees.contract.feature
-│   │   └── get-a-coffee/
-│   │       ├── get-a-coffee.integration.feature
-│   │       └── get-a-coffee.contract.feature
-│   ├── coffee-domain.integration.feature  — domain-level (cross-tool registration)
-│   ├── coffee-domain.contract.feature     — domain-level (tool metadata contracts)
-│   └── coffee-domain.e2e.feature          — E2E (MCP client + HTTP transport)
-├── server/
-│   └── components/
-│       ├── mcp-server-config/          — server config module
-│       │   ├── mcp-server-config.unit.feature
-│       │   └── mcp-server-config.contract.feature
-│       └── mcp-server-factory/         — createServer factory
-│           ├── mcp-server-factory.unit.feature
-│           └── mcp-server-factory.contract.feature
-└── transport/
-    └── components/
-        ├── stdio-transport/            — stdio transport module
-        │   └── stdio-transport.unit.feature
-        └── http-transport/             — HTTP transport component
-            ├── http-transport.integration.feature
-            └── http-transport.contract.feature
-```
-
-#### Step Definition Locations
-
-```plaintext
-src/app/coffee/
-├── shared/repository/coffee/step/coffee-repository.steps.ts  — component steps
-├── get-coffees/step/get-coffees.steps.ts              — service steps
-├── get-a-coffee/step/get-a-coffee.steps.ts            — service steps
-└── step/coffee-domain.steps.ts                        — domain + E2E steps
-src/app/config/mcp-server/step/mcp-server-config.steps.ts     — server config component steps
-src/app/server/mcp-server/step/mcp-server-factory.steps.ts    — server factory component steps
-src/app/transport/http/step/http-transport.steps.ts            — HTTP transport component steps
-src/app/transport/stdio/step/stdio-transport.steps.ts          — stdio transport component steps
-```
-
-#### Vitest Projects
-
-| Project | Scope | Includes |
-|---|---|---|
-| `unit` | Unit tests | `src/**/*.spec.ts` |
-| `component` | Component features | `docs/features/**/components/**/*.feature` |
-| `service` | Service features | `docs/features/**/services/**/*.feature` |
-| `domain` | Domain + E2E features | `docs/features/coffee/*.feature` |
-
-#### E2E Tags
-
-- `@in-process` — Uses `StreamableHTTPClientTransport` against loopback server
-- `@http` — Uses raw `fetch` against loopback server (health, session termination)
-
 ## Conventions
 
 - **ES Modules**: Project uses `"type": "module"` — use `import`/`export`, not `require`
-- **Module-service pattern**: Each MCP tool gets its own module-service folder under its domain with singular-named layer subfolders (`tool/`, `controller/`, `service/`, `dto/`, `module/`). Specs are co-located alongside implementation files
-- **Domain registration**: Domain barrels (`*.domain.ts`) create shared resources and register tool modules. `src/app/server/mcp-server/mcp-server.ts` registers domains
-- **Tool registration**: Use `server.registerTool(name, config, handler)` inside `*.tool.ts` files — the older `server.tool()` is deprecated
-- **Input validation**: Use Zod schemas in `*.dto.ts` files, referenced by tool `inputSchema` and validated in controllers
-- **Tool responses**: Controllers return `ToolTextResponse` type: `{ content: [{ type: "text", text: string }] }`
+- **Effect-TS core**: `Effect.Service` for DI tags, `Layer` for composition, `Data.TaggedError` for typed errors, `Config` for environment-sourced configuration, `ManagedRuntime` to bridge Effect services into MCP tool callbacks via `runtime.runPromise()`
+- **Module-service pattern**: Each MCP tool gets its own folder under `module/` within its domain. Service files (`*.service.ts`) contain both business logic and `registerXxxTool()` wiring. Schema files (`*.schema.ts`) define Effect Schema inputs and export StandardSchema adapters. Specs are co-located alongside implementation files
+- **Domain registration**: Domain barrels (`domain.ts`) compose service `Layer`s and export a `registerXxxTools()` function. `src/app/main.ts` calls these registration functions during startup
+- **Tool registration**: Use `server.registerTool(name, config, handler)` inside `registerXxxTool()` functions in `*.service.ts` files — the older `server.tool()` is deprecated
+- **Input validation**: Use Effect Schema in `*.schema.ts` files. Each schema file exports the Effect Schema, a JSON Schema derivation via `JSONSchema.make()`, and a StandardSchema adapter via `toStandardSchema()`. The adapter is referenced by tool `inputSchema`
+- **Standard Schema bridge**: `toStandardSchema()` in `server/standard-schema-bridge.ts` adapts Effect Schema to the `StandardSchemaWithJSON` interface required by MCP SDK's `registerTool()`
+- **Error handling**: Domain errors extend `Data.TaggedError` with a unique `_tag` string — enables exhaustive `Effect.catchTag` matching without `instanceof` checks. Field names must not shadow `Error.name` (e.g., use `coffeeName` instead of `name`)
 - **Strict TypeScript**: `strict: true` is enabled — no implicit `any`, null checks required
-- **Zod import**: Use `import * as z from "zod/v4"` (SDK v2 convention)
-- **Body parsing**: Always pass `req.body` as the third argument to `transport.handleRequest(req, res, req.body)` — `express.json()` consumes the stream, so the SDK cannot re-read it
-- **Session management**: Each `POST /mcp` initialize request creates a new `NodeStreamableHTTPServerTransport` and `McpServer` instance; subsequent requests reuse the transport via the `Mcp-Session-Id` header
+- **Session management**: Each `POST /mcp` initialize request creates a new `NodeStreamableHTTPServerTransport` and `McpServer` instance; subsequent requests reuse the transport via the `Mcp-Session-Id` header. Sessions are tracked in an Effect `Ref` holding a transport map
 - **Port configuration**: `PORT` env var controls HTTP server port (default `3001`)
 - **Health endpoint**: `GET /health` returns `{ status: "ok" }` — used by Docker healthcheck
-- **Test framework**: Vitest with co-located `*.spec.ts` files for unit tests. Gherkin `*.feature` files in `docs/features/` with co-located `*.steps.ts` in `src/` under `step/` subfolders. Both are excluded from TypeScript build via `tsconfig.json`
-- **Gherkin plugin**: quickpickle — each Vitest project that runs `.feature` files must include `plugins: [quickpickle()]` and reference step files via `setupFiles`
-- **Step definitions**: Use `Given`/`When`/`Then` from `"quickpickle"`. World state is passed as the first argument. Step files use `.steps.ts` extension
+- **Test framework**: Vitest with co-located `*.spec.ts` files for unit tests, excluded from TypeScript build via `tsconfig.json`
