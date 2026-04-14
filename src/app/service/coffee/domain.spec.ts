@@ -1,13 +1,21 @@
 /**
- * Unit tests for Effect-based coffee domain layer composition.
+ * Unit tests for the {@link CoffeeDomainLive} layer composition.
+ *
+ * @remarks
+ * Each test creates an isolated {@link ManagedRuntime} from
+ * {@link CoffeeDomainLive}, exercises one of the domain services
+ * ({@link GetCoffeesService}, {@link GetACoffeeService}), and disposes
+ * the runtime afterward.  This validates that the layer composes
+ * correctly — all service tags are satisfied and the underlying
+ * {@link InMemoryCoffeeRepository} is wired through.
  *
  * @module
  */
 import { describe, it, expect } from "vitest";
 import { Effect, ManagedRuntime } from "effect";
 import { CoffeeDomainLive } from "./domain.js";
-import { GetCoffeesService } from "./get-coffees/get-coffees.service.js";
-import { GetACoffeeService } from "./get-a-coffee/get-a-coffee.service.js";
+import { GetCoffeesService } from "./module/get-coffees/get-coffees.service.js";
+import { GetACoffeeService } from "./module/get-a-coffee/get-a-coffee.service.js";
 
 describe("CoffeeDomainLive", () => {
 	it("provides GetCoffeesService", async () => {

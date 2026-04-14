@@ -1,5 +1,17 @@
 /**
- * Unit tests for `GetACoffeeInput` Effect Schema and StandardSchema bridge.
+ * Unit tests for the {@link GetACoffeeInput} Effect Schema and its
+ * {@link GetACoffeeInputStandard | StandardSchema} bridge.
+ *
+ * @remarks
+ * Validates:
+ *
+ * - **JSON Schema shape** — the generated
+ *   {@link GetACoffeeInputJsonSchema} has the expected `type` and
+ *   `properties`.
+ * - **StandardSchema validation** — valid input produces a `value`
+ *   without `issues`; invalid input produces `issues`.
+ * - **Type inference** — the inferred `GetACoffeeInput.Type` is
+ *   structurally usable as a plain object with a `name` property.
  *
  * @module
  */
