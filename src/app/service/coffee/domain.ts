@@ -1,13 +1,14 @@
 /**
- * Coffee domain — composes the repository and service {@link Layer}s and
- * registers all MCP tools for the coffee catalog.
+ * Coffee domain — composes the service {@link Layer}s and registers
+ * all MCP tools for the coffee catalog.
  *
  * @remarks
  * This module is the domain barrel for the coffee bounded context.  It
- * wires shared infrastructure ({@link InMemoryCoffeeRepository}) into each
- * tool-service ({@link GetCoffeesService}, {@link GetACoffeeService}) via
- * {@link Layer.mergeAll} and {@link Layer.provide}, producing a single
- * {@link CoffeeDomainLive} layer.  The {@link registerCoffeeTools}
+ * merges the self-contained service layers
+ * ({@link GetCoffeesService.Default}, {@link GetACoffeeService.Default})
+ * via {@link Layer.mergeAll}, producing a single
+ * {@link CoffeeDomainLive} layer.  Each service bundles its own
+ * repository dependency internally.  The {@link registerCoffeeTools}
  * function then connects the fully-provided services to the MCP server
  * through a {@link ManagedRuntime}.
  *
@@ -15,9 +16,6 @@
  */
 import { Layer } from "effect";
 import type { ManagedRuntime } from "effect";
-import {
-	InMemoryCoffeeRepository,
-} from "./repository/coffee-repository.js";
 import {
 	GetCoffeesService,
 	registerGetCoffeesTool,
@@ -28,21 +26,15 @@ import {
 } from "./module/get-a-coffee/get-a-coffee.service.js";
 
 /**
- * Composed {@link Layer} providing all coffee domain services with their
- * repository dependency already satisfied.
+ * Composed {@link Layer} providing all coffee domain services.
  *
  * @remarks
- * Construction proceeds in two steps:
- *
- * 1. {@link Layer.mergeAll} combines `GetCoffeesService.Default` and
- *    `GetACoffeeService.Default` into a single layer that requires
- *    `CoffeeRepository`.
- * 2. {@link Layer.provide} feeds {@link InMemoryCoffeeRepository} into
- *    that combined layer, eliminating the repository requirement.
- *
- * The resulting layer has no unsatisfied dependencies and can be handed
- * directly to {@link ManagedRuntime.make} for use in the MCP server
- * startup sequence.
+ * {@link Layer.mergeAll} combines `GetCoffeesService.Default` and
+ * `GetACoffeeService.Default` into a single layer.  Each service
+ * bundles {@link CoffeeRepository.Default} via its `dependencies`
+ * array, so the resulting layer has no unsatisfied dependencies and
+ * can be handed directly to {@link ManagedRuntime.make} for use in
+ * the MCP server startup sequence.
  *
  * @example
  * ```ts
@@ -55,7 +47,7 @@ import {
 export const CoffeeDomainLive = Layer.mergeAll(
 	GetCoffeesService.Default,
 	GetACoffeeService.Default,
-).pipe(Layer.provide(InMemoryCoffeeRepository));
+);
 
 /**
  * Union of all service tags that {@link CoffeeDomainLive} satisfies.

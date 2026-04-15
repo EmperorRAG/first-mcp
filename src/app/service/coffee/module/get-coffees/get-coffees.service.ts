@@ -25,7 +25,9 @@ import { CoffeeRepository } from "../../repository/coffee-repository.js";
  *
  * @remarks
  * Created via {@link Effect.Service} with an `effect` factory that
- * resolves {@link CoffeeRepository} from the DI context.  Exposes
+ * resolves {@link CoffeeRepository} from the DI context.  The
+ * `dependencies` array bundles {@link CoffeeRepository.Default} so
+ * that `GetCoffeesService.Default` is fully self-contained.  Exposes
  * two accessors:
  *
  * - **`execute`** — returns `Effect<ReadonlyArray<Coffee>>` via
@@ -64,6 +66,7 @@ export class GetCoffeesService extends Effect.Service<GetCoffeesService>()(
 				),
 			};
 		}),
+		dependencies: [CoffeeRepository.Default],
 	},
 ) { }
 

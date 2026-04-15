@@ -2,29 +2,20 @@
  * Unit tests for the {@link GetCoffeesService}.
  *
  * @remarks
- * Runs the service inside an isolated Effect DI container backed by
- * {@link InMemoryCoffeeRepository}.  Validates that `execute` returns
- * all four seed coffees with the expected `name` and `price` properties.
+ * Runs the service inside an isolated Effect DI container via
+ * {@link GetCoffeesService.Default} (which bundles
+ * {@link CoffeeRepository.Default} internally).  Validates that
+ * `execute` returns all four seed coffees with the expected `name`
+ * and `price` properties.
  *
  * @module
  */
 import { describe, it, expect } from "vitest";
-import { Effect, Layer } from "effect";
+import { Effect } from "effect";
 import { GetCoffeesService } from "./get-coffees.service.js";
-import { InMemoryCoffeeRepository } from "../../repository/coffee-repository.js";
 
 /**
- * Test-only {@link Layer} wiring {@link GetCoffeesService} to the
- * {@link InMemoryCoffeeRepository}.
- *
- * @internal
- */
-const TestLayer = GetCoffeesService.Default.pipe(
-	Layer.provide(InMemoryCoffeeRepository),
-);
-
-/**
- * Provides the {@link TestLayer} to an effect requiring
+ * Provides {@link GetCoffeesService.Default} to an effect requiring
  * {@link GetCoffeesService} and runs it as a {@link Promise}.
  *
  * @typeParam A - Success value type.
@@ -35,7 +26,7 @@ const TestLayer = GetCoffeesService.Default.pipe(
  */
 const runWithService = <A>(
 	effect: Effect.Effect<A, never, GetCoffeesService>,
-) => Effect.runPromise(Effect.provide(effect, TestLayer));
+) => Effect.runPromise(Effect.provide(effect, GetCoffeesService.Default));
 
 describe("GetCoffeesService (Effect)", () => {
 	it("execute returns all coffees from the repository", async () => {
