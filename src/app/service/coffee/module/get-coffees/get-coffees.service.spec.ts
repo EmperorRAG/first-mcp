@@ -11,8 +11,9 @@
  * @module
  */
 import { describe, it, expect } from "vitest";
-import { Effect } from "effect";
+import { Effect, Schema } from "effect";
 import { GetCoffeesService } from "./get-coffees.service.js";
+import { CoffeeSchema } from "../../type/coffee/coffee.type.js";
 
 /**
  * Provides {@link GetCoffeesService.Default} to an effect requiring
@@ -39,5 +40,21 @@ describe("GetCoffeesService (Effect)", () => {
 		expect(coffees).toHaveLength(4);
 		expect(coffees[0]).toHaveProperty("name");
 		expect(coffees[0]).toHaveProperty("price");
+	});
+
+	it("property: all returned coffees decode against CoffeeSchema", async () => {
+		const decode = Schema.decodeUnknownSync(CoffeeSchema);
+
+		const coffees = await runWithService(
+			Effect.gen(function* () {
+				const service = yield* GetCoffeesService;
+				return yield* service.execute;
+			}),
+		);
+
+		expect(coffees.length).toBeGreaterThan(0);
+		for (const coffee of coffees) {
+			expect(() => decode(coffee)).not.toThrow();
+		}
 	});
 });

@@ -12,7 +12,7 @@
  *
  * @module
  */
-import type { Coffee } from "../../service/coffee/types.js";
+import type { Coffee } from "../../service/coffee/type/coffee/coffee.type.js";
 
 /**
  * Pre-built flat white {@link Coffee} fixture.

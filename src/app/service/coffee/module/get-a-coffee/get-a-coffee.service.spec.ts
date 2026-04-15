@@ -16,9 +16,10 @@
  * @module
  */
 import { describe, it, expect } from "vitest";
-import { Cause, Effect, Exit } from "effect";
+import { Cause, Effect, Exit, Schema } from "effect";
 import { GetACoffeeService } from "./get-a-coffee.service.js";
 import { CoffeeNotFoundError } from "../../errors.js";
+import { CoffeeSchema } from "../../type/coffee/coffee.type.js";
 
 /**
  * Provides {@link GetACoffeeService.Default} to an effect requiring
@@ -83,5 +84,23 @@ describe("GetACoffeeService (Effect)", () => {
 			),
 		);
 		expect(result).toBe("not found: nonexistent");
+	});
+
+	it("property: execute result for a known name decodes against CoffeeSchema", async () => {
+		const knownNames = ["Flat White", "Cappuccino", "Latte", "Espresso"];
+		const decode = Schema.decodeUnknownSync(CoffeeSchema);
+
+		for (const name of knownNames) {
+			const coffee = await Effect.runPromise(
+				runWithService(
+					Effect.gen(function* () {
+						const service = yield* GetACoffeeService;
+						return yield* service.execute(name);
+					}),
+				),
+			);
+			expect(() => decode(coffee)).not.toThrow();
+			expect(coffee.name).toBe(name);
+		}
 	});
 });
