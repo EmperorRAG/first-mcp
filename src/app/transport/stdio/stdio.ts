@@ -1,66 +1,61 @@
 /**
- * Stdio transport — connects an {@link McpServer} to a
- * {@link StdioServerTransport} for local VS Code MCP integration.
+ * Stdio transport implementation — slim {@link Layer.succeed} adapter
+ * for local VS Code MCP integration.
  *
  * @remarks
- * When the application is launched with the `--stdio` CLI flag, this
- * module is used instead of the HTTP transport.  Communication flows
- * over `process.stdin` (incoming JSON-RPC) and `process.stdout`
- * (outgoing JSON-RPC), making it suitable for editor extensions that
- * spawn the server as a child process.  The canonical client
- * configuration lives in `.vscode/mcp.json`.
+ * Provides the {@link StdioTransportLive} layer satisfying the shared
+ * {@link Transport} tag for stdio mode.  Because the SDK's
+ * {@link StdioServerTransport} auto-handles `stdin`/`stdout` after
+ * `server.connect()`, the transport methods are intentionally minimal:
  *
- * Because stdio is inherently single-session, no session map or
- * transport cleanup logic is required — the process lifecycle manages
- * the connection.
+ * | Method | Behavior |
+ * |--------|---------|
+ * | {@link TransportShape.parse | parse} | Decodes via {@link McpRequest.decodeRawStdioMessage} |
+ * | {@link TransportShape.respond | respond} | No-op — responses flow through the SDK |
+ * | {@link TransportShape.handleMcp | handleMcp} | No-op — SDK reads `stdin` directly |
+ *
+ * All server lifecycle and SDK transport management live in the
+ * {@link McpServerService} — this layer has no dependencies and no
+ * state.
  *
  * @module
  */
-import type { McpServer } from "@modelcontextprotocol/server";
-import { StdioServerTransport } from "@modelcontextprotocol/server";
-import { Effect } from "effect";
+import { Effect, Layer } from "effect";
+import { Transport } from "../transport.js";
+import { McpRequest } from "../mcp-request.js";
 
 /**
- * Connects an {@link McpServer} to a {@link StdioServerTransport} and
- * begins listening for JSON-RPC messages on `process.stdin`, writing
- * responses to `process.stdout`.
+ * {@link Layer} providing the stdio implementation of the shared
+ * {@link Transport} tag.
  *
  * @remarks
- * This transport is activated when the application is launched with the
- * `--stdio` CLI flag (see `main.ts`).  It is the primary integration
- * path for local VS Code MCP clients configured via `.vscode/mcp.json`.
+ * Constructed via {@link Layer.succeed} — no dependencies, no scoped
+ * resources.  The `respond` and `handleMcp` methods are no-ops because
+ * stdio's bidirectional message flow is handled entirely by the SDK's
+ * {@link StdioServerTransport} after `server.connect()`.
  *
- * Internally the function:
- *
- * 1. Instantiates a {@link StdioServerTransport} — the MCP SDK class
- *    that reads newline-delimited JSON-RPC from `stdin` and writes
- *    responses to `stdout`.
- * 2. Connects the provided {@link McpServer} to the transport via
- *    {@link McpServer.connect}, which begins the bidirectional message
- *    loop.
- * 3. Logs a confirmation message via {@link Effect.logInfo}.
- *
- * Because stdio is inherently single-session (one `stdin`/`stdout` pair),
- * no session map or transport cleanup is required — the process lifecycle
- * manages the connection.
- *
- * @param server - A fully-configured {@link McpServer} instance with all
- *        domains and tools already registered.
- * @returns An {@link Effect.Effect} that resolves once the transport is
- *          connected and the server is ready to receive messages.
+ * Provide this layer when {@link AppConfig.mode} is `"stdio"` (or when
+ * the `--stdio` CLI flag is present).
  *
  * @example
  * ```ts
- * import { Effect } from "effect";
- * import { startStdioServer } from "./stdio.js";
+ * import { Layer } from "effect";
+ * import { StdioTransportLive } from "./stdio.js";
  *
- * const server = createMcpServer();
- * await Effect.runPromise(startStdioServer(server));
+ * const AppLive = Layer.mergeAll(AppConfig.Default, StdioTransportLive);
  * ```
  */
-export const startStdioServer = (server: McpServer): Effect.Effect<void> =>
-	Effect.gen(function* () {
-		const transport = new StdioServerTransport();
-		yield* Effect.promise(() => server.connect(transport));
-		yield* Effect.logInfo("MCP Server running on stdio");
-	});
+export const StdioTransportLive: Layer.Layer<Transport> = Layer.succeed(
+	Transport,
+	{
+		parse: (raw) => {
+			// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+			const msg = raw as { readonly body: unknown };
+			return McpRequest.decodeRawStdioMessage(msg);
+		},
+
+		respond: () => Effect.void,
+
+		handleMcp: () => Effect.void,
+	},
+);

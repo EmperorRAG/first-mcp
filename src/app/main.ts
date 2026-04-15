@@ -1,108 +1,113 @@
 /**
- * Application entry point — resolves transport mode (`--stdio` or HTTP)
- * and starts the MCP server.
+ * Application entry point — resolves transport mode from configuration
+ * (with `--stdio` CLI override), composes the service layers, and starts
+ * the MCP server via the {@link McpServerService}.
  *
  * @remarks
  * Orchestrates the full server lifecycle:
  *
- * 1. Composes the {@link AppLive} layer from {@link AppConfig} and
- *    {@link CoffeeDomainLive}.
- * 2. Creates a {@link ManagedRuntime} so Effect services are available
- *    inside MCP tool handlers.
- * 3. Selects the transport based on `process.argv`:
- *    - `--stdio` → {@link startStdioServer} (local VS Code integration)
- *    - default  → {@link startHttpServer} (Streamable HTTP for
- *      network / Docker clients)
- * 4. Registers SIGTERM / SIGINT handlers that interrupt the root
- *    {@link fiber}, triggering {@link Effect.scoped} finalizers
- *    (HTTP close, runtime dispose).
+ * 1. Reads {@link AppConfig.mode} from the environment, applying the
+ *    `--stdio` CLI override via {@link resolveTransportMode}.
+ * 2. Selects the appropriate {@link Transport} and {@link Router}
+ *    layers based on the resolved mode.
+ * 3. Composes {@link McpServerServiceLive} with domain layers and
+ *    creates a {@link ManagedRuntime}.
+ * 4. Resolves the {@link McpServerService} and calls
+ *    {@link McpServerServiceShape.start | start()}.
+ * 5. Registers SIGTERM / SIGINT handlers that interrupt the root
+ *    {@link fiber}, triggering {@link Effect.scoped} finalizers.
  *
  * @module
  */
 import { Effect, Fiber, Layer, ManagedRuntime } from "effect";
-import { McpServer } from "@modelcontextprotocol/server";
 import { AppConfig } from "./config/app/app-config.js";
 import {
 	CoffeeDomainLive,
 	registerCoffeeTools,
 } from "./service/coffee/domain.js";
-import { startHttpServer } from "./transport/http/http-transport.js";
-import { startStdioServer } from "./transport/stdio/stdio.js";
+import { HttpTransportLive } from "./transport/http/http-transport.js";
+import { StdioTransportLive } from "./transport/stdio/stdio.js";
+import { HttpRouterLive } from "./router/http/http-router.js";
+import { StdioRouterLive } from "./router/stdio/stdio-router.js";
+import {
+	McpServerService,
+	McpServerServiceLive,
+} from "./server/mcp/mcp-server.js";
 
 /**
- * Top-level application {@link Layer} composing all required services.
+ * Resolves the effective transport mode by checking the `--stdio` CLI
+ * flag first, then falling back to the `TRANSPORT_MODE` config value.
  *
  * @remarks
- * Merges {@link AppConfig.Default} (configuration) with
- * {@link CoffeeDomainLive} (repository + coffee services) into a
- * single layer that is provided to the {@link ManagedRuntime}.
+ * The `--stdio` flag takes precedence over the environment variable so
+ * that `.vscode/mcp.json` launch configurations continue to work without
+ * requiring `TRANSPORT_MODE=stdio` in the environment.
+ *
+ * @param configMode - The transport mode read from {@link AppConfig}.
+ * @returns `"stdio"` when the CLI flag is present; otherwise `configMode`.
  *
  * @internal
  */
-const AppLive = Layer.mergeAll(AppConfig.Default, CoffeeDomainLive);
+const resolveTransportMode = (configMode: "http" | "stdio"): "http" | "stdio" =>
+	process.argv.includes("--stdio") ? "stdio" : configMode;
 
 /**
- * Main application program that selects and starts a transport.
+ * Main application program that resolves the transport and starts the
+ * MCP server.
  *
  * @remarks
  * Execution proceeds as follows:
  *
- * 1. Creates a {@link ManagedRuntime} from {@link AppLive}, which
- *    provides {@link AppConfig} and all coffee domain services.
- * 2. Reads `name`, `version`, and `port` from the resolved config.
- * 3. Checks `process.argv` for the `--stdio` flag:
- *    - **Stdio mode** — creates a single {@link McpServer}, registers
- *      coffee tools, and starts {@link startStdioServer}.
- *    - **HTTP mode** — passes a factory function to
- *      {@link startHttpServer} that creates a fresh
- *      {@link McpServer} per session.  Registers an
- *      {@link Effect.addFinalizer | finalizer} to close the HTTP
- *      server on shutdown.
- * 4. Registers a finalizer to dispose the {@link ManagedRuntime}
- *    (releasing all service resources).
- * 5. Suspends indefinitely with {@link Effect.never} so the server
+ * 1. Reads the configured transport mode and applies the `--stdio` CLI
+ *    override via {@link resolveTransportMode}.
+ * 2. Selects the transport, router, and MCP server layers by mode.
+ * 3. Composes the full runtime layer and creates a
+ *    {@link ManagedRuntime}.
+ * 4. Resolves the {@link McpServerService} and calls
+ *    {@link McpServerServiceShape.start | start()}.
+ * 5. Registers a finalizer to dispose the {@link ManagedRuntime}.
+ * 6. Suspends indefinitely with {@link Effect.never} so the server
  *    stays alive until interrupted.
  *
  * @internal
  */
 const program = Effect.gen(function* () {
-	const runtime = ManagedRuntime.make(AppLive);
-
-	const config = yield* Effect.promise(() =>
-		runtime.runPromise(
+	const modeConfig = yield* Effect.promise(() =>
+		Effect.runPromise(
 			Effect.gen(function* () {
 				const appConfig = yield* AppConfig;
-				return {
-					name: appConfig.name,
-					version: appConfig.version,
-					port: appConfig.port,
-				};
-			}),
+				return appConfig.mode;
+			}).pipe(Effect.provide(AppConfig.Default)),
 		),
 	);
 
-	const useStdio = process.argv.includes("--stdio");
+	const mode = resolveTransportMode(modeConfig);
 
-	if (useStdio) {
-		const server = new McpServer({ name: config.name, version: config.version });
-		registerCoffeeTools(server, runtime);
-		yield* startStdioServer(server);
-	} else {
-		const handle = yield* startHttpServer(
-			() => {
-				const server = new McpServer({ name: config.name, version: config.version });
-				registerCoffeeTools(server, runtime);
-				return server;
-			},
-			config.port,
-		);
+	const transportLayer = mode === "stdio" ? StdioTransportLive : HttpTransportLive;
+	const routerLayer = mode === "stdio" ? StdioRouterLive : HttpRouterLive;
 
-		yield* Effect.addFinalizer(() =>
-			Effect.promise(() => handle.close()).pipe(
-				Effect.andThen(Effect.logInfo("HTTP server closed")),
-			),
-		);
-	}
+	const depsLayer = Layer.mergeAll(AppConfig.Default, transportLayer, routerLayer);
+	const mcpServerProvided = McpServerServiceLive(registerCoffeeTools).pipe(
+		Layer.provide(depsLayer),
+	);
+	const appLayer = Layer.mergeAll(
+		AppConfig.Default,
+		CoffeeDomainLive,
+		transportLayer,
+		routerLayer,
+		mcpServerProvided,
+	);
+
+	const runtime = ManagedRuntime.make(appLayer);
+
+	yield* Effect.promise(() =>
+		runtime.runPromise(
+			Effect.gen(function* () {
+				const svc = yield* McpServerService;
+				yield* svc.start();
+			}),
+		),
+	);
 
 	yield* Effect.addFinalizer(() =>
 		Effect.promise(() => runtime.dispose()).pipe(
