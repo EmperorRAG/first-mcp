@@ -1,21 +1,30 @@
 /**
- * Unit tests for the stdio transport module.
+ * Unit tests for the {@link StdioTransportLive} layer.
  *
  * @remarks
  * The stdio transport takes exclusive ownership of `process.stdin` /
  * `process.stdout`, making full integration tests impractical within the
- * same process.  This suite therefore limits itself to verifying the
- * module's public export surface — confirming that {@link startStdioServer}
- * is present and callable.
+ * same process.  This suite verifies the module's public export surface
+ * — confirming that {@link StdioTransportLive} correctly satisfies the
+ * shared {@link Transport} tag with the new parse/respond/handleMcp
+ * interface.
  *
  * @module
  */
 import { describe, it, expect } from "vitest";
-import { startStdioServer } from "./stdio.js";
-import { isFunctionValue } from "../../testing/utility/reflect.utility.js";
+import { Effect } from "effect";
+import { StdioTransportLive } from "./stdio.js";
+import { Transport } from "../transport.js";
 
-describe("startStdioServer", () => {
-	it("exports a function", () => {
-		expect(isFunctionValue(startStdioServer)).toBe(true);
+describe("StdioTransportLive", () => {
+	it("resolves Transport from the container", async () => {
+		const transport = await Effect.runPromise(
+			Effect.gen(function* () {
+				return yield* Transport;
+			}).pipe(Effect.provide(StdioTransportLive)),
+		);
+		expect(typeof transport.parse).toBe("function");
+		expect(typeof transport.respond).toBe("function");
+		expect(typeof transport.handleMcp).toBe("function");
 	});
 });

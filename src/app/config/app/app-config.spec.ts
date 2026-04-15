@@ -10,11 +10,14 @@
  *
  * The suite validates:
  *
- * - Default values for `SERVER_NAME`, `SERVER_VERSION`, and `PORT` when
- *   the corresponding keys are absent from the config provider.
+ * - Default values for `SERVER_NAME`, `SERVER_VERSION`, `PORT`, and
+ *   `TRANSPORT_MODE` when the corresponding keys are absent from the
+ *   config provider.
  * - Custom values are read correctly when present.
  * - Non-numeric `PORT` values produce an `Exit.Failure`, verifying that
  *   `Config.number` rejects invalid input at the config layer.
+ * - Invalid `TRANSPORT_MODE` values (e.g. `"websocket"`) produce an
+ *   `Exit.Failure`, verifying the {@link Config.validate} guard.
  *
  * @module
  */
@@ -97,6 +100,50 @@ describe("AppConfig", () => {
 				Effect.provide(AppConfig.Default),
 				Effect.withConfigProvider(
 					ConfigProvider.fromMap(new Map([["PORT", "not-a-number"]])),
+				),
+			),
+		);
+		expect(result._tag).toBe("Failure");
+	});
+
+	it("provides default mode 'http' when TRANSPORT_MODE is unset", async () => {
+		const config = await Effect.runPromise(
+			Effect.gen(function* () {
+				return yield* AppConfig;
+			}).pipe(
+				Effect.provide(AppConfig.Default),
+				Effect.withConfigProvider(ConfigProvider.fromMap(new Map())),
+			),
+		);
+		expect(config.mode).toBe("http");
+	});
+
+	it("reads TRANSPORT_MODE 'stdio' from config provider", async () => {
+		const config = await Effect.runPromise(
+			Effect.gen(function* () {
+				return yield* AppConfig;
+			}).pipe(
+				Effect.provide(AppConfig.Default),
+				Effect.withConfigProvider(
+					ConfigProvider.fromMap(
+						new Map([["TRANSPORT_MODE", "stdio"]]),
+					),
+				),
+			),
+		);
+		expect(config.mode).toBe("stdio");
+	});
+
+	it("rejects invalid TRANSPORT_MODE values", async () => {
+		const result = await Effect.runPromiseExit(
+			Effect.gen(function* () {
+				return yield* AppConfig;
+			}).pipe(
+				Effect.provide(AppConfig.Default),
+				Effect.withConfigProvider(
+					ConfigProvider.fromMap(
+						new Map([["TRANSPORT_MODE", "websocket"]]),
+					),
 				),
 			),
 		);
