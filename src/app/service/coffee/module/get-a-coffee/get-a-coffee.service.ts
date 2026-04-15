@@ -19,7 +19,7 @@ import { Effect, Option, Schema } from "effect";
 import type { McpServer } from "@modelcontextprotocol/server";
 import type { ManagedRuntime } from "effect";
 import { CoffeeRepository } from "../../repository/coffee-repository.js";
-import type { Coffee } from "../../types.js";
+import type { Coffee } from "../../type/coffee/coffee.type.js";
 import { CoffeeNotFoundError } from "../../errors.js";
 import { GetACoffeeInput, GetACoffeeInputStandard } from "./get-a-coffee.schema.js";
 

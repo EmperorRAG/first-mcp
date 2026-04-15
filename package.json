@@ -24,6 +24,7 @@
 		"@cfworker/json-schema": "^4.1.1",
 		"@effect/platform": "^0.96.0",
 		"@effect/platform-node": "^0.106.0",
+		"@faker-js/faker": "^10.4.0",
 		"@modelcontextprotocol/node": "^2.0.0-alpha.2",
 		"@modelcontextprotocol/server": "^2.0.0-alpha.2",
 		"effect": "^3.21.0"
