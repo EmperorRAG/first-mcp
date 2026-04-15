@@ -21,7 +21,7 @@
  *
  * @module
  */
-import { describe, it, expect, expectTypeOf } from "vitest";
+import { describe, it, expect, expectTypeOf } from "@effect/vitest";
 import { JSONSchema, Schema } from "effect";
 import { CoffeeSchema, type Coffee } from "./coffee.type.js";
 import { sampleCoffee } from "./coffee.arbitrary.js";
