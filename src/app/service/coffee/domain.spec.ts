@@ -7,7 +7,7 @@
  * ({@link GetCoffeesService}, {@link GetACoffeeService}), and disposes
  * the runtime afterward.  This validates that the layer composes
  * correctly — all service tags are satisfied and the underlying
- * `InMemoryCoffeeRepository` is wired through.
+ * {@link CoffeeRepository.Default} is wired through.
  *
  * @module
  */

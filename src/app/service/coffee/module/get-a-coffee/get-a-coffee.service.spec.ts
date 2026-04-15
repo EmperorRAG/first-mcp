@@ -3,7 +3,8 @@
  *
  * @remarks
  * Each test runs the service inside an isolated Effect DI container
- * backed by {@link InMemoryCoffeeRepository}.  Validates:
+ * via {@link GetACoffeeService.Default} (which bundles
+ * {@link CoffeeRepository.Default} internally).  Validates:
  *
  * - **Happy path** — `execute` returns the correct `Coffee`
  *   when a matching name exists in the repository.
@@ -15,23 +16,12 @@
  * @module
  */
 import { describe, it, expect } from "vitest";
-import { Cause, Effect, Exit, Layer } from "effect";
+import { Cause, Effect, Exit } from "effect";
 import { GetACoffeeService } from "./get-a-coffee.service.js";
 import { CoffeeNotFoundError } from "../../errors.js";
-import { InMemoryCoffeeRepository } from "../../repository/coffee-repository.js";
 
 /**
- * Test-only {@link Layer} wiring {@link GetACoffeeService} to the
- * {@link InMemoryCoffeeRepository}.
- *
- * @internal
- */
-const TestLayer = GetACoffeeService.Default.pipe(
-	Layer.provide(InMemoryCoffeeRepository),
-);
-
-/**
- * Provides the {@link TestLayer} to an effect requiring
+ * Provides {@link GetACoffeeService.Default} to an effect requiring
  * {@link GetACoffeeService}, producing a fully satisfied effect.
  *
  * @typeParam A - Success value type.
@@ -43,7 +33,7 @@ const TestLayer = GetACoffeeService.Default.pipe(
  */
 const runWithService = <A, E>(
 	effect: Effect.Effect<A, E, GetACoffeeService>,
-) => Effect.provide(effect, TestLayer);
+) => Effect.provide(effect, GetACoffeeService.Default);
 
 describe("GetACoffeeService (Effect)", () => {
 	it("execute returns a coffee when found", async () => {

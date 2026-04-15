@@ -28,7 +28,9 @@ import { GetACoffeeInput, GetACoffeeInputStandard } from "./get-a-coffee.schema.
  *
  * @remarks
  * Created via {@link Effect.Service} with an `effect` factory that
- * resolves {@link CoffeeRepository} from the DI context.  Exposes
+ * resolves {@link CoffeeRepository} from the DI context.  The
+ * `dependencies` array bundles {@link CoffeeRepository.Default} so
+ * that `GetACoffeeService.Default` is fully self-contained.  Exposes
  * two methods:
  *
  * - **`execute(name)`** — returns `Effect<Coffee, CoffeeNotFoundError>`.
@@ -83,6 +85,7 @@ export class GetACoffeeService extends Effect.Service<GetACoffeeService>()(
 					),
 			};
 		}),
+		dependencies: [CoffeeRepository.Default],
 	},
 ) { }
 
