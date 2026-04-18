@@ -1,0 +1,12 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`CoffeeCaffeineContentSchema > JSON Schema snapshot > When generating JSON Schema, Then output matches snapshot 1`] = `
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "a number between 0 and 500",
+  "maximum": 500,
+  "minimum": 0,
+  "title": "between(0, 500)",
+  "type": "integer",
+}
+`;
