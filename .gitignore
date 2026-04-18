@@ -2,3 +2,9 @@ node_modules
 build
 docs/api.json
 docs/api-html
+
+# Temporary files
+.github/instructions/doc-commenting.instructions.md
+.github/instructions/typescript-testing-strategy.instructions.md
+.github/skills/effect-ts-refactoring/references/patterns.md
+.github/skills/effect-ts-refactoring/SKILL.md

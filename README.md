@@ -17,9 +17,17 @@ npm run build
 
 ### Docker
 
+Multi-stage build: `builder` stage compiles TypeScript, `runner` stage copies only production dependencies and compiled output. Non-root `app` user. `HEALTHCHECK` via `wget` against `/health`.
+
 ```bash
 docker build -t coffee-mate-mcp .
 docker run -p 3001:3001 coffee-mate-mcp
+```
+
+Override environment variables at runtime:
+
+```bash
+docker run -p 8080:8080 -e PORT=8080 -e ACTIVE_TOOLS="get-coffees" coffee-mate-mcp
 ```
 
 ## Running
@@ -40,20 +48,30 @@ node build/app/main.js --stdio
 # MCP Server running on stdio
 ```
 
+## Environment Variables
+
+| Variable         | Type   | Default         | Description                                          |
+| ---------------- | ------ | --------------- | ---------------------------------------------------- |
+| `PORT`           | number | `3001`          | HTTP server port                                     |
+| `TRANSPORT_MODE` | string | `"http"`        | `"http"` or `"stdio"`                                |
+| `SERVER_NAME`    | string | `"coffee-mate"` | MCP server identity                                  |
+| `SERVER_VERSION` | string | `"1.0.0"`       | Semver version                                       |
+| `ACTIVE_TOOLS`   | string | `""`            | Comma-separated tool names to register (empty = all) |
+
 ## API Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/health` | GET | Healthcheck — returns `{ "status": "ok" }` |
-| `/mcp` | POST | MCP JSON-RPC message handler (initialize creates a session) |
-| `/mcp` | GET | SSE backward-compatibility stream |
-| `/mcp` | DELETE | Explicit session termination |
+| Endpoint  | Method | Description                                                 |
+| --------- | ------ | ----------------------------------------------------------- |
+| `/health` | GET    | Healthcheck — returns `{ "status": "ok" }`                  |
+| `/mcp`    | POST   | MCP JSON-RPC message handler (initialize creates a session) |
+| `/mcp`    | GET    | SSE backward-compatibility stream                           |
+| `/mcp`    | DELETE | Explicit session termination                                |
 
 ## MCP Tools
 
-| Tool | Description | Parameters |
-|------|-------------|------------|
-| `get-coffees` | Returns a list of all coffees | None |
+| Tool           | Description                                  | Parameters      |
+| -------------- | -------------------------------------------- | --------------- |
+| `get-coffees`  | Returns a list of all coffees                | None            |
 | `get-a-coffee` | Retrieves data for a specific coffee by name | `name` (string) |
 
 ## Connecting to VS Code
@@ -63,6 +81,13 @@ The project includes a `.vscode/mcp.json` config that uses stdio mode. Open the 
 ## Docker Networking (n8n integration)
 
 When running inside the `first-n8n` Docker Compose stack, this server is available to other containers at `http://coffee-mate-mcp:3001/mcp` on the `demo` network. See the `first-n8n` project for the full stack setup.
+
+## CI/CD
+
+GitHub Actions workflow (`.github/workflows/deploy.yml`):
+
+- **`ci` job**: Runs `build` → `lint:ts` → `test` on all branches and pull requests targeting `main`
+- **`deploy` job**: Builds Docker image, pushes to Azure Container Registry, deploys to Azure Container Apps. Gated to `main` push only
 
 ## API Documentation
 
