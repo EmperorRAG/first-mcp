@@ -35,6 +35,9 @@ import { CoffeeRepository } from "../../repository/coffee-repository.js";
  * - **`executeFormatted`** — wraps `execute` to produce an
  *   MCP-compatible `{ content: [{ type: "text", text }] }` response
  *   by JSON-serializing the full array.
+ * - **`metaData`** — static object with `name` (`"get-coffees"`) and
+ *   `description` (`"Get a list of all coffees"`) for MCP tool
+ *   registration.
  *
  * Both accessors attach an OpenTelemetry span via `Effect.withSpan`.
  *
@@ -63,7 +66,12 @@ export class GetCoffeesService extends Effect.Service<GetCoffeesService>()(
 					Effect.map((coffees) => ({
 						content: [{ type: "text" as const, text: JSON.stringify(coffees) }],
 					})),
+					Effect.withSpan("GetCoffeesService.executeFormatted"),
 				),
+				metaData: {
+					name: "get-coffees" as const,
+					description: "Get a list of all coffees" as const,
+				},
 			};
 		}),
 		dependencies: [CoffeeRepository.Default],

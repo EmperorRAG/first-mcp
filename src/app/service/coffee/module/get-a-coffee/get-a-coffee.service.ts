@@ -41,6 +41,10 @@ import { GetACoffeeInput, GetACoffeeInputStandard } from "./get-a-coffee.schema.
  *   MCP-compatible `{ content: [{ type: "text", text }] }` response,
  *   catching {@link CoffeeNotFoundError} internally and returning a
  *   user-friendly message instead of propagating the error.
+ * - **`metaData`** — static object with `name` (`"get-a-coffee"`)
+ *   and `description` for MCP tool registration.
+ * - **`inputSchema`** — {@link GetACoffeeInputStandard} adapter
+ *   for MCP SDK input validation.
  *
  * Both methods attach an OpenTelemetry span via `Effect.withSpan`.
  *
@@ -60,19 +64,17 @@ export class GetACoffeeService extends Effect.Service<GetACoffeeService>()(
 	{
 		effect: Effect.gen(function* () {
 			const repo = yield* CoffeeRepository;
+			const execute = (name: string): Effect.Effect<Coffee, CoffeeNotFoundError> =>
+				Effect.flatMap(repo.findByName(name), Option.match({
+					onNone: () => Effect.fail(new CoffeeNotFoundError({ coffeeName: name })),
+					onSome: (coffee) => Effect.succeed(coffee),
+				})).pipe(
+					Effect.withSpan("GetACoffeeService.execute", { attributes: { name } }),
+				);
 			return {
-				execute: (name: string): Effect.Effect<Coffee, CoffeeNotFoundError> =>
-					Effect.flatMap(repo.findByName(name), Option.match({
-						onNone: () => Effect.fail(new CoffeeNotFoundError({ coffeeName: name })),
-						onSome: (coffee) => Effect.succeed(coffee),
-					})).pipe(
-						Effect.withSpan("GetACoffeeService.execute", { attributes: { name } }),
-					),
+				execute,
 				executeFormatted: (name: string) =>
-					Effect.flatMap(repo.findByName(name), Option.match({
-						onNone: () => Effect.fail(new CoffeeNotFoundError({ coffeeName: name })),
-						onSome: (coffee) => Effect.succeed(coffee),
-					})).pipe(
+					execute(name).pipe(
 						Effect.map((coffee) => ({
 							content: [{ type: "text" as const, text: JSON.stringify(coffee) }],
 						})),
@@ -83,6 +85,11 @@ export class GetACoffeeService extends Effect.Service<GetACoffeeService>()(
 						),
 						Effect.withSpan("GetACoffeeService.executeFormatted", { attributes: { name } }),
 					),
+				metaData: {
+					name: "get-a-coffee" as const,
+					description: "Retrieve the data for a specific coffee based on its name" as const,
+				},
+				inputSchema: GetACoffeeInputStandard,
 			};
 		}),
 		dependencies: [CoffeeRepository.Default],
