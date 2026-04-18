@@ -1,92 +1,106 @@
 /**
- * Coffee domain — composes the service {@link Layer}s and registers
- * all MCP tools for the coffee catalog.
+ * Coffee domain — Effect service that exposes each coffee tool as a
+ * named {@link RegisterableTool} property plus a registration helper.
  *
  * @remarks
- * This module is the domain barrel for the coffee bounded context.  It
- * merges the self-contained service layers
- * ({@link GetCoffeesService.Default}, {@link GetACoffeeService.Default})
- * via {@link Layer.mergeAll}, producing a single
- * {@link CoffeeDomainLive} layer.  Each service bundles its own
- * repository dependency internally.  The {@link registerCoffeeTools}
- * function then connects the fully-provided services to the MCP server
- * through a {@link ManagedRuntime}.
+ * This module is the domain barrel for the coffee bounded context.
+ * {@link CoffeeDomain} is an {@link Effect.Service} whose `effect`
+ * factory yields the child services
+ * ({@link GetCoffeesService}, {@link GetACoffeeService}) and returns
+ * an object whose values satisfy the {@link RegisterableTool} interface.
+ *
+ * The standalone {@link registerCoffeeTools} function iterates over
+ * the domain's tool properties and registers only those whose
+ * `metaData.name` appears in the given {@link ActiveToolsRecord}.
  *
  * @module
  */
-import { Layer } from "effect";
+import { Effect } from "effect";
+import type { McpServer } from "@modelcontextprotocol/server";
 import type { ManagedRuntime } from "effect";
-import {
-	GetCoffeesService,
-	registerGetCoffeesTool,
-} from "./module/get-coffees/get-coffees.service.js";
-import {
-	GetACoffeeService,
-	registerGetACoffeeTool,
-} from "./module/get-a-coffee/get-a-coffee.service.js";
+import { GetCoffeesService } from "./module/get-coffees/get-coffees.service.js";
+import { GetACoffeeService } from "./module/get-a-coffee/get-a-coffee.service.js";
+import type {
+	RegisterableTool,
+	ActiveToolsRecord,
+} from "../../server/mcp/registerable-tool.js";
 
 /**
- * Composed {@link Layer} providing all coffee domain services.
+ * Effect service exposing coffee domain tools as named properties.
  *
  * @remarks
- * {@link Layer.mergeAll} combines `GetCoffeesService.Default` and
- * `GetACoffeeService.Default` into a single layer.  Each service
- * bundles {@link CoffeeRepository.Default} via its `dependencies`
- * array, so the resulting layer has no unsatisfied dependencies and
- * can be handed directly to {@link ManagedRuntime.make} for use in
- * the MCP server startup sequence.
+ * Each property (`getCoffees`, `getACoffee`) satisfies the
+ * {@link RegisterableTool} interface, carrying `metaData`,
+ * optional `inputSchema`, and `executeFormatted`.  The `dependencies`
+ * array bundles both child services so the domain can be provided
+ * with a single `CoffeeDomain.Default`.
  *
  * @example
  * ```ts
- * import { ManagedRuntime } from "effect";
- * import { CoffeeDomainLive } from "./domain.js";
+ * import { Effect } from "effect";
+ * import { CoffeeDomain } from "./domain.js";
  *
- * const runtime = ManagedRuntime.make(CoffeeDomainLive);
+ * const program = Effect.gen(function* () {
+ *   const domain = yield* CoffeeDomain;
+ *   console.log(domain.getCoffees.metaData.name);
+ * });
  * ```
  */
-export const CoffeeDomainLive = Layer.mergeAll(
-	GetCoffeesService.Default,
-	GetACoffeeService.Default,
-);
+export class CoffeeDomain extends Effect.Service<CoffeeDomain>()(
+	"CoffeeDomain",
+	{
+		effect: Effect.gen(function* () {
+			const getCoffeesService = yield* GetCoffeesService;
+			const getACoffeeService = yield* GetACoffeeService;
+			return {
+				getCoffees: {
+					metaData: getCoffeesService.metaData,
+					executeFormatted: getCoffeesService.executeFormatted,
+				} satisfies RegisterableTool,
+				getACoffee: {
+					metaData: getACoffeeService.metaData,
+					inputSchema: getACoffeeService.inputSchema,
+					executeFormatted: getACoffeeService.executeFormatted,
+				} satisfies RegisterableTool,
+			};
+		}),
+		dependencies: [GetCoffeesService.Default, GetACoffeeService.Default],
+	},
+) { }
 
 /**
- * Union of all service tags that {@link CoffeeDomainLive} satisfies.
+ * Registers active coffee tools on the given MCP server.
  *
  * @remarks
- * Used as the `R` (requirements) type parameter when constructing a
- * {@link ManagedRuntime.ManagedRuntime} from {@link CoffeeDomainLive}.
- * The union currently includes {@link GetCoffeesService} and
- * {@link GetACoffeeService}; extending the domain with new tools means
- * adding their service tags here.
- */
-export type CoffeeDomainServices = GetCoffeesService | GetACoffeeService;
-
-/**
- * Registers every coffee domain tool on the given MCP server.
+ * Iterates over every property of the resolved {@link CoffeeDomain}
+ * and registers a tool only when its `metaData.name` key exists in
+ * the {@link ActiveToolsRecord}.  Each tool's async handler delegates
+ * to `executeFormatted` via the provided {@link ManagedRuntime}.
  *
- * @remarks
- * Delegates to the per-tool registration functions
- * ({@link registerGetCoffeesTool}, {@link registerGetACoffeeTool}),
- * passing the shared {@link ManagedRuntime} so that each tool's handler
- * can resolve its service from the runtime via `runtime.runPromise`.
- *
- * Adding a new tool to the coffee domain requires:
- *
- * 1. Creating the tool-service module under `module/`.
- * 2. Importing and calling its `register*Tool` function here.
- * 3. Adding its service tag to {@link CoffeeDomainServices}.
- *
- * @param server - The MCP server instance to register tools on.  Typed
- *        via `Parameters<typeof registerGetCoffeesTool>[0]` to avoid a
- *        direct import of the MCP server type.
- * @param runtime - A {@link ManagedRuntime.ManagedRuntime} providing
- *        {@link CoffeeDomainServices}, used by each tool handler to
- *        execute service effects.
+ * @param domain - The resolved {@link CoffeeDomain} service instance.
+ * @param server - The MCP server to register tools on.
+ * @param activeTools - Record of tool names mapped to active status.
+ * @param runtime - A {@link ManagedRuntime} providing
+ *   {@link CoffeeDomain} for executing tool effects.
  */
 export function registerCoffeeTools(
-	server: Parameters<typeof registerGetCoffeesTool>[0],
-	runtime: ManagedRuntime.ManagedRuntime<CoffeeDomainServices, unknown>,
+	domain: CoffeeDomain,
+	server: McpServer,
+	activeTools: ActiveToolsRecord,
+	runtime: ManagedRuntime.ManagedRuntime<CoffeeDomain, unknown>,
 ): void {
-	registerGetCoffeesTool(server, runtime);
-	registerGetACoffeeTool(server, runtime);
+	const tools: RegisterableTool[] = [domain.getCoffees, domain.getACoffee];
+	for (const tool of tools) {
+		if (!activeTools[tool.metaData.name]) continue;
+		server.registerTool(
+			tool.metaData.name,
+			{
+				description: tool.metaData.description,
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+				...(tool.inputSchema != null ? { inputSchema: tool.inputSchema } : {}),
+			},
+			async (args: Record<string, unknown>) =>
+				runtime.runPromise(tool.executeFormatted(args)),
+		);
+	}
 }

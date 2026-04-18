@@ -10,8 +10,9 @@
  *    `--stdio` CLI override via {@link resolveTransportMode}.
  * 2. Selects the appropriate {@link Transport} and {@link Router}
  *    layers based on the resolved mode.
- * 3. Composes {@link McpServerServiceLive} with domain layers and
- *    creates a {@link ManagedRuntime}.
+ * 3. Composes {@link McpServerService.Default} (which bundles
+ *    {@link CoffeeDomain} and its child services) with transport and
+ *    config layers, then creates a {@link ManagedRuntime}.
  * 4. Resolves the {@link McpServerService} and calls
  *    {@link McpServerServiceShape.start | start()}.
  * 5. Registers SIGTERM / SIGINT handlers that interrupt the root
@@ -21,18 +22,11 @@
  */
 import { Effect, Fiber, Layer, ManagedRuntime } from "effect";
 import { AppConfig } from "./config/app/app-config.js";
-import {
-	CoffeeDomainLive,
-	registerCoffeeTools,
-} from "./service/coffee/domain.js";
 import { HttpTransportLive } from "./transport/http/http-transport.js";
 import { StdioTransportLive } from "./transport/stdio/stdio.js";
 import { HttpRouterLive } from "./router/http/http-router.js";
 import { StdioRouterLive } from "./router/stdio/stdio-router.js";
-import {
-	McpServerService,
-	McpServerServiceLive,
-} from "./server/mcp/mcp-server.js";
+import { McpServerService } from "./server/mcp/mcp-server.js";
 
 /**
  * Resolves the effective transport mode by checking the `--stdio` CLI
@@ -87,12 +81,11 @@ const program = Effect.gen(function* () {
 	const routerLayer = mode === "stdio" ? StdioRouterLive : HttpRouterLive;
 
 	const depsLayer = Layer.mergeAll(AppConfig.Default, transportLayer, routerLayer);
-	const mcpServerProvided = McpServerServiceLive(registerCoffeeTools).pipe(
+	const mcpServerProvided = McpServerService.Default.pipe(
 		Layer.provide(depsLayer),
 	);
 	const appLayer = Layer.mergeAll(
 		AppConfig.Default,
-		CoffeeDomainLive,
 		transportLayer,
 		routerLayer,
 		mcpServerProvided,

@@ -3,16 +3,21 @@
  *
  * @remarks
  * Centralises the MCP server's runtime configuration — server identity
- * (`SERVER_NAME`, `SERVER_VERSION`), network binding (`PORT`), and
- * transport selection (`TRANSPORT_MODE`) — behind an Effect
- * {@link Effect.Service}.  Each configuration key is read via a typed
- * accessor ({@link Config.string} or {@link Config.number}) and piped
- * through {@link Config.withDefault} so the server can start without any
- * environment variables set.
+ * (`SERVER_NAME`, `SERVER_VERSION`), network binding (`PORT`),
+ * transport selection (`TRANSPORT_MODE`), and tool activation
+ * (`ACTIVE_TOOLS`) — behind an Effect {@link Effect.Service}.  Each
+ * configuration key is read via a typed accessor ({@link Config.string}
+ * or {@link Config.number}) and piped through {@link Config.withDefault}
+ * so the server can start without any environment variables set.
  *
  * `TRANSPORT_MODE` is validated at the config layer via
  * {@link Config.validate}: only `"http"` and `"stdio"` are accepted.
  * Any other value causes a config error at startup.
+ *
+ * `ACTIVE_TOOLS` is a comma-separated list of tool names that should be
+ * registered on the MCP server.  Tools not listed are inactive by default
+ * (opt-in model).  An empty string (the default) means no tools are
+ * registered.
  *
  * This approach replaces the earlier manual `createServerConfig()` /
  * `getPort()` pattern.  Because {@link Config.number} performs numeric
@@ -23,6 +28,7 @@
  * @module
  */
 import { Config, Effect } from "effect";
+import type { ActiveToolsRecord } from "../../server/mcp/registerable-tool.js";
 
 /**
  * Union of supported transport modes for the MCP server.
@@ -56,6 +62,29 @@ function isTransportMode(value: string): value is TransportMode {
 }
 
 /**
+ * Parses a comma-separated string of tool names into an
+ * {@link ActiveToolsRecord}.
+ *
+ * @remarks
+ * Splits on commas, trims whitespace from each segment, and filters
+ * out empty strings.  Each remaining name is mapped to `true` in the
+ * returned record.  An empty input string produces an empty record
+ * (no tools active).
+ *
+ * @param raw - The raw `ACTIVE_TOOLS` environment variable value.
+ * @returns A record mapping each listed tool name to `true`.
+ *
+ * @internal
+ */
+function parseActiveTools(raw: string): ActiveToolsRecord {
+	const entries = raw
+		.split(",")
+		.map((s) => s.trim())
+		.filter((s) => s.length > 0);
+	return Object.fromEntries(entries.map((name) => [name, true]));
+}
+
+/**
  * Effect {@link Effect.Service} that provides typed, validated application
  * configuration for the MCP server.
  *
@@ -69,6 +98,8 @@ function isTransportMode(value: string): value is TransportMode {
  * | `SERVER_VERSION` | {@link Config.string} | `"1.0.0"` | Semver version reported to MCP clients |
  * | `PORT` | {@link Config.number} | `3001` | TCP port for the HTTP transport |
  * | `TRANSPORT_MODE` | {@link Config.string} | `"http"` | Transport mode — `"http"` or `"stdio"` |
+ * | `ACTIVE_TOOLS` | {@link Config.string} | `""` | Comma-separated tool names to register (opt-in) |
+ * | `ACTIVE_TOOLS` | {@link Config.string} | `""` | Comma-separated tool names to register (opt-in) |
  *
  * The `TRANSPORT_MODE` value is validated at the config layer: any string
  * outside the {@link TransportMode} union causes an immediate config error.
@@ -88,7 +119,7 @@ function isTransportMode(value: string): value is TransportMode {
  *
  * const program = Effect.gen(function* () {
  *   const config = yield* AppConfig;
- *   console.log(config.name, config.port, config.mode);
+ *   console.log(config.name, config.port, config.mode, config.activeTools);
  * });
  *
  * await Effect.runPromise(program.pipe(Effect.provide(AppConfig.Default)));
@@ -113,6 +144,10 @@ export class AppConfig extends Effect.Service<AppConfig>()("AppConfig", {
 			}),
 		);
 		const mode: TransportMode = modeRaw;
-		return { name, version, port, mode } as const;
+		const activeToolsRaw = yield* Config.string("ACTIVE_TOOLS").pipe(
+			Config.withDefault(""),
+		);
+		const activeTools: ActiveToolsRecord = parseActiveTools(activeToolsRaw);
+		return { name, version, port, mode, activeTools } as const;
 	}),
 }) { }
