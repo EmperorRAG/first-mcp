@@ -1,7 +1,13 @@
 node_modules/
 build/
 .git/
+.github/
 .vscode/
+docs/
 .gitignore
-AGENTS.md
-README.md
+.dockerignore
+*.md
+eslint.config.ts
+vitest.config.ts
+typedoc.config.js
+remark.settings.js
