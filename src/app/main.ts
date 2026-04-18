@@ -1,20 +1,19 @@
 /**
  * Application entry point — resolves transport mode from configuration
- * (with `--stdio` CLI override), composes the service layers, and starts
- * the MCP server via the {@link McpServerService}.
+ * (with `--stdio` CLI override), composes the service layers, and
+ * starts the MCP server via the {@link Listener} abstraction.
  *
  * @remarks
  * Orchestrates the full server lifecycle:
  *
  * 1. Reads {@link AppConfig.mode} from the environment, applying the
  *    `--stdio` CLI override via {@link resolveTransportMode}.
- * 2. Selects the appropriate {@link Transport} and {@link Router}
- *    layers based on the resolved mode.
- * 3. Composes {@link McpServerService.Default} (which bundles
- *    {@link CoffeeDomain} and its child services) with transport and
- *    config layers, then creates a {@link ManagedRuntime}.
- * 4. Resolves the {@link McpServerService} and calls
- *    {@link McpServerServiceShape.start | start()}.
+ * 2. Selects the appropriate {@link Transport}, {@link Router}, and
+ *    {@link Listener} layers based on the resolved mode.
+ * 3. Composes the full runtime layer and creates a
+ *    {@link ManagedRuntime}.
+ * 4. Resolves the {@link Listener} and calls
+ *    {@link ListenerShape.start | start()}.
  * 5. Registers SIGTERM / SIGINT handlers that interrupt the root
  *    {@link fiber}, triggering {@link Effect.scoped} finalizers.
  *
@@ -27,6 +26,9 @@ import { StdioTransportLive } from "./transport/stdio/stdio.js";
 import { HttpRouterLive } from "./router/http/http-router.js";
 import { StdioRouterLive } from "./router/stdio/stdio-router.js";
 import { McpServerService } from "./server/mcp/mcp-server.js";
+import { Listener } from "./server/server.js";
+import { HttpListener, HttpListenerLive } from "./server/http/http-listener.js";
+import { StdioListener, StdioListenerLive } from "./server/stdio/stdio-listener.js";
 
 /**
  * Resolves the effective transport mode by checking the `--stdio` CLI
@@ -47,18 +49,18 @@ const resolveTransportMode = (configMode: "http" | "stdio"): "http" | "stdio" =>
 
 /**
  * Main application program that resolves the transport and starts the
- * MCP server.
+ * MCP server via the {@link Listener} abstraction.
  *
  * @remarks
  * Execution proceeds as follows:
  *
  * 1. Reads the configured transport mode and applies the `--stdio` CLI
  *    override via {@link resolveTransportMode}.
- * 2. Selects the transport, router, and MCP server layers by mode.
+ * 2. Selects the transport, router, and listener layers by mode.
  * 3. Composes the full runtime layer and creates a
  *    {@link ManagedRuntime}.
- * 4. Resolves the {@link McpServerService} and calls
- *    {@link McpServerServiceShape.start | start()}.
+ * 4. Resolves the {@link Listener} and calls
+ *    {@link ListenerShape.start | start()}.
  * 5. Registers a finalizer to dispose the {@link ManagedRuntime}.
  * 6. Suspends indefinitely with {@link Effect.never} so the server
  *    stays alive until interrupted.
@@ -84,11 +86,42 @@ const program = Effect.gen(function* () {
 	const mcpServerProvided = McpServerService.Default.pipe(
 		Layer.provide(depsLayer),
 	);
+
+	const listenerLayer = mode === "stdio"
+		? Layer.effect(
+			Listener,
+			Effect.gen(function* () {
+				const svc = yield* StdioListener;
+				return svc;
+			}),
+		).pipe(
+			Layer.provide(StdioListenerLive),
+			Layer.provide(mcpServerProvided),
+		)
+		: Layer.effect(
+			Listener,
+			Effect.gen(function* () {
+				const svc = yield* HttpListener;
+				return svc;
+			}),
+		).pipe(
+			Layer.provide(HttpListenerLive),
+			Layer.provide(
+				Layer.mergeAll(
+					AppConfig.Default,
+					transportLayer,
+					routerLayer,
+					mcpServerProvided,
+				),
+			),
+		);
+
 	const appLayer = Layer.mergeAll(
 		AppConfig.Default,
 		transportLayer,
 		routerLayer,
 		mcpServerProvided,
+		listenerLayer,
 	);
 
 	const runtime = ManagedRuntime.make(appLayer);
@@ -96,8 +129,8 @@ const program = Effect.gen(function* () {
 	yield* Effect.promise(() =>
 		runtime.runPromise(
 			Effect.gen(function* () {
-				const svc = yield* McpServerService;
-				yield* svc.start();
+				const listener = yield* Listener;
+				yield* listener.start();
 			}),
 		),
 	);
