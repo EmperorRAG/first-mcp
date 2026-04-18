@@ -4,9 +4,8 @@
  *
  * @remarks
  * Bridges Node.js stream callbacks (`data`, `end`, `error`) into the
- * Effect world via {@link Effect.async}.  Used exclusively by the HTTP
- * transport path in {@link startHttp} to consume the request body
- * before routing.
+ * Effect world via {@link Effect.async}.  Used exclusively by the
+ * {@link HttpListener} to consume the request body before routing.
  *
  * @module
  */

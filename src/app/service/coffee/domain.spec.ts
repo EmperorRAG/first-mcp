@@ -5,13 +5,15 @@
  * Each test provides {@link CoffeeDomain.Default}, which bundles both
  * child services ({@link GetCoffeesService}, {@link GetACoffeeService})
  * and their repository dependencies.  Validates that the domain
- * composes correctly and exposes named {@link RegisterableTool}
- * properties with the expected `metaData`.
+ * composes correctly, exposes named {@link RegisterableTool}
+ * properties with the expected `metaData`, and provides a
+ * `registerCoffeeTools` method for batch tool registration.
  *
  * @module
  */
-import { describe, it, expect } from "vitest";
-import { Effect } from "effect";
+import { describe, it, expect, vi } from "vitest";
+import { Effect, type ManagedRuntime } from "effect";
+import type { McpServer } from "@modelcontextprotocol/server";
 import { CoffeeDomain } from "./domain.js";
 
 /** @internal */
@@ -67,5 +69,76 @@ describe("CoffeeDomain", () => {
 		const parsed = JSON.parse(result.content[0]?.text ?? "");
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 		expect(parsed.name).toBe("Espresso");
+	});
+
+	it("exposes registerCoffeeTools as a function", async () => {
+		const domain = await runWithDomain(
+			Effect.gen(function* () {
+				return yield* CoffeeDomain;
+			}),
+		);
+		expect(domain.registerCoffeeTools).toBeTypeOf("function");
+	});
+
+	it("registerCoffeeTools registers active tools on the server", async () => {
+		const domain = await runWithDomain(
+			Effect.gen(function* () {
+				return yield* CoffeeDomain;
+			}),
+		);
+
+		const registerTool = vi.fn();
+		// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+		const mockServer = { registerTool } as unknown as McpServer;
+		// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+		const mockRuntime = {} as unknown as ManagedRuntime.ManagedRuntime<CoffeeDomain, unknown>;
+
+		domain.registerCoffeeTools(
+			mockServer,
+			{ "get-coffees": true, "get-a-coffee": true },
+			mockRuntime,
+		);
+
+		expect(registerTool).toHaveBeenCalledTimes(2);
+		expect(registerTool).toHaveBeenCalledWith(
+			"get-coffees",
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			expect.objectContaining({ description: expect.any(String) }),
+			expect.any(Function),
+		);
+		expect(registerTool).toHaveBeenCalledWith(
+			"get-a-coffee",
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			expect.objectContaining({ description: expect.any(String) }),
+			expect.any(Function),
+		);
+	});
+
+	it("registerCoffeeTools skips inactive tools", async () => {
+		const domain = await runWithDomain(
+			Effect.gen(function* () {
+				return yield* CoffeeDomain;
+			}),
+		);
+
+		const registerTool = vi.fn();
+		// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+		const mockServer = { registerTool } as unknown as McpServer;
+		// eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+		const mockRuntime = {} as unknown as ManagedRuntime.ManagedRuntime<CoffeeDomain, unknown>;
+
+		domain.registerCoffeeTools(
+			mockServer,
+			{ "get-coffees": true },
+			mockRuntime,
+		);
+
+		expect(registerTool).toHaveBeenCalledTimes(1);
+		expect(registerTool).toHaveBeenCalledWith(
+			"get-coffees",
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+			expect.objectContaining({ description: expect.any(String) }),
+			expect.any(Function),
+		);
 	});
 });

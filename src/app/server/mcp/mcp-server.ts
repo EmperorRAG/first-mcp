@@ -1,48 +1,56 @@
 /**
- * MCP server orchestration service — {@link Effect.Service} that
- * composes transport, router, configuration, and domain to start
- * the server in HTTP or stdio mode.
+ * MCP server session manager — {@link Effect.Service} that owns
+ * the lifecycle of all MCP sessions: creation, lookup, deletion,
+ * and batch teardown.
  *
  * @remarks
- * {@link McpServerService} is an {@link Effect.Service} whose `effect`
- * factory resolves {@link Transport}, {@link Router},
- * {@link AppConfig}, and {@link CoffeeDomain} from the dependency
- * graph.  It builds a shared {@link createMcpServer} closure and
- * delegates to mode-specific lifecycle modules:
+ * {@link McpServerService} is an {@link Effect.Service} whose
+ * `scoped` factory resolves {@link AppConfig} and
+ * {@link CoffeeDomain}, creates a {@link ManagedRuntime} for tool
+ * handler execution, and exposes CRUD operations over the internal
+ * session map ({@link Ref}).
  *
- * | Module | Responsibility |
- * |--------|---------------|
- * | {@link startHttp} | HTTP server, session map, request dispatch |
- * | {@link startStdio} | Single McpServer + StdioServerTransport |
+ * Transport and routing are **not** dependencies of this service.
+ * Those concerns are delegated to the listener services
+ * (`HttpListener`, `StdioListener`) that depend on
+ * `McpServerService`.
  *
  * @module
  */
 import { Effect, Layer, ManagedRuntime, Ref } from "effect";
+import { McpServer } from "@modelcontextprotocol/server";
+import { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
+import { StdioServerTransport } from "@modelcontextprotocol/server";
 import { AppConfig } from "../../config/app/app-config.js";
-import { Transport } from "../../transport/transport.js";
-import { Router } from "../../router/router.js";
 import { CoffeeDomain } from "../../service/coffee/domain.js";
-import { createMcpServer } from "./mcp-factory.js";
-import type { McpServerServiceShape } from "./types.js";
-import { type HttpServerHandle, startHttp } from "./http-lifecycle.js";
-import { startStdio } from "./stdio-lifecycle.js";
+import type { McpServerServiceShape, SessionEntry } from "./types.js";
+import { SessionNotFoundError } from "./errors.js";
 
-export type { McpServerServiceShape } from "./types.js";
+export type { McpServerServiceShape, SessionEntry } from "./types.js";
+export { SessionNotFoundError } from "./errors.js";
 
 /**
- * Effect service orchestrating the MCP server lifecycle.
+ * Effect service managing MCP server sessions.
  *
  * @remarks
- * Resolves all required dependencies via Effect's DI:
+ * Resolves the following dependencies via Effect's DI:
  *
- * - {@link Transport} — request/response parsing
- * - {@link Router} — route matching and dispatch
- * - {@link AppConfig} — server identity, port, mode, active tools
+ * - {@link AppConfig} — server identity, mode, active tools
  * - {@link CoffeeDomain} — domain tools for auto-registration
  *
  * The `dependencies` array bundles {@link CoffeeDomain.Default} so
  * that providing `McpServerService.Default` also satisfies the
  * domain's transitive dependencies.
+ *
+ * Session CRUD:
+ *
+ * | Method | Behaviour |
+ * |--------|-----------|
+ * | {@link start} | No-op (runtime initialised in `scoped`) |
+ * | {@link stop} | Closes all SDK transports, clears map |
+	 * | {@link getSession} | Returns session or fails with {@link SessionNotFoundError} |
+ * | {@link setSession} | Creates McpServer + sdkTransport, registers tools, connects, stores, returns ID |
+ * | {@link deleteSession} | Closes SDK transport, removes entry |
  *
  * @example
  * ```ts
@@ -51,7 +59,8 @@ export type { McpServerServiceShape } from "./types.js";
  *
  * const program = Effect.gen(function* () {
  *   const svc = yield* McpServerService;
- *   yield* svc.start();
+ *   const sessionId = yield* svc.setSession();
+ *   const session = yield* svc.getSession(sessionId);
  * });
  * ```
  */
@@ -59,49 +68,104 @@ export class McpServerService extends Effect.Service<McpServerService>()(
 	"McpServerService",
 	{
 		scoped: Effect.gen(function* () {
-			const transport = yield* Transport;
-			const router = yield* Router;
 			const config = yield* AppConfig;
 			const domain = yield* CoffeeDomain;
 
-			const handleRef = yield* Ref.make<HttpServerHandle | null>(null);
+			const sessionsRef = yield* Ref.make<Map<string, SessionEntry>>(
+				new Map(),
+			);
+
+			const appLayer = Layer.mergeAll(
+				Layer.succeed(CoffeeDomain, domain),
+				Layer.succeed(AppConfig, config),
+			);
+			const runtime = ManagedRuntime.make(appLayer);
 
 			yield* Effect.addFinalizer(() =>
-				Effect.gen(function* () {
-					const handle = yield* Ref.get(handleRef);
-					if (handle) {
-						yield* Effect.promise(() => handle.close());
-						yield* Effect.logInfo("HTTP server closed");
-					}
-				}),
+				Effect.promise(() => runtime.dispose()),
 			);
 
 			return {
-				start: () =>
-					Effect.gen(function* () {
-						const appLayer = Layer.mergeAll(
-							Layer.succeed(Transport, transport),
-							Layer.succeed(Router, router),
-							Layer.succeed(AppConfig, config),
-							Layer.succeed(CoffeeDomain, domain),
-						);
-						const runtime = ManagedRuntime.make(appLayer);
+				start: () => Effect.void,
 
-						const mcpServerFactory = (
-							rt: ManagedRuntime.ManagedRuntime<CoffeeDomain, unknown>,
-						) => createMcpServer(config, domain, config.activeTools, rt);
+				stop: () =>
+					Effect.gen(function* () {
+						const sessions = yield* Ref.get(sessionsRef);
+						for (const [, entry] of sessions) {
+							yield* Effect.promise(() => entry.sdkTransport.close());
+						}
+						sessions.clear();
+						yield* Effect.logInfo("All MCP sessions closed");
+					}),
+
+				getSession: (sessionId: string) =>
+					Effect.gen(function* () {
+						const sessions = yield* Ref.get(sessionsRef);
+						const entry = sessions.get(sessionId);
+						if (!entry) {
+							return yield* Effect.fail(
+								new SessionNotFoundError({ sessionId }),
+							);
+						}
+						return entry;
+					}),
+
+				setSession: () =>
+					Effect.gen(function* () {
+						const server = new McpServer({
+							name: config.name,
+							version: config.version,
+						});
+
+						domain.registerCoffeeTools(server, config.activeTools, runtime);
 
 						if (config.mode === "http") {
-							const handle = yield* startHttp({
-								port: config.port,
-								transport,
-								router,
-								runtime,
-								createMcpServerFn: mcpServerFactory,
+							let assignedSessionId = "";
+
+							const sdkTransport = new NodeStreamableHTTPServerTransport({
+								sessionIdGenerator: undefined,
+								onsessioninitialized: (sid) => {
+									assignedSessionId = sid;
+									const sessions = Effect.runSync(Ref.get(sessionsRef));
+									sessions.set(sid, { server, sdkTransport });
+								},
 							});
-							yield* Ref.set(handleRef, handle);
-						} else {
-							yield* startStdio(runtime, mcpServerFactory);
+
+							sdkTransport.onclose = () => {
+								if (sdkTransport.sessionId) {
+									const sessions = Effect.runSync(Ref.get(sessionsRef));
+									sessions.delete(sdkTransport.sessionId);
+								}
+							};
+
+							yield* Effect.promise(() => server.connect(sdkTransport));
+
+							return assignedSessionId;
+						}
+
+						// stdio mode — fixed session ID
+						const sdkTransport = new StdioServerTransport();
+						const sessionId = "stdio";
+
+						yield* Ref.update(sessionsRef, (sessions) => {
+							const next = new Map(sessions);
+							next.set(sessionId, { server, sdkTransport });
+							return next;
+						});
+
+						yield* Effect.promise(() => server.connect(sdkTransport));
+						yield* Effect.logInfo("MCP Server running on stdio");
+
+						return sessionId;
+					}),
+
+				deleteSession: (sessionId: string) =>
+					Effect.gen(function* () {
+						const sessions = yield* Ref.get(sessionsRef);
+						const entry = sessions.get(sessionId);
+						if (entry) {
+							yield* Effect.promise(() => entry.sdkTransport.close());
+							sessions.delete(sessionId);
 						}
 					}),
 			} satisfies McpServerServiceShape;
