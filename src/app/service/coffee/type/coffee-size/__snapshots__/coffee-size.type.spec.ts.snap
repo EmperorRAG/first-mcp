@@ -1,0 +1,13 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`CoffeeSizeSchema > JSON Schema snapshot > When generating JSON Schema, Then output matches snapshot 1`] = `
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "enum": [
+    "Small",
+    "Medium",
+    "Large",
+  ],
+  "type": "string",
+}
+`;

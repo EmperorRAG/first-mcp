@@ -9,16 +9,27 @@
  * while the {@link Coffee} type alias provides compile-time safety
  * throughout the domain, service, and repository layers.
  *
- * Each schema field carries semantic constraints (e.g. positive
- * integers, non-empty strings, bounded ranges) and an `arbitrary`
- * annotation powered by {@link https://www.npmjs.com/package/@faker-js/faker | @faker-js/faker}
- * so that `Arbitrary.make(CoffeeSchema)` produces realistic test
- * data out of the box.
+ * Each property schema is defined in its own module under the
+ * `type/` directory and composed here:
+ *
+ * | Field | Source Module |
+ * |-------|--------------|
+ * | `id` | {@link CoffeeIdSchema} from `coffee-id/` |
+ * | `name` | {@link CoffeeNameSchema} from `coffee-name/` |
+ * | `size` | {@link CoffeeSizeSchema} from `coffee-size/` |
+ * | `price` | {@link CoffeePriceSchema} from `coffee-price/` |
+ * | `iced` | {@link CoffeeIcedSchema} from `coffee-iced/` |
+ * | `caffeineMg` | {@link CoffeeCaffeineContentSchema} from `coffee-caffeine-content/` |
  *
  * @module
  */
 import { Schema } from "effect";
-import { faker } from "@faker-js/faker";
+import { CoffeeIdSchema } from "../coffee-id/coffee-id.type.js";
+import { CoffeeNameSchema } from "../coffee-name/coffee-name.type.js";
+import { CoffeeSizeSchema } from "../coffee-size/coffee-size.type.js";
+import { CoffeePriceSchema } from "../coffee-price/coffee-price.type.js";
+import { CoffeeIcedSchema } from "../coffee-iced/coffee-iced.type.js";
+import { CoffeeCaffeineContentSchema } from "../coffee-caffeine-content/coffee-caffeine-content.type.js";
 
 /**
  * Effect {@link Schema.Struct} defining the shape of a coffee catalog
@@ -26,8 +37,9 @@ import { faker } from "@faker-js/faker";
  *
  * @remarks
  * Acts as the single source of truth for the {@link Coffee} entity.  The
- * struct declares six fields with semantic constraints and
- * Faker-powered arbitrary annotations:
+ * struct composes six property schemas—each defined in its own module
+ * under `type/`—with semantic constraints and Faker-powered arbitrary
+ * annotations:
  *
  * | Field | Schema | Constraint | Arbitrary |
  * |-------|--------|------------|-----------|
@@ -55,36 +67,22 @@ import { faker } from "@faker-js/faker";
  */
 export const CoffeeSchema = Schema.Struct({
 	/** Unique positive-integer identifier for the coffee drink. */
-	id: Schema.Number.pipe(Schema.int(), Schema.positive()).annotations({
-		arbitrary: () => (fc) => fc.integer({ min: 1, max: 10_000 }),
-	}),
+	id: CoffeeIdSchema,
 
 	/** Display name of the coffee drink (e.g., "Flat White", "Espresso"). */
-	name: Schema.NonEmptyString.annotations({
-		arbitrary: () => (fc) =>
-			fc.constant(null).map(() => faker.commerce.productName()),
-	}),
+	name: CoffeeNameSchema,
 
 	/** Cup size — one of `"Small"`, `"Medium"`, or `"Large"`. */
-	size: Schema.Literal("Small", "Medium", "Large").annotations({
-		arbitrary: () => (fc) => fc.constantFrom("Small", "Medium", "Large"),
-	}),
+	size: CoffeeSizeSchema,
 
 	/** Price in US dollars (positive number). */
-	price: Schema.Number.pipe(Schema.positive()).annotations({
-		arbitrary: () => (fc) =>
-			fc
-				.constant(null)
-				.map(() => parseFloat(faker.commerce.price({ min: 1, max: 15 }))),
-	}),
+	price: CoffeePriceSchema,
 
 	/** Whether the drink is served iced. */
-	iced: Schema.Boolean,
+	iced: CoffeeIcedSchema,
 
 	/** Caffeine content in milligrams (integer, 0–500). */
-	caffeineMg: Schema.Number.pipe(Schema.int(), Schema.between(0, 500)).annotations({
-		arbitrary: () => (fc) => fc.integer({ min: 0, max: 500 }),
-	}),
+	caffeineMg: CoffeeCaffeineContentSchema,
 });
 
 /**
