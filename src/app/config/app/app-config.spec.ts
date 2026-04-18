@@ -149,4 +149,54 @@ describe("AppConfig", () => {
 		);
 		expect(result._tag).toBe("Failure");
 	});
+
+	it("provides empty activeTools record when ACTIVE_TOOLS is unset", async () => {
+		const config = await Effect.runPromise(
+			Effect.gen(function* () {
+				return yield* AppConfig;
+			}).pipe(
+				Effect.provide(AppConfig.Default),
+				Effect.withConfigProvider(ConfigProvider.fromMap(new Map())),
+			),
+		);
+		expect(config.activeTools).toEqual({});
+	});
+
+	it("parses comma-separated ACTIVE_TOOLS into a record", async () => {
+		const config = await Effect.runPromise(
+			Effect.gen(function* () {
+				return yield* AppConfig;
+			}).pipe(
+				Effect.provide(AppConfig.Default),
+				Effect.withConfigProvider(
+					ConfigProvider.fromMap(
+						new Map([["ACTIVE_TOOLS", "get-coffees,get-a-coffee"]]),
+					),
+				),
+			),
+		);
+		expect(config.activeTools).toEqual({
+			"get-coffees": true,
+			"get-a-coffee": true,
+		});
+	});
+
+	it("trims whitespace from ACTIVE_TOOLS entries", async () => {
+		const config = await Effect.runPromise(
+			Effect.gen(function* () {
+				return yield* AppConfig;
+			}).pipe(
+				Effect.provide(AppConfig.Default),
+				Effect.withConfigProvider(
+					ConfigProvider.fromMap(
+						new Map([["ACTIVE_TOOLS", " get-coffees , get-a-coffee "]]),
+					),
+				),
+			),
+		);
+		expect(config.activeTools).toEqual({
+			"get-coffees": true,
+			"get-a-coffee": true,
+		});
+	});
 });

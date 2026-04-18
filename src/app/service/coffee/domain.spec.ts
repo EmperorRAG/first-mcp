@@ -1,45 +1,71 @@
 /**
- * Unit tests for the {@link CoffeeDomainLive} layer composition.
+ * Unit tests for the {@link CoffeeDomain} Effect service.
  *
  * @remarks
- * Each test creates an isolated {@link ManagedRuntime} from
- * {@link CoffeeDomainLive}, exercises one of the domain services
- * ({@link GetCoffeesService}, {@link GetACoffeeService}), and disposes
- * the runtime afterward.  This validates that the layer composes
- * correctly — all service tags are satisfied and the underlying
- * {@link CoffeeRepository.Default} is wired through.
+ * Each test provides {@link CoffeeDomain.Default}, which bundles both
+ * child services ({@link GetCoffeesService}, {@link GetACoffeeService})
+ * and their repository dependencies.  Validates that the domain
+ * composes correctly and exposes named {@link RegisterableTool}
+ * properties with the expected `metaData`.
  *
  * @module
  */
 import { describe, it, expect } from "vitest";
-import { Effect, ManagedRuntime } from "effect";
-import { CoffeeDomainLive } from "./domain.js";
-import { GetCoffeesService } from "./module/get-coffees/get-coffees.service.js";
-import { GetACoffeeService } from "./module/get-a-coffee/get-a-coffee.service.js";
+import { Effect } from "effect";
+import { CoffeeDomain } from "./domain.js";
 
-describe("CoffeeDomainLive", () => {
-	it("provides GetCoffeesService", async () => {
-		const runtime = ManagedRuntime.make(CoffeeDomainLive);
-		const coffees = await runtime.runPromise(
+/** @internal */
+const runWithDomain = <A>(effect: Effect.Effect<A, never, CoffeeDomain>) =>
+	Effect.runPromise(Effect.provide(effect, CoffeeDomain.Default));
+
+describe("CoffeeDomain", () => {
+	it("exposes getCoffees as a RegisterableTool", async () => {
+		const domain = await runWithDomain(
 			Effect.gen(function* () {
-				const service = yield* GetCoffeesService;
-				return yield* service.execute;
+				return yield* CoffeeDomain;
 			}),
 		);
-		expect(coffees).toHaveLength(4);
-		await runtime.dispose();
+		expect(domain.getCoffees.metaData.name).toBe("get-coffees");
+		expect(domain.getCoffees.executeFormatted).toBeTypeOf("function");
 	});
 
-	it("provides GetACoffeeService", async () => {
-		const runtime = ManagedRuntime.make(CoffeeDomainLive);
-		const coffee = await runtime.runPromise(
+	it("exposes getACoffee as a RegisterableTool with inputSchema", async () => {
+		const domain = await runWithDomain(
 			Effect.gen(function* () {
-				const service = yield* GetACoffeeService;
-				return yield* service.execute("Cappuccino");
+				return yield* CoffeeDomain;
 			}),
 		);
-		expect(coffee).toBeDefined();
-		expect(coffee.name).toBe("Cappuccino");
-		await runtime.dispose();
+		expect(domain.getACoffee.metaData.name).toBe("get-a-coffee");
+		expect(domain.getACoffee.inputSchema).toBeDefined();
+		expect(domain.getACoffee.executeFormatted).toBeTypeOf("function");
+	});
+
+	it("getCoffees.executeFormatted returns MCP-shaped response", async () => {
+		const result = await Effect.runPromise(
+			Effect.gen(function* () {
+				const domain = yield* CoffeeDomain;
+				return yield* domain.getCoffees.executeFormatted(undefined);
+			}).pipe(Effect.provide(CoffeeDomain.Default)),
+		);
+		expect(result.content).toHaveLength(1);
+		expect(result.content[0]?.type).toBe("text");
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+		const parsed = JSON.parse(result.content[0]?.text ?? "");
+		expect(parsed).toHaveLength(4);
+	});
+
+	it("getACoffee.executeFormatted returns MCP-shaped response", async () => {
+		const result = await Effect.runPromise(
+			Effect.gen(function* () {
+				const domain = yield* CoffeeDomain;
+				return yield* domain.getACoffee.executeFormatted({ name: "Espresso" });
+			}).pipe(Effect.provide(CoffeeDomain.Default)),
+		);
+		expect(result.content).toHaveLength(1);
+		expect(result.content[0]?.type).toBe("text");
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+		const parsed = JSON.parse(result.content[0]?.text ?? "");
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+		expect(parsed.name).toBe("Espresso");
 	});
 });

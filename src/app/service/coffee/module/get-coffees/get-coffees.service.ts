@@ -16,9 +16,8 @@
  * @module
  */
 import { Effect } from "effect";
-import type { McpServer } from "@modelcontextprotocol/server";
-import type { ManagedRuntime } from "effect";
 import { CoffeeRepository } from "../../repository/coffee-repository.js";
+import type { ToolResponse } from "../../../../server/mcp/registerable-tool.js";
 
 /**
  * Effect service for retrieving all coffee drinks from the repository.
@@ -32,9 +31,11 @@ import { CoffeeRepository } from "../../repository/coffee-repository.js";
  *
  * - **`execute`** — returns `Effect<ReadonlyArray<Coffee>>` via
  *   `CoffeeRepository.findAll`.
- * - **`executeFormatted`** — wraps `execute` to produce an
- *   MCP-compatible `{ content: [{ type: "text", text }] }` response
- *   by JSON-serializing the full array.
+ * - **`executeFormatted`** — accepts `unknown` args (ignored for this
+ *   tool) and wraps `execute` to produce an MCP-compatible
+ *   `{ content: [{ type: "text", text }] }` response by
+ *   JSON-serializing the full array.  Satisfies the
+ *   {@link RegisterableTool} interface.
  * - **`metaData`** — static object with `name` (`"get-coffees"`) and
  *   `description` (`"Get a list of all coffees"`) for MCP tool
  *   registration.
@@ -62,12 +63,14 @@ export class GetCoffeesService extends Effect.Service<GetCoffeesService>()(
 			);
 			return {
 				execute,
-				executeFormatted: execute.pipe(
-					Effect.map((coffees) => ({
-						content: [{ type: "text" as const, text: JSON.stringify(coffees) }],
-					})),
-					Effect.withSpan("GetCoffeesService.executeFormatted"),
-				),
+				// eslint-disable-next-line @typescript-eslint/no-unused-vars
+				executeFormatted: (_args: unknown): Effect.Effect<ToolResponse> =>
+					execute.pipe(
+						Effect.map((coffees) => ({
+							content: [{ type: "text" as const, text: JSON.stringify(coffees) }],
+						})),
+						Effect.withSpan("GetCoffeesService.executeFormatted"),
+					),
 				metaData: {
 					name: "get-coffees" as const,
 					description: "Get a list of all coffees" as const,
@@ -77,40 +80,3 @@ export class GetCoffeesService extends Effect.Service<GetCoffeesService>()(
 		dependencies: [CoffeeRepository.Default],
 	},
 ) { }
-
-/**
- * Registers the `get-coffees` MCP tool on the given server.
- *
- * @remarks
- * Wiring steps:
- *
- * 1. Calls {@link McpServer.registerTool} with tool name
- *    `"get-coffees"` and a description (no `inputSchema` — the
- *    tool accepts no arguments).
- * 2. In the async handler, delegates to
- *    {@link GetCoffeesService.executeFormatted | executeFormatted}
- *    inside the provided {@link ManagedRuntime}.
- *
- * @param server - The {@link McpServer} instance to register on.
- * @param runtime - A {@link ManagedRuntime} whose environment
- *   includes {@link GetCoffeesService}.
- */
-export function registerGetCoffeesTool(
-	server: McpServer,
-	runtime: ManagedRuntime.ManagedRuntime<GetCoffeesService, unknown>,
-): void {
-	server.registerTool(
-		"get-coffees",
-		{
-			description: "Get a list of all coffees",
-		},
-		async () => {
-			return runtime.runPromise(
-				Effect.gen(function* () {
-					const service = yield* GetCoffeesService;
-					return yield* service.executeFormatted;
-				}),
-			);
-		},
-	);
-}

@@ -1,99 +1,68 @@
 /**
- * MCP server orchestration service — Layer factory that composes
- * transport, router, and configuration to start the server in HTTP
- * or stdio mode.
+ * MCP server orchestration service — {@link Effect.Service} that
+ * composes transport, router, configuration, and domain to start
+ * the server in HTTP or stdio mode.
  *
  * @remarks
- * The {@link McpServerServiceLive} factory is the central wiring point.
- * It resolves {@link Transport}, {@link Router}, and {@link AppConfig}
- * from the Effect layer, builds a shared {@link createMcpServer}
- * factory, and delegates to mode-specific lifecycle modules:
+ * {@link McpServerService} is an {@link Effect.Service} whose `effect`
+ * factory resolves {@link Transport}, {@link Router},
+ * {@link AppConfig}, and {@link CoffeeDomain} from the dependency
+ * graph.  It builds a shared {@link createMcpServer} closure and
+ * delegates to mode-specific lifecycle modules:
  *
  * | Module | Responsibility |
  * |--------|---------------|
  * | {@link startHttp} | HTTP server, session map, request dispatch |
  * | {@link startStdio} | Single McpServer + StdioServerTransport |
  *
- * Types ({@link McpServerService}, {@link McpServerServiceShape},
- * {@link ToolRegistrationFn}) are defined in `./types.ts` and
- * re-exported here to preserve existing import paths.
- *
  * @module
  */
-import { McpServer } from "@modelcontextprotocol/server";
 import { Effect, Layer, ManagedRuntime, Ref } from "effect";
 import { AppConfig } from "../../config/app/app-config.js";
 import { Transport } from "../../transport/transport.js";
 import { Router } from "../../router/router.js";
-import {
-	McpServerService,
-	type McpServerServiceShape,
-	type ToolRegistrationFn,
-} from "./types.js";
+import { CoffeeDomain } from "../../service/coffee/domain.js";
+import { createMcpServer } from "./mcp-factory.js";
+import type { McpServerServiceShape } from "./types.js";
 import { type HttpServerHandle, startHttp } from "./http-lifecycle.js";
 import { startStdio } from "./stdio-lifecycle.js";
 
-export {
-	McpServerService,
-	type McpServerServiceShape,
-	type ToolRegistrationFn,
-} from "./types.js";
+export type { McpServerServiceShape } from "./types.js";
 
 /**
- * Creates the {@link McpServerServiceLive} layer parameterised by a
- * tool registration callback.
+ * Effect service orchestrating the MCP server lifecycle.
  *
  * @remarks
- * This factory function produces a {@link Layer.scoped} layer that
- * resolves {@link Transport}, {@link Router}, and {@link AppConfig}
- * from the dependency graph.  Depending on `config.mode`:
+ * Resolves all required dependencies via Effect's DI:
  *
- * - **HTTP**: delegates to {@link startHttp} which spins up a
- *   `node:http` server with per-request parse→route→dispatch loop
- *   and session management.  Registers a finalizer for graceful
- *   shutdown.
- * - **stdio**: delegates to {@link startStdio} which creates a
- *   single {@link McpServer} + `StdioServerTransport` and connects
- *   them.
+ * - {@link Transport} — request/response parsing
+ * - {@link Router} — route matching and dispatch
+ * - {@link AppConfig} — server identity, port, mode, active tools
+ * - {@link CoffeeDomain} — domain tools for auto-registration
  *
- * @param registerTools - Callback invoked once per {@link McpServer}
- *        creation to register domain tools.
- * @returns A {@link Layer} satisfying the {@link McpServerService} tag.
+ * The `dependencies` array bundles {@link CoffeeDomain.Default} so
+ * that providing `McpServerService.Default` also satisfies the
+ * domain's transitive dependencies.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect";
+ * import { McpServerService } from "./mcp-server.js";
+ *
+ * const program = Effect.gen(function* () {
+ *   const svc = yield* McpServerService;
+ *   yield* svc.start();
+ * });
+ * ```
  */
-export const McpServerServiceLive = (
-	registerTools: ToolRegistrationFn,
-): Layer.Layer<McpServerService, never, Transport | Router | AppConfig> =>
-	Layer.scoped(
-		McpServerService,
-		Effect.gen(function* () {
+export class McpServerService extends Effect.Service<McpServerService>()(
+	"McpServerService",
+	{
+		scoped: Effect.gen(function* () {
 			const transport = yield* Transport;
 			const router = yield* Router;
 			const config = yield* AppConfig;
-
-			/**
-			 * Creates a new {@link McpServer}, registers tools on it,
-			 * and returns it.
-			 *
-			 * @remarks
-			 * Shared by both HTTP and stdio modes.  In HTTP mode this is
-			 * called once per session; in stdio mode it is called once at
-			 * startup.
-			 *
-			 * @internal
-			 */
-			const createMcpServer = (
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
-				runtime: ManagedRuntime.ManagedRuntime<any, unknown>,
-			): McpServer => {
-				const server = new McpServer({
-					name: config.name,
-					version: config.version,
-				});
-				registerTools(server, runtime);
-				return server;
-			};
-
-			// --- Service implementation ---
+			const domain = yield* CoffeeDomain;
 
 			const handleRef = yield* Ref.make<HttpServerHandle | null>(null);
 
@@ -110,13 +79,17 @@ export const McpServerServiceLive = (
 			return {
 				start: () =>
 					Effect.gen(function* () {
-						// Build a layer with all the services the MCP server needs
 						const appLayer = Layer.mergeAll(
 							Layer.succeed(Transport, transport),
 							Layer.succeed(Router, router),
 							Layer.succeed(AppConfig, config),
+							Layer.succeed(CoffeeDomain, domain),
 						);
 						const runtime = ManagedRuntime.make(appLayer);
+
+						const mcpServerFactory = (
+							rt: ManagedRuntime.ManagedRuntime<CoffeeDomain, unknown>,
+						) => createMcpServer(config, domain, config.activeTools, rt);
 
 						if (config.mode === "http") {
 							const handle = yield* startHttp({
@@ -124,13 +97,15 @@ export const McpServerServiceLive = (
 								transport,
 								router,
 								runtime,
-								createMcpServerFn: createMcpServer,
+								createMcpServerFn: mcpServerFactory,
 							});
 							yield* Ref.set(handleRef, handle);
 						} else {
-							yield* startStdio(runtime, createMcpServer);
+							yield* startStdio(runtime, mcpServerFactory);
 						}
 					}),
 			} satisfies McpServerServiceShape;
 		}),
-	);
+		dependencies: [CoffeeDomain.Default],
+	},
+) { }
