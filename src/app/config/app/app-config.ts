@@ -85,6 +85,27 @@ function parseActiveTools(raw: string): ActiveToolsRecord {
 }
 
 /**
+ * Parses a comma-separated string of hostnames into a `ReadonlySet`.
+ *
+ * @remarks
+ * Splits on commas, trims whitespace, lowercases each segment, and
+ * filters out empty strings.  An empty input produces an empty set
+ * (no additional hosts allowed beyond hardcoded loopback addresses).
+ *
+ * @param raw - The raw `ALLOWED_HOSTS` environment variable value.
+ * @returns A set of lowercase hostnames.
+ *
+ * @internal
+ */
+function parseAllowedHosts(raw: string): ReadonlySet<string> {
+	const entries = raw
+		.split(",")
+		.map((s) => s.trim().toLowerCase())
+		.filter((s) => s.length > 0);
+	return new Set(entries);
+}
+
+/**
  * Effect {@link Effect.Service} that provides typed, validated application
  * configuration for the MCP server.
  *
@@ -99,7 +120,7 @@ function parseActiveTools(raw: string): ActiveToolsRecord {
  * | `PORT` | {@link Config.number} | `3001` | TCP port for the HTTP transport |
  * | `TRANSPORT_MODE` | {@link Config.string} | `"http"` | Transport mode — `"http"` or `"stdio"` |
  * | `ACTIVE_TOOLS` | {@link Config.string} | `""` | Comma-separated tool names to register (opt-in) |
- * | `ACTIVE_TOOLS` | {@link Config.string} | `""` | Comma-separated tool names to register (opt-in) |
+ * | `ALLOWED_HOSTS` | {@link Config.string} | `""` | Comma-separated hostnames accepted by the DNS rebinding guard (opt-in) |
  *
  * The `TRANSPORT_MODE` value is validated at the config layer: any string
  * outside the {@link TransportMode} union causes an immediate config error.
@@ -148,6 +169,10 @@ export class AppConfig extends Effect.Service<AppConfig>()("AppConfig", {
 			Config.withDefault(""),
 		);
 		const activeTools: ActiveToolsRecord = parseActiveTools(activeToolsRaw);
-		return { name, version, port, mode, activeTools } as const;
+		const allowedHostsRaw = yield* Config.string("ALLOWED_HOSTS").pipe(
+			Config.withDefault(""),
+		);
+		const allowedHosts: ReadonlySet<string> = parseAllowedHosts(allowedHostsRaw);
+		return { name, version, port, mode, activeTools, allowedHosts } as const;
 	}),
 }) { }

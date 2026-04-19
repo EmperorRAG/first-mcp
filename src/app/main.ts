@@ -85,7 +85,9 @@ const program = Effect.gen(function* () {
 	process.env.TRANSPORT_MODE = mode;
 
 	const transportLayer = mode === "stdio" ? StdioTransportLive : HttpTransportLive;
-	const routerLayer = mode === "stdio" ? StdioRouterLive : HttpRouterLive;
+	const routerLayer = mode === "stdio"
+		? StdioRouterLive
+		: HttpRouterLive.pipe(Layer.provide(AppConfig.Default));
 
 	const depsLayer = Layer.mergeAll(AppConfig.Default, transportLayer, routerLayer);
 	const mcpServerProvided = McpServerService.Default.pipe(

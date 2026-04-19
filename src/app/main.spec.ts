@@ -56,10 +56,12 @@ describe("HTTP transport", () => {
 			Layer.orDie,
 		);
 
+		const routerLayer = HttpRouterLive.pipe(Layer.provide(configLayer));
+
 		const depsLayer = Layer.mergeAll(
 			configLayer,
 			HttpTransportLive,
-			HttpRouterLive,
+			routerLayer,
 		);
 
 		const mcpServerProvided = McpServerService.Default.pipe(
@@ -71,7 +73,7 @@ describe("HTTP transport", () => {
 				Layer.mergeAll(
 					configLayer,
 					HttpTransportLive,
-					HttpRouterLive,
+					routerLayer,
 					mcpServerProvided,
 				),
 			),

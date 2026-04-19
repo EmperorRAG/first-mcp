@@ -58,7 +58,13 @@ jobs:
 
       - name: Deploy to Container Apps
         run: |
-          az containerapp update --name ${{ env.CONTAINER_APP_NAME }} --resource-group ${{ env.RESOURCE_GROUP }} --image ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          az containerapp update \
+            --name ${{ env.CONTAINER_APP_NAME }} \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --image ${{ env.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            --set-env-vars \
+              ACTIVE_TOOLS=${{ vars.ACTIVE_TOOLS }} \
+              ALLOWED_HOSTS=${{ vars.ALLOWED_HOSTS }}
 
       - name: Verify deployment
         run: |

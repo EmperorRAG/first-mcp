@@ -11,7 +11,7 @@ src/app/
 ├── main.ts                             — entry point (--stdio CLI override, layer composition)
 ├── config/
 │   └── app/
-│       ├── app-config.ts               — AppConfig Effect Service (PORT, server name/version, mode, active tools)
+│       ├── app-config.ts               — AppConfig Effect Service (PORT, server name/version, mode, active tools, allowed hosts)
 │       └── app-config.spec.ts
 ├── server/                             — listener layer (server lifecycle + request dispatch)
 │   ├── server.ts                       — Listener Context.Tag + ListenerShape interface
@@ -120,7 +120,7 @@ src/app/
 
 ### Transport Modes
 
-- **Streamable HTTP (default)**: Raw Node.js HTTP server exposing `POST /mcp`, `GET /mcp` (SSE backward compat), `DELETE /mcp` (session termination), and `GET /health`. Request flow: `HttpListener.start()` → per-request `parseBody()` → `Transport.parse()` → `Router.resolve()` → switch on `RouteAction` → `McpServerService` session CRUD. Uses `NodeStreamableHTTPServerTransport` with stateful sessions (`Mcp-Session-Id` header). DNS rebinding protection in `HttpRouterLive` validates `Host` header against loopback addresses. Sessions tracked in an Effect `Ref` holding a transport map. CORS headers added manually via `McpResponse`. Used for Docker and network-based clients.
+- **Streamable HTTP (default)**: Raw Node.js HTTP server exposing `POST /mcp`, `GET /mcp` (SSE backward compat), `DELETE /mcp` (session termination), and `GET /health`. Request flow: `HttpListener.start()` → per-request `parseBody()` → `Transport.parse()` → `Router.resolve()` → switch on `RouteAction` → `McpServerService` session CRUD. Uses `NodeStreamableHTTPServerTransport` with stateful sessions (`Mcp-Session-Id` header). DNS rebinding protection in `HttpRouterLive` validates `Host` header against loopback addresses and any additional hostnames in `ALLOWED_HOSTS`. Sessions tracked in an Effect `Ref` holding a transport map. CORS headers added manually via `McpResponse`. Used for Docker and network-based clients.
 - **stdio (`--stdio` flag)**: `StdioListener.start()` creates a single MCP session via `McpServerService.setSession()` with a fixed `"stdio"` session ID. The SDK's `StdioServerTransport` reads directly from `stdin` and writes to `stdout`. No routing, body parsing, or multi-session management. For local VS Code MCP integration via `.vscode/mcp.json`.
 - **Selection**: `main.ts` reads `AppConfig.mode` (with `--stdio` CLI override via `resolveTransportMode()`), selects the appropriate `Transport`, `Router`, and `Listener` layers, composes the runtime, and resolves the shared `Listener` tag to call `start()`.
 
@@ -156,9 +156,10 @@ After code changes, always run `npm run build` before testing the MCP server. Wh
 - **Error handling**: Domain errors extend `Data.TaggedError` with a unique `_tag` string — enables exhaustive `Effect.catchTag` matching without `instanceof` checks. Field names must not shadow `Error.name` (e.g., use `coffeeName` instead of `name`)
 - **Strict TypeScript**: `strict: true` is enabled — no implicit `any`, null checks required
 - **Listener abstraction**: `Listener` Context.Tag in `server/server.ts` defines the shared `start()`/`stop()` interface. `HttpListenerLive` and `StdioListenerLive` satisfy it. `main.ts` resolves the tag via `Layer.effect` based on the transport mode
-- **Router abstraction**: `Router` Context.Tag in `router/router.ts` defines `resolve(McpRequest) → RouteAction`. `HttpRouterLive` performs DNS rebinding guard + path/method routing. `StdioRouterLive` always returns `"mcp-message"`
+- **Router abstraction**: `Router` Context.Tag in `router/router.ts` defines `resolve(McpRequest) → RouteAction`. `HttpRouterLive` performs DNS rebinding guard + path/method routing; depends on `AppConfig` for `ALLOWED_HOSTS`. `StdioRouterLive` always returns `"mcp-message"`
 - **Transport abstraction**: `Transport` Context.Tag in `transport/transport.ts` defines `parse`/`respond`/`handleMcp`. `HttpTransportLive` delegates to `McpRequest`/`McpResponse` DTOs. `StdioTransportLive` is minimal (SDK handles I/O)
 - **Session management**: `McpServerService` owns session CRUD via an Effect `Ref` holding a `Map<string, SessionEntry>`. Each `POST /mcp` initialize creates a new `McpServer` + `NodeStreamableHTTPServerTransport`; subsequent requests reuse via the `Mcp-Session-Id` header. `SessionNotFoundError` (`Data.TaggedError`) is raised when a session ID is not found. HTTP listener uses `Effect.either` for graceful fallthrough to the initialize check on `mcp-message`
+- **Allowed hosts**: `ALLOWED_HOSTS` env var (comma-separated, case-insensitive) adds hostnames to the DNS rebinding allowlist beyond the default loopback addresses — required for remote deployments (e.g., Azure Container Apps)
 - **Port configuration**: `PORT` env var controls HTTP server port (default `3001`)
 - **Health endpoint**: `GET /health` returns `{ status: "ok" }` — used by Docker healthcheck
 - **Docker**: Multi-stage build (`builder` + `runner`). Non-root `app` user. `HEALTHCHECK` via `wget` against `/health`. `NODE_ENV=production`

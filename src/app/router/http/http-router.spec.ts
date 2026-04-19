@@ -9,15 +9,34 @@
  * @module
  */
 import { describe, it, expect } from "vitest";
-import { Effect } from "effect";
+import { ConfigProvider, Effect, Layer } from "effect";
 import { HttpRouterLive } from "./http-router.js";
 import { Router } from "../router.js";
 import { McpRequest } from "../../transport/mcp-request.js";
+import { AppConfig } from "../../config/app/app-config.js";
+
+/**
+ * Test config layer — provides {@link AppConfig} with default
+ * values and no additional allowed hosts.
+ */
+const TestConfigLayer = AppConfig.Default.pipe(
+	Layer.provide(
+		Layer.setConfigProvider(
+			ConfigProvider.fromMap(new Map([
+				["TRANSPORT_MODE", "http"],
+			])),
+		),
+	),
+	Layer.orDie,
+);
 
 /**
  * Helper — resolves a {@link McpRequest} through the HTTP router.
  */
-const resolve = (overrides: Partial<ConstructorParameters<typeof McpRequest>[0]>) =>
+const resolve = (
+	overrides: Partial<ConstructorParameters<typeof McpRequest>[0]>,
+	configLayer: Layer.Layer<AppConfig> = TestConfigLayer,
+) =>
 	Effect.gen(function* () {
 		const router = yield* Router;
 		return yield* router.resolve(
@@ -32,7 +51,10 @@ const resolve = (overrides: Partial<ConstructorParameters<typeof McpRequest>[0]>
 				...overrides,
 			}),
 		);
-	}).pipe(Effect.provide(HttpRouterLive), Effect.runPromise);
+	}).pipe(
+		Effect.provide(HttpRouterLive.pipe(Layer.provide(configLayer))),
+		Effect.runPromise,
+	);
 
 describe("HttpRouterLive", () => {
 	it("returns forbidden for invalid host", async () => {
@@ -85,5 +107,65 @@ describe("HttpRouterLive", () => {
 		expect(await resolve({ host: "::1", method: "GET", path: "/health" })).toBe(
 			"forbidden",
 		);
+	});
+
+	it("accepts a host listed in ALLOWED_HOSTS", async () => {
+		const customConfig = AppConfig.Default.pipe(
+			Layer.provide(
+				Layer.setConfigProvider(
+					ConfigProvider.fromMap(new Map([
+						["TRANSPORT_MODE", "http"],
+						["ALLOWED_HOSTS", "my-app.azurecontainerapps.io"],
+					])),
+				),
+			),
+			Layer.orDie,
+		);
+		expect(
+			await resolve(
+				{ host: "my-app.azurecontainerapps.io", method: "GET", path: "/health" },
+				customConfig,
+			),
+		).toBe("health-check");
+	});
+
+	it("ALLOWED_HOSTS matching is case-insensitive", async () => {
+		const customConfig = AppConfig.Default.pipe(
+			Layer.provide(
+				Layer.setConfigProvider(
+					ConfigProvider.fromMap(new Map([
+						["TRANSPORT_MODE", "http"],
+						["ALLOWED_HOSTS", "My-App.Example.COM"],
+					])),
+				),
+			),
+			Layer.orDie,
+		);
+		expect(
+			await resolve(
+				{ host: "my-app.example.com", method: "GET", path: "/health" },
+				customConfig,
+			),
+		).toBe("health-check");
+	});
+
+	it("rejects a host not in ALLOWED_HOSTS", async () => {
+		const customConfig = AppConfig.Default.pipe(
+			Layer.provide(
+				Layer.setConfigProvider(
+					ConfigProvider.fromMap(new Map([
+						["TRANSPORT_MODE", "http"],
+						["ALLOWED_HOSTS", "my-app.azurecontainerapps.io"],
+					])),
+				),
+			),
+			Layer.orDie,
+		);
+		expect(
+			await resolve(
+				{ host: "evil.com", method: "GET", path: "/health" },
+				customConfig,
+			),
+		).toBe("forbidden");
 	});
 });

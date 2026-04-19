@@ -10,6 +10,10 @@
 			"env": {
 				"ACTIVE_TOOLS": "get-coffees,get-a-coffee"
 			}
+		},
+		"coffeeMate-remote": {
+			"type": "http",
+			"url": "https://ca-mcp-01-dev-southafricanorth.greengrass-f377fe8c.southafricanorth.azurecontainerapps.io/mcp"
 		}
 	}
 }
