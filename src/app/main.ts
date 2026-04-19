@@ -19,7 +19,7 @@
  *
  * @module
  */
-import { Effect, Fiber, Layer, ManagedRuntime } from "effect";
+import { Effect, Fiber, Layer, Logger, ManagedRuntime } from "effect";
 import { AppConfig } from "./config/app/app-config.js";
 import { HttpTransportLive } from "./transport/http/http-transport.js";
 import { StdioTransportLive } from "./transport/stdio/stdio.js";
@@ -79,6 +79,11 @@ const program = Effect.gen(function* () {
 
 	const mode = resolveTransportMode(modeConfig);
 
+	// Ensure the environment reflects the resolved mode so that
+	// downstream services (e.g. McpServerService) reading AppConfig
+	// see the same value the layer graph was built with.
+	process.env.TRANSPORT_MODE = mode;
+
 	const transportLayer = mode === "stdio" ? StdioTransportLive : HttpTransportLive;
 	const routerLayer = mode === "stdio" ? StdioRouterLive : HttpRouterLive;
 
@@ -124,7 +129,21 @@ const program = Effect.gen(function* () {
 		listenerLayer,
 	);
 
-	const runtime = ManagedRuntime.make(appLayer);
+	// In stdio mode, redirect Effect logs to stderr so they do not
+	// corrupt the JSON-RPC protocol channel on stdout.
+	const stderrLoggerLayer = Logger.replace(
+		Logger.defaultLogger,
+		Logger.make(({ logLevel, message, date }) => {
+			globalThis.process.stderr.write(
+				`timestamp=${date.toISOString()} level=${logLevel.label} message=${String(message)}\n`,
+			);
+		}),
+	);
+	const finalLayer = mode === "stdio"
+		? appLayer.pipe(Layer.provide(stderrLoggerLayer))
+		: appLayer;
+
+	const runtime = ManagedRuntime.make(finalLayer);
 
 	yield* Effect.promise(() =>
 		runtime.runPromise(

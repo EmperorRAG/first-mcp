@@ -17,6 +17,7 @@
  *
  * @module
  */
+import { randomUUID } from "node:crypto";
 import { Effect, Layer, ManagedRuntime, Ref } from "effect";
 import { McpServer } from "@modelcontextprotocol/server";
 import { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
@@ -49,7 +50,7 @@ export { SessionNotFoundError } from "./errors.js";
  * | {@link start} | No-op (runtime initialised in `scoped`) |
  * | {@link stop} | Closes all SDK transports, clears map |
 	 * | {@link getSession} | Returns session or fails with {@link SessionNotFoundError} |
- * | {@link setSession} | Creates McpServer + sdkTransport, registers tools, connects, stores, returns ID |
+ * | {@link setSession} | Creates McpServer + sdkTransport, registers tools, connects, stores, returns entry |
  * | {@link deleteSession} | Closes SDK transport, removes entry |
  *
  * @example
@@ -59,7 +60,7 @@ export { SessionNotFoundError } from "./errors.js";
  *
  * const program = Effect.gen(function* () {
  *   const svc = yield* McpServerService;
- *   const sessionId = yield* svc.setSession();
+ *   const session = yield* svc.setSession();
  *   const session = yield* svc.getSession(sessionId);
  * });
  * ```
@@ -120,12 +121,9 @@ export class McpServerService extends Effect.Service<McpServerService>()(
 						domain.registerCoffeeTools(server, config.activeTools, runtime);
 
 						if (config.mode === "http") {
-							let assignedSessionId = "";
-
 							const sdkTransport = new NodeStreamableHTTPServerTransport({
-								sessionIdGenerator: undefined,
+								sessionIdGenerator: () => randomUUID(),
 								onsessioninitialized: (sid) => {
-									assignedSessionId = sid;
 									const sessions = Effect.runSync(Ref.get(sessionsRef));
 									sessions.set(sid, { server, sdkTransport });
 								},
@@ -140,7 +138,7 @@ export class McpServerService extends Effect.Service<McpServerService>()(
 
 							yield* Effect.promise(() => server.connect(sdkTransport));
 
-							return assignedSessionId;
+							return { server, sdkTransport } satisfies SessionEntry;
 						}
 
 						// stdio mode — fixed session ID
@@ -156,7 +154,7 @@ export class McpServerService extends Effect.Service<McpServerService>()(
 						yield* Effect.promise(() => server.connect(sdkTransport));
 						yield* Effect.logInfo("MCP Server running on stdio");
 
-						return sessionId;
+						return { server, sdkTransport } satisfies SessionEntry;
 					}),
 
 				deleteSession: (sessionId: string) =>

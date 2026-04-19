@@ -46,7 +46,7 @@ export interface SessionEntry {
  * | {@link start} | Initialises internal state (no-op if already ready) |
  * | {@link stop} | Closes all active sessions and clears the map |
  * | {@link getSession} | Retrieves a session by ID |
- * | {@link setSession} | Creates a new session and returns the SDK-assigned ID |
+ * | {@link setSession} | Creates a new session and returns the entry |
  * | {@link deleteSession} | Closes and removes a session by ID |
  */
 export interface McpServerServiceShape {
@@ -86,10 +86,10 @@ export interface McpServerServiceShape {
 	 *   `onsessioninitialized(id)` — that ID keys the map.
 	 * - **stdio mode**: uses the fixed key `"stdio"`.
 	 *
-	 * @returns An {@link Effect.Effect} yielding the session ID
-	 *          string.
+	 * @returns An {@link Effect.Effect} yielding the created
+	 *          {@link SessionEntry}.
 	 */
-	readonly setSession: () => Effect.Effect<string>;
+	readonly setSession: () => Effect.Effect<SessionEntry>;
 
 	/**
 	 * Closes and removes a session by its identifier.

@@ -37,6 +37,10 @@ export interface HttpListenerShape {
 	readonly start: () => Effect.Effect<void>;
 	/** Closes the TCP server and all MCP sessions. */
 	readonly stop: () => Effect.Effect<void>;
+	/** Returns the bound TCP port (available after {@link start}). */
+	readonly port: () => Effect.Effect<number>;
+	/** Returns the bound address string (available after {@link start}). */
+	readonly address: () => Effect.Effect<string>;
 }
 
 /**
@@ -97,8 +101,7 @@ const handleRequest = (
 
 					// New session — initialize request
 					if (mcpReq.isInitialize) {
-						const sessionId = yield* mcpSvc.setSession();
-						const session = yield* mcpSvc.getSession(sessionId);
+						const session = yield* mcpSvc.setSession();
 						yield* transport.handleMcp(mcpReq, session.sdkTransport);
 						return;
 					}
@@ -278,6 +281,24 @@ export const HttpListenerLive: Layer.Layer<HttpListener, never, Transport | Rout
 							yield* Ref.set(serverRef, null);
 							yield* Effect.logInfo("HTTP server closed");
 						}
+					}),
+
+				port: () =>
+					Effect.gen(function* () {
+						const httpServer = yield* Ref.get(serverRef);
+						if (!httpServer) return yield* Effect.die(new Error("HTTP server not started"));
+						const addr = httpServer.address();
+						if (!addr || typeof addr === "string") return yield* Effect.die(new Error("Unexpected address format"));
+						return addr.port;
+					}),
+
+				address: () =>
+					Effect.gen(function* () {
+						const httpServer = yield* Ref.get(serverRef);
+						if (!httpServer) return yield* Effect.die(new Error("HTTP server not started"));
+						const addr = httpServer.address();
+						if (!addr || typeof addr === "string") return yield* Effect.die(new Error("Unexpected address format"));
+						return addr.address;
 					}),
 			} satisfies HttpListenerShape;
 		}),

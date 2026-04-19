@@ -10,6 +10,7 @@
 		"test:unit": "vitest run --project unit",
 		"test:watch": "vitest",
 		"test:coverage": "vitest run --coverage",
+		"test:e2e": "npm run build && vitest run --project e2e",
 		"docs": "typedoc && remark docs/api --output --quiet",
 		"docs:lint": "remark docs/api --quiet --frail",
 		"lint:md": "remark . --quiet --frail",

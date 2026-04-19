@@ -6,7 +6,10 @@
 			"args": [
 				"${workspaceFolder}/build/app/main.js",
 				"--stdio"
-			]
+			],
+			"env": {
+				"ACTIVE_TOOLS": "get-coffees,get-a-coffee"
+			}
 		}
 	}
 }
