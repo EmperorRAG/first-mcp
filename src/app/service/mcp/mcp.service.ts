@@ -16,6 +16,7 @@ import { stop } from "./stop/stop.js";
 import { getSession } from "./get-session/get-session.js";
 import { setSession } from "./set-session/set-session.js";
 import { deleteSession } from "./delete-session/delete-session.js";
+import { registerCoffeeTools } from "./register-coffee-tools/register-coffee-tools.js";
 
 /**
  * Effect service managing MCP server sessions. Composes the per-method
@@ -37,8 +38,8 @@ export class McpService extends Effect.Service<McpService>()(
 					{
 						readonly server: McpServer;
 						readonly sdkTransport:
-							| NodeStreamableHTTPServerTransport
-							| StdioServerTransport;
+						| NodeStreamableHTTPServerTransport
+						| StdioServerTransport;
 					}
 				>
 			>(new Map());
@@ -68,6 +69,13 @@ export class McpService extends Effect.Service<McpService>()(
 				setSession: () => setSession().pipe(Effect.provide(internalLayer)),
 				deleteSession: (sessionId: string) =>
 					deleteSession(sessionId).pipe(Effect.provide(internalLayer)),
+				registerCoffeeTools: (
+					server: McpServer,
+					activeTools: Record<string, boolean>,
+				) =>
+					registerCoffeeTools(server, activeTools).pipe(
+						Effect.provide(internalLayer),
+					),
 			};
 		}),
 		dependencies: [CoffeeDomain.Default],

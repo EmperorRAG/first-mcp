@@ -53,7 +53,7 @@ src/app/
 │       └── standard-schema-bridge.ts   — toStandardSchema() adapter (Effect Schema → MCP SDK)
 ├── service/
 │   └── coffee/                         — coffee domain
-│       ├── domain.ts                   — CoffeeDomain Effect.Service (barrel + registerCoffeeTools)
+│       ├── domain.ts                   — CoffeeDomain Effect.Service (barrel exposing per-tool executors)
 │       ├── domain.spec.ts
 │       ├── errors.ts                   — CoffeeNotFoundError (Data.TaggedError)
 │       ├── errors.spec.ts
@@ -104,19 +104,19 @@ src/app/
 
 ### Layer Responsibilities
 
-| Layer                                                               | Responsibility                                                                                                                                 |
-| ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Listener** (`server.ts`, `http-listener.ts`, `stdio-listener.ts`) | Server lifecycle (bind/close), per-request dispatch through Transport → Router → McpServerService                                              |
-| **McpServerService** (`mcp/mcp-server.ts`)                          | Session CRUD (create, get, delete, stop). Creates McpServer + SDK transport per session, registers domain tools, manages session map via `Ref` |
-| **Router** (`router.ts`, `http-router.ts`, `stdio-router.ts`)       | Maps `McpRequest` → `RouteAction` union. DNS rebinding guard in HTTP router; stdio always returns `"mcp-message"`                              |
-| **Transport** (`transport.ts`, `http-transport.ts`, `stdio.ts`)     | Wire-format adapter: `parse` (raw → `McpRequest`), `respond` (`McpResponse` → wire), `handleMcp` (delegate to SDK transport)                   |
-| **Domain** (`domain.ts`)                                            | Composes service Layers, provides repository, exports `registerCoffeeTools()`                                                                  |
-| **Service** (`*.service.ts`)                                        | Business logic + MCP `registerTool()` wiring via `registerXxxTool()`. Delegates to repository                                                  |
-| **Schema** (`*.schema.ts`)                                          | Effect Schema input definitions, JSON Schema derivation, StandardSchema adapter                                                                |
-| **Repository** (`*.repository.ts`)                                  | Data access interface. `InMemory*` impl for now (database-ready interface)                                                                     |
-| **Types** (`*.type.ts`)                                             | Domain entities as Effect `Schema.Struct` definitions (one folder per field under `type/`)                                                     |
-| **Errors** (`errors.ts`)                                            | Domain errors as `Data.TaggedError` — enables `Effect.catchTag` matching                                                                       |
-| **Standard Schema Bridge** (`standard-schema-bridge.ts`)            | Adapts Effect Schema to `StandardSchemaWithJSON` for MCP SDK                                                                                   |
+| Layer                                                               | Responsibility                                                                                                                                                                                    |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Listener** (`server.ts`, `http-listener.ts`, `stdio-listener.ts`) | Server lifecycle (bind/close), per-request dispatch through Transport → Router → McpServerService                                                                                                 |
+| **McpServerService** (`mcp/mcp-server.ts`)                          | Session CRUD (create, get, delete, stop). Creates McpServer + SDK transport per session, owns `registerCoffeeTools()` (tool metadata + `server.registerTool` loop), manages session map via `Ref` |
+| **Router** (`router.ts`, `http-router.ts`, `stdio-router.ts`)       | Maps `McpRequest` → `RouteAction` union. DNS rebinding guard in HTTP router; stdio always returns `"mcp-message"`                                                                                 |
+| **Transport** (`transport.ts`, `http-transport.ts`, `stdio.ts`)     | Wire-format adapter: `parse` (raw → `McpRequest`), `respond` (`McpResponse` → wire), `handleMcp` (delegate to SDK transport)                                                                      |
+| **Domain** (`domain.ts`)                                            | Composes service Layers, provides repository, exposes per-tool executor properties consumed by McpServerService                                                                                   |
+| **Service** (`*.service.ts`)                                        | Business logic + MCP `registerTool()` wiring via `registerXxxTool()`. Delegates to repository                                                                                                     |
+| **Schema** (`*.schema.ts`)                                          | Effect Schema input definitions, JSON Schema derivation, StandardSchema adapter                                                                                                                   |
+| **Repository** (`*.repository.ts`)                                  | Data access interface. `InMemory*` impl for now (database-ready interface)                                                                                                                        |
+| **Types** (`*.type.ts`)                                             | Domain entities as Effect `Schema.Struct` definitions (one folder per field under `type/`)                                                                                                        |
+| **Errors** (`errors.ts`)                                            | Domain errors as `Data.TaggedError` — enables `Effect.catchTag` matching                                                                                                                          |
+| **Standard Schema Bridge** (`standard-schema-bridge.ts`)            | Adapts Effect Schema to `StandardSchemaWithJSON` for MCP SDK                                                                                                                                      |
 
 ### Transport Modes
 

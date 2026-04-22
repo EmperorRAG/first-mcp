@@ -4,12 +4,13 @@
  *
  * @remarks
  * The tag is provided by `mcp.ts` via an internal {@link Layer} so
- * that `setSession` can yield the runtime and pass it to
- * {@link CoffeeDomain.registerCoffeeTools | registerCoffeeTools}.
+ * that `setSession` (via the `registerCoffeeTools` effect) can yield
+ * the runtime and bridge MCP tool callbacks back into Effect.
  *
  * The service slot is typed as
  * `ManagedRuntime.ManagedRuntime<CoffeeDomain, unknown>` to match the
- * signature accepted by `registerCoffeeTools`.
+ * signature accepted by the registration loop in
+ * `service/mcp/register-coffee-tools/`.
  *
  * @module
  */

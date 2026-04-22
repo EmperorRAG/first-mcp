@@ -13,9 +13,10 @@
  * - **stdio**: a {@link StdioServerTransport} stored under the
  *   fixed key `"stdio"` via {@link Ref.update}.
  *
- * Yields {@link AppConfig}, {@link CoffeeDomain},
- * {@link SessionsRefTag}, and {@link McpRuntimeTag} from the Effect
- * context.
+ * Yields {@link AppConfig} and {@link SessionsRefTag} from the
+ * Effect context.  Tool registration is delegated to
+ * {@link registerCoffeeTools}, which yields {@link CoffeeDomain}
+ * and {@link McpRuntimeTag} on its own.
  *
  * @module
  */
@@ -25,9 +26,8 @@ import { McpServer } from "@modelcontextprotocol/server";
 import { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
 import { StdioServerTransport } from "@modelcontextprotocol/server";
 import { AppConfig } from "../../../config/app/app-config.js";
-import { CoffeeDomain } from "../../coffee/coffee.service.js";
 import { SessionsRefTag } from "../shared/type/sessions-ref/sessions-ref.tag.js";
-import { McpRuntimeTag } from "../shared/type/mcp-runtime/mcp-runtime.tag.js";
+import { registerCoffeeTools } from "../register-coffee-tools/register-coffee-tools.js";
 
 /**
  * Creates a new MCP session, registers domain tools, connects the
@@ -37,16 +37,14 @@ import { McpRuntimeTag } from "../shared/type/mcp-runtime/mcp-runtime.tag.js";
 export const setSession = () =>
 	Effect.gen(function* () {
 		const config = yield* AppConfig;
-		const domain = yield* CoffeeDomain;
 		const sessionsRef = yield* SessionsRefTag;
-		const runtime = yield* McpRuntimeTag;
 
 		const server = new McpServer({
 			name: config.name,
 			version: config.version,
 		});
 
-		domain.registerCoffeeTools(server, config.activeTools, runtime);
+		yield* registerCoffeeTools(server, config.activeTools);
 
 		if (config.mode === "http") {
 			const sdkTransport = new NodeStreamableHTTPServerTransport({
