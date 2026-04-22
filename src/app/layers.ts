@@ -10,63 +10,33 @@
  * | Tier | Contents |
  * |------|----------|
  * | **BaseLayer** | {@link AppConfig} (infrastructure config) |
- * | **InfraLayer** | Transport + Router (mode-specific) |
  * | **McpServerModule** | {@link McpService} (session CRUD, tool registration) |
- * | **ListenerModule** | {@link ListenerTag} (mode-specific lifecycle) |
+ * | **ServiceModule** | {@link HttpService} or {@link StdioService} (mode-specific lifecycle) |
  * | **AppLayer** | All tiers composed into a single self-contained layer |
  *
  * @module
  */
 import { Layer, Logger } from "effect";
 import { AppConfig } from "./config/app/app-config.js";
-import { HttpTransportLive } from "./service/http/transport/transport.js";
-import { HttpRouterLive } from "./service/http/router/router.js";
 import { McpService } from "./service/mcp/mcp.service.js";
-import { ListenerTag } from "./listener/listener.tag.js";
-import { HttpListener, HttpListenerLive } from "./service/http/http.js";
+import { HttpService } from "./service/http/http.service.js";
 import { StdioService } from "./service/stdio/stdio.service.js";
 
-// ── BaseLayer ────────────────────────────────────────────────────
-// Application-wide infrastructure shared by both transport modes.
-
 const BaseLayer = AppConfig.Default;
-
-// ── InfraLayers (mode-specific) ──────────────────────────────────
-// Transport + Router implementations selected per mode (HTTP only —
-// stdio uses the SDK's StdioServerTransport directly via StdioService).
-
-const HttpInfraLayer = Layer.mergeAll(
-	HttpTransportLive,
-	HttpRouterLive.pipe(Layer.provide(BaseLayer)),
-);
-
-// ── McpServerModule ──────────────────────────────────────────────
-// Session manager + domain tools. CoffeeService.Default is bundled
-// internally via McpServerService's `dependencies` array.
 
 const McpServerModule = McpService.Default.pipe(
 	Layer.provide(BaseLayer),
 );
-
-// ── ListenerModules (mode-specific) ──────────────────────────────
-// HTTP resolves the polymorphic Listener tag to its concrete impl.
-// Stdio uses StdioService directly (no ListenerTag bridge).
 
 const StdioServiceModule = StdioService.Default.pipe(
 	Layer.provide(McpServerModule),
 	Layer.provide(BaseLayer),
 );
 
-const HttpListenerModule = Layer.effect(ListenerTag, HttpListener).pipe(
-	Layer.provide(HttpListenerLive),
-	Layer.provide(
-		Layer.mergeAll(BaseLayer, HttpInfraLayer, McpServerModule),
-	),
+const HttpServiceModule = HttpService.Default.pipe(
+	Layer.provide(McpServerModule),
+	Layer.provide(BaseLayer),
 );
-
-// ── Stderr logger (stdio only) ───────────────────────────────────
-// Redirects Effect logs to stderr so they do not corrupt the
-// JSON-RPC protocol channel on stdout.
 
 const stderrLoggerLayer = Logger.replace(
 	Logger.defaultLogger,
@@ -77,15 +47,8 @@ const stderrLoggerLayer = Logger.replace(
 	}),
 );
 
-// ── AppLayers ────────────────────────────────────────────────────
-// Self-contained layer graphs — one per transport mode.
-
 /**
  * Complete layer graph for stdio transport mode.
- *
- * @remarks
- * Includes the stderr logger override so that Effect log output
- * does not corrupt the JSON-RPC channel on stdout.
  */
 export const StdioAppLayer = Layer.mergeAll(
 	BaseLayer,
@@ -98,7 +61,6 @@ export const StdioAppLayer = Layer.mergeAll(
  */
 export const HttpAppLayer = Layer.mergeAll(
 	BaseLayer,
-	HttpInfraLayer,
 	McpServerModule,
-	HttpListenerModule,
+	HttpServiceModule,
 );

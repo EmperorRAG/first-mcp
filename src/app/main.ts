@@ -2,7 +2,7 @@
  * Application entry point — resolves transport mode from configuration
  * (with `--stdio` CLI override), selects the appropriate
  * {@link StdioAppLayer} or {@link HttpAppLayer}, and starts the MCP
- * server via the {@link ListenerTag} abstraction.
+ * server via {@link StdioService} or {@link HttpService}.
  *
  * @remarks
  * Orchestrates the full server lifecycle:
@@ -12,8 +12,8 @@
  * 2. Selects the pre-composed {@link StdioAppLayer} or
  *    {@link HttpAppLayer} from {@link module:layers | layers.ts}.
  * 3. Creates a {@link ManagedRuntime} from the selected layer.
- * 4. Resolves the {@link ListenerTag} and calls
- *    {@link ListenerShape.start | start()}.
+ * 4. Resolves the appropriate service tag and calls
+ *    its {@link start} method.
  * 5. Registers SIGTERM / SIGINT handlers that interrupt the root
  *    {@link fiber}, triggering {@link Effect.scoped} finalizers.
  *
@@ -21,7 +21,7 @@
  */
 import { Effect, Fiber, ManagedRuntime } from "effect";
 import { AppConfig } from "./config/app/app-config.js";
-import { ListenerTag } from "./listener/listener.tag.js";
+import { HttpService } from "./service/http/http.service.js";
 import { StdioService } from "./service/stdio/stdio.service.js";
 import { StdioAppLayer, HttpAppLayer } from "./layers.js";
 
@@ -47,7 +47,7 @@ const resolveTransportMode = (configMode: "http" | "stdio") =>
 
 /**
  * Main application program that resolves the transport mode and starts
- * the MCP server via the {@link ListenerTag} abstraction.
+ * the MCP server via the {@link HttpService} or {@link StdioService}.
  *
  * @remarks
  * Execution proceeds as follows:
@@ -57,8 +57,7 @@ const resolveTransportMode = (configMode: "http" | "stdio") =>
  * 2. Selects the pre-composed {@link StdioAppLayer} or
  *    {@link HttpAppLayer}.
  * 3. Creates a {@link ManagedRuntime} from the selected layer.
- * 4. Resolves the {@link ListenerTag} and calls
- *    {@link ListenerShape.start | start()}.
+ * 4. Resolves the appropriate service and calls its `start()`.
  * 5. Registers a finalizer to dispose the {@link ManagedRuntime}.
  * 6. Suspends indefinitely with {@link Effect.never} so the server
  *    stays alive until interrupted.
@@ -97,7 +96,7 @@ const program = Effect.gen(function* () {
 
 		yield* Effect.promise(() =>
 			runtime.runPromise(
-				ListenerTag.pipe(Effect.flatMap((l) => l.start())),
+				HttpService.pipe(Effect.flatMap((s) => s.start())),
 			),
 		);
 

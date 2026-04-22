@@ -22,10 +22,8 @@ import {
 	StdioClientTransport,
 } from "@modelcontextprotocol/client";
 import { AppConfig } from "./config/app/app-config.js";
-import { HttpTransportLive } from "./service/http/transport/transport.js";
-import { HttpRouterLive } from "./router/http/http-router.js";
-import { McpServerService } from "./listener/mcp/mcp-server.js";
-import { HttpListener, HttpListenerLive } from "./listener/http/http-listener.js";
+import { McpService } from "./service/mcp/mcp.service.js";
+import { HttpService } from "./service/http/http.service.js";
 
 // ---------------------------------------------------------------------------
 // HTTP transport
@@ -33,7 +31,7 @@ import { HttpListener, HttpListenerLive } from "./listener/http/http-listener.js
 
 describe("HTTP transport", () => {
 	let runtime: ManagedRuntime.ManagedRuntime<
-		HttpListener | McpServerService | AppConfig,
+		HttpService | McpService | AppConfig,
 		never
 	>;
 	let port: number;
@@ -56,33 +54,19 @@ describe("HTTP transport", () => {
 			Layer.orDie,
 		);
 
-		const routerLayer = HttpRouterLive.pipe(Layer.provide(configLayer));
-
-		const depsLayer = Layer.mergeAll(
-			configLayer,
-			HttpTransportLive,
-			routerLayer,
+		const mcpServerProvided = McpService.Default.pipe(
+			Layer.provide(configLayer),
 		);
 
-		const mcpServerProvided = McpServerService.Default.pipe(
-			Layer.provide(depsLayer),
-		);
-
-		const httpListenerProvided = HttpListenerLive.pipe(
-			Layer.provide(
-				Layer.mergeAll(
-					configLayer,
-					HttpTransportLive,
-					routerLayer,
-					mcpServerProvided,
-				),
-			),
+		const httpServiceProvided = HttpService.Default.pipe(
+			Layer.provide(mcpServerProvided),
+			Layer.provide(configLayer),
 		);
 
 		const appLayer = Layer.mergeAll(
 			configLayer,
 			mcpServerProvided,
-			httpListenerProvided,
+			httpServiceProvided,
 		);
 
 		runtime = ManagedRuntime.make(appLayer);
@@ -90,9 +74,9 @@ describe("HTTP transport", () => {
 		// Start the HTTP server on port 0 (OS-assigned)
 		port = await runtime.runPromise(
 			Effect.gen(function* () {
-				const listener = yield* HttpListener;
-				yield* listener.start();
-				return yield* listener.port();
+				const service = yield* HttpService;
+				yield* service.start();
+				return yield* service.port();
 			}),
 		);
 		// Connect MCP client

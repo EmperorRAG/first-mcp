@@ -13,40 +13,41 @@ src/app/
 │   └── app/
 │       ├── app-config.ts               — AppConfig Effect Service (PORT, server name/version, mode, active tools, allowed hosts)
 │       └── app-config.spec.ts
-├── server/                             — listener layer (server lifecycle + request dispatch)
-│   ├── server.ts                       — Listener Context.Tag + ListenerShape interface
-│   ├── http/
-│   │   ├── http-listener.ts            — HttpListener tag + HttpListenerLive Layer (node:http server)
-│   │   ├── body-parser.ts              — parseBody() — reads IncomingMessage stream as JSON Effect
-│   │   └── body-parser.spec.ts
-│   ├── stdio/
-│   │   └── stdio-listener.ts           — StdioService Effect.Service (start/stop split into per-method files)
-│   └── mcp/                            — MCP session manager
-│       ├── mcp-server.ts               — McpServerService Effect.Service (session CRUD)
-│       ├── types.ts                    — SessionEntry + McpServerServiceShape contract
-│       ├── types.spec.ts
-│       ├── errors.ts                   — SessionNotFoundError (Data.TaggedError)
-│       ├── registerable-tool.ts        — RegisterableTool interface for auto-registration
-│       └── registerable-tool.spec.ts
-├── repository/                         — shared data-access tag
-│   └── repository.ts                    — Repository Context.Tag (top-level shared)
-├── router/                             — routing layer (McpRequest → RouteAction)
-│   ├── router.ts                       — Router Context.Tag + RouterShape + RouteAction union
-│   └── http/
-│       └── http-router.ts              — HttpRouterLive Layer (DNS rebinding guard, path routing)
-├── transport/                          — transport layer (wire-format adapter)
-│   ├── transport.ts                    — Transport Context.Tag + TransportShape interface
-│   ├── mcp-request.ts                  — McpRequest Schema.TaggedClass DTO (HTTP + stdio decode)
-│   ├── mcp-request.spec.ts
-│   ├── mcp-response.ts                — McpResponse Schema.TaggedClass DTO (HTTP encode + CORS)
-│   ├── mcp-response.spec.ts
-│   └── http/
-│       └── http-transport.ts           — HttpTransportLive Layer (parse/respond/handleMcp)
-├── schema/
-│   └── shared/
-│       └── standard-schema-bridge.ts   — toStandardSchema() adapter (Effect Schema → MCP SDK)
 ├── service/
-│   └── coffee/                         — coffee domain
+│   ├── coffee/                         — coffee domain (see below)
+│   ├── mcp/                            — MCP session manager
+│   │   ├── mcp.service.ts              — McpService Effect.Service (session CRUD; setSession/getSession/deleteSession)
+│   │   └── shared/
+│   │       ├── error/session-not-found/   — SessionNotFoundError (Data.TaggedError)
+│   │       └── type/                       — SessionEntry, RegisterableTool
+│   ├── http/                           — HTTP listener (Effect.Service)
+│   │   ├── http.service.ts             — HttpService Effect.Service (composes start/stop/port/address)
+│   │   ├── parse/parse.ts              — parse(rawHttpInput) → McpRequest
+│   │   ├── respond/respond.ts          — respond(req, McpResponse) — writes status/headers/body
+│   │   ├── handle-mcp/handle-mcp.ts    — handleMcp(req, sdkTransport) — delegates to SDK
+│   │   ├── resolve/resolve.ts          — resolve(McpRequest) → RouteAction (DNS rebinding guard + path/method)
+│   │   ├── body-parser/body-parser.ts  — parseBody(IncomingMessage) — JSON Effect
+│   │   ├── handle-request/             — per-request dispatch loop
+│   │   │   ├── handle-request.ts       — switch on RouteAction + 400/500 fallback
+│   │   │   ├── handle-mcp-message/     — POST /mcp (existing session, initialize, or 400)
+│   │   │   ├── handle-mcp-sse/         — GET /mcp (SSE backward compat)
+│   │   │   ├── handle-session-terminate/ — DELETE /mcp
+│   │   │   ├── handle-health-check/    — GET /health
+│   │   │   ├── handle-cors-preflight/  — OPTIONS
+│   │   │   ├── handle-not-found/       — 404
+│   │   │   └── handle-forbidden/       — 403 (DNS rebinding)
+│   │   ├── start/start.ts              — binds node:http server, dispatches via Effect.runtime
+│   │   ├── stop/stop.ts                — closes server
+│   │   ├── port/port.ts, address/address.ts — server.address() accessors
+│   │   └── shared/type/server-ref/     — ServerRefTag (Ref<Server | null>)
+│   └── stdio/                          — stdio listener (Effect.Service)
+│       ├── stdio.service.ts            — StdioService Effect.Service
+│       ├── start/start.ts              — creates fixed "stdio" session via McpService.setSession()
+│       └── stop/stop.ts
+├── schema/
+│   ├── request/mcp-request.ts          — McpRequest Schema.TaggedClass DTO (HTTP + stdio decode)
+│   ├── response/mcp-response.ts        — McpResponse Schema.TaggedClass DTO (HTTP encode + CORS)
+│   └── shared/standard-schema-bridge.ts — toStandardSchema() adapter (Effect Schema → MCP SDK)
 │       ├── domain.ts                   — CoffeeService Effect.Service (barrel exposing per-tool executors)
 │       ├── domain.spec.ts
 │       ├── errors.ts                   — CoffeeNotFoundError (Data.TaggedError)
@@ -98,25 +99,25 @@ src/app/
 
 ### Layer Responsibilities
 
-| Layer                                                               | Responsibility                                                                                                                                                                                    |
-| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Listener** (`server.ts`, `http-listener.ts`, `stdio-listener.ts`) | Server lifecycle (bind/close), per-request dispatch through Transport → Router → McpServerService                                                                                                 |
-| **McpServerService** (`mcp/mcp-server.ts`)                          | Session CRUD (create, get, delete, stop). Creates McpServer + SDK transport per session, owns `registerCoffeeTools()` (tool metadata + `server.registerTool` loop), manages session map via `Ref` |
-| **Router** (`router.ts`, `http-router.ts`, `stdio-router.ts`)       | Maps `McpRequest` → `RouteAction` union. DNS rebinding guard in HTTP router; stdio always returns `"mcp-message"`                                                                                 |
-| **Transport** (`transport.ts`, `http-transport.ts`, `stdio.ts`)     | Wire-format adapter: `parse` (raw → `McpRequest`), `respond` (`McpResponse` → wire), `handleMcp` (delegate to SDK transport)                                                                      |
-| **Domain** (`domain.ts`)                                            | Composes service Layers, provides repository, exposes per-tool executor properties consumed by McpServerService                                                                                   |
-| **Service** (`*.service.ts`)                                        | Business logic + MCP `registerTool()` wiring via `registerXxxTool()`. Delegates to repository                                                                                                     |
-| **Schema** (`*.schema.ts`)                                          | Effect Schema input definitions, JSON Schema derivation, StandardSchema adapter                                                                                                                   |
-| **Repository** (`repository.ts`, `*.live.ts`)                       | Data access. `RepositoryTag` Context.Tag (top-level shared, identifier `"Repository"`) + `InMemoryCoffeeRepositoryLive` Layer (database-ready contract)                                           |
-| **Types** (`*.type.ts`)                                             | Domain entities as Effect `Schema.Struct` definitions (one folder per field under `type/`)                                                                                                        |
-| **Errors** (`errors.ts`)                                            | Domain errors as `Data.TaggedError` — enables `Effect.catchTag` matching                                                                                                                          |
-| **Standard Schema Bridge** (`standard-schema-bridge.ts`)            | Adapts Effect Schema to `StandardSchemaWithJSON` for MCP SDK                                                                                                                                      |
+| Layer                                                                 | Responsibility                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **HttpService** (`service/http/http.service.ts`)                      | Effect.Service composing the HTTP listener lifecycle. Allocates `ServerRefTag` (Ref<Server>), provides `start/stop/port/address` by composing per-method effects under `start/`, `stop/`, `port/`, `address/`. Dispatch loop in `handle-request/` switches on the `RouteAction` returned by `resolve/` and delegates to the per-action subfolders (`handle-mcp-message/`, `handle-mcp-sse/`, `handle-session-terminate/`, `handle-health-check/`, `handle-cors-preflight/`, `handle-not-found/`, `handle-forbidden/`) |
+| **StdioService** (`service/stdio/stdio.service.ts`)                   | Effect.Service that creates a single fixed `"stdio"` session via `McpService.setSession()`. SDK reads stdin/writes stdout directly                                                                                                                                                                                                                                                                                                                                                                                    |
+| **McpService** (`service/mcp/mcp.service.ts`)                         | Session CRUD (`setSession`, `getSession`, `deleteSession`). Creates `McpServer` + SDK transport per session, manages session map via `Ref`                                                                                                                                                                                                                                                                                                                                                                            |
+| **HTTP primitives** (`parse/`, `respond/`, `handle-mcp/`, `resolve/`) | Standalone Effect-returning functions (no Tag/Layer) — `parse(raw) → McpRequest`, `respond(req, McpResponse) → void`, `handleMcp(req, sdk) → void`, `resolve(req) → RouteAction`                                                                                                                                                                                                                                                                                                                                      |
+| **Domain** (`domain.ts`)                                              | Composes service Layers, provides repository, exposes per-tool executor properties consumed by McpService                                                                                                                                                                                                                                                                                                                                                                                                             |
+| **Service** (`*.service.ts`)                                          | Business logic + MCP `registerTool()` wiring via `registerXxxTool()`. Delegates to repository                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| **Schema** (`*.schema.ts`)                                            | Effect Schema input definitions, JSON Schema derivation, StandardSchema adapter                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| **Repository** (`repository.ts`, `*.live.ts`)                         | Data access. `RepositoryTag` Context.Tag (top-level shared) + `InMemoryCoffeeRepositoryLive` Layer                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| **Types** (`*.type.ts`)                                               | Domain entities as Effect `Schema.Struct` definitions (one folder per field under `type/`)                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| **Errors** (`errors.ts`)                                              | Domain errors as `Data.TaggedError` — enables `Effect.catchTag` matching                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| **Standard Schema Bridge**                                            | Adapts Effect Schema to `StandardSchemaWithJSON` for MCP SDK                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 
 ### Transport Modes
 
-- **Streamable HTTP (default)**: Raw Node.js HTTP server exposing `POST /mcp`, `GET /mcp` (SSE backward compat), `DELETE /mcp` (session termination), and `GET /health`. Request flow: `HttpListener.start()` → per-request `parseBody()` → `Transport.parse()` → `Router.resolve()` → switch on `RouteAction` → `McpServerService` session CRUD. Uses `NodeStreamableHTTPServerTransport` with stateful sessions (`Mcp-Session-Id` header). DNS rebinding protection in `HttpRouterLive` validates `Host` header against loopback addresses and any additional hostnames in `ALLOWED_HOSTS`. Sessions tracked in an Effect `Ref` holding a transport map. CORS headers added manually via `McpResponse`. Used for Docker and network-based clients.
-- **stdio (`--stdio` flag)**: `StdioService.start()` creates a single MCP session via `McpService.setSession()` with a fixed `"stdio"` session ID. The SDK's `StdioServerTransport` reads directly from `stdin` and writes to `stdout`. No routing, body parsing, or multi-session management. `main.ts` yields `StdioService` directly (no `ListenerTag` bridge). For local VS Code MCP integration via `.vscode/mcp.json`.
-- **Selection**: `main.ts` reads `AppConfig.mode` (with `--stdio` CLI override via `resolveTransportMode()`), selects the appropriate `Transport`, `Router`, and `Listener` layers, composes the runtime, and resolves the shared `Listener` tag to call `start()`.
+- **Streamable HTTP (default)**: Raw Node.js HTTP server exposing `POST /mcp`, `GET /mcp` (SSE backward compat), `DELETE /mcp` (session termination), and `GET /health`. Request flow: `HttpService.start()` → per-request `parseBody()` → `parse()` → `resolve()` → switch on `RouteAction` → per-action handler under `handle-request/` → `McpService` session CRUD. Uses `NodeStreamableHTTPServerTransport` with stateful sessions (`Mcp-Session-Id` header). DNS rebinding protection in `resolve()` validates `Host` header against loopback addresses and any additional hostnames in `ALLOWED_HOSTS`. Sessions tracked in an Effect `Ref` holding a transport map. CORS headers added manually via `McpResponse`. Used for Docker and network-based clients.
+- **stdio (`--stdio` flag)**: `StdioService.start()` creates a single MCP session via `McpService.setSession()` with a fixed `"stdio"` session ID. The SDK's `StdioServerTransport` reads directly from `stdin` and writes to `stdout`. No routing, body parsing, or multi-session management. For local VS Code MCP integration via `.vscode/mcp.json`.
+- **Selection**: `main.ts` reads `AppConfig.mode` (with `--stdio` CLI override via `resolveTransportMode()`), selects the pre-composed `StdioAppLayer` or `HttpAppLayer` from `layers.ts`, composes the runtime, and yields either `StdioService` or `HttpService` to call `start()`.
 
 ## Build and Test
 
@@ -149,10 +150,10 @@ After code changes, always run `npm run build` before testing the MCP server. Wh
 - **Standard Schema bridge**: `toStandardSchema()` in `schema/shared/standard-schema-bridge.ts` adapts Effect Schema to the `StandardSchemaWithJSON` interface required by MCP SDK's `registerTool()`
 - **Error handling**: Domain errors extend `Data.TaggedError` with a unique `_tag` string — enables exhaustive `Effect.catchTag` matching without `instanceof` checks. Field names must not shadow `Error.name` (e.g., use `coffeeName` instead of `name`)
 - **Strict TypeScript**: `strict: true` is enabled — no implicit `any`, null checks required
-- **Listener abstraction**: `Listener` Context.Tag in `server/server.ts` defines the shared `start()`/`stop()` interface for HTTP. `HttpListenerLive` satisfies it. Stdio uses the `StdioService` `Effect.Service` directly (no `ListenerTag` bridge); `main.ts` branches on the resolved transport mode
-- **Router abstraction**: `Router` Context.Tag in `router/router.ts` defines `resolve(McpRequest) → RouteAction`. `HttpRouterLive` performs DNS rebinding guard + path/method routing; depends on `AppConfig` for `ALLOWED_HOSTS`. Stdio has no router — the SDK transport is invoked directly
-- **Transport abstraction**: `Transport` Context.Tag in `transport/transport.ts` defines `parse`/`respond`/`handleMcp`. `HttpTransportLive` delegates to `McpRequest`/`McpResponse` DTOs. Stdio has no shared transport adapter — the SDK's `StdioServerTransport` is wired directly inside `McpService.setSession`
-- **Session management**: `McpServerService` owns session CRUD via an Effect `Ref` holding a `Map<string, SessionEntry>`. Each `POST /mcp` initialize creates a new `McpServer` + `NodeStreamableHTTPServerTransport`; subsequent requests reuse via the `Mcp-Session-Id` header. `SessionNotFoundError` (`Data.TaggedError`) is raised when a session ID is not found. HTTP listener uses `Effect.either` for graceful fallthrough to the initialize check on `mcp-message`
+- **Listener services**: `HttpService` and `StdioService` are both `Effect.Service` definitions exposing `start()`/`stop()` (HTTP also exposes `port()`/`address()`). `main.ts` yields the appropriate service directly — no shared listener tag
+- **HTTP route resolution**: Standalone `resolve(McpRequest) → RouteAction` Effect in `service/http/resolve/resolve.ts` performs DNS rebinding guard + path/method routing; depends on `AppConfig` for `ALLOWED_HOSTS`. Stdio has no resolver — the SDK transport is invoked directly
+- **HTTP wire-format primitives**: Standalone `parse`, `respond`, `handleMcp` Effect-returning functions in `service/http/{parse,respond,handle-mcp}/` (no Tag/Layer). The per-RouteAction handlers under `service/http/handle-request/` compose them with `McpService` to satisfy each route
+- **Session management**: `McpService` owns session CRUD via an Effect `Ref` holding a `Map<string, SessionEntry>`. Each `POST /mcp` initialize creates a new `McpServer` + `NodeStreamableHTTPServerTransport`; subsequent requests reuse via the `Mcp-Session-Id` header. `SessionNotFoundError` (`Data.TaggedError`) is raised when a session ID is not found. The HTTP `handle-mcp-message/` handler uses `Effect.either` for graceful fallthrough to the initialize check
 - **Allowed hosts**: `ALLOWED_HOSTS` env var (comma-separated, case-insensitive) adds hostnames to the DNS rebinding allowlist beyond the default loopback addresses — required for remote deployments (e.g., Azure Container Apps)
 - **Port configuration**: `PORT` env var controls HTTP server port (default `3001`)
 - **Health endpoint**: `GET /health` returns `{ status: "ok" }` — used by Docker healthcheck
