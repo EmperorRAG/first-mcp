@@ -15,7 +15,7 @@
  *
  * Yields {@link AppConfig} and {@link SessionsRefTag} from the
  * Effect context.  Tool registration is delegated to
- * {@link registerCoffeeTools}, which yields {@link CoffeeDomain}
+ * {@link registerCoffeeTools}, which yields {@link CoffeeService}
  * and {@link McpRuntimeTag} on its own.
  *
  * @module

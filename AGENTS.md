@@ -28,6 +28,8 @@ src/app/
 │       ├── errors.ts                   — SessionNotFoundError (Data.TaggedError)
 │       ├── registerable-tool.ts        — RegisterableTool interface for auto-registration
 │       └── registerable-tool.spec.ts
+├── repository/                         — shared data-access tag
+│   └── repository.ts                    — Repository Context.Tag (top-level shared)
 ├── router/                             — routing layer (McpRequest → RouteAction)
 │   ├── router.ts                       — Router Context.Tag + RouterShape + RouteAction union
 │   ├── http/
@@ -53,7 +55,7 @@ src/app/
 │       └── standard-schema-bridge.ts   — toStandardSchema() adapter (Effect Schema → MCP SDK)
 ├── service/
 │   └── coffee/                         — coffee domain
-│       ├── domain.ts                   — CoffeeDomain Effect.Service (barrel exposing per-tool executors)
+│       ├── domain.ts                   — CoffeeService Effect.Service (barrel exposing per-tool executors)
 │       ├── domain.spec.ts
 │       ├── errors.ts                   — CoffeeNotFoundError (Data.TaggedError)
 │       ├── errors.spec.ts
@@ -80,8 +82,8 @@ src/app/
 │       │       ├── coffee-caffeine-content.type.ts
 │       │       └── coffee-caffeine-content.type.spec.ts
 │       ├── repository/
-│       │   ├── coffee-repository.ts    — CoffeeRepository tag + InMemory impl
-│       │   └── coffee-repository.spec.ts
+│       │   ├── repository.live.ts           — InMemoryCoffeeRepositoryLive Layer (Layer.succeed)
+│       │   └── repository.live.spec.ts
 │       └── module/
 │           ├── get-coffees/
 │           │   ├── get-coffees.service.ts      — GetCoffeesService + tool wiring
@@ -113,7 +115,7 @@ src/app/
 | **Domain** (`domain.ts`)                                            | Composes service Layers, provides repository, exposes per-tool executor properties consumed by McpServerService                                                                                   |
 | **Service** (`*.service.ts`)                                        | Business logic + MCP `registerTool()` wiring via `registerXxxTool()`. Delegates to repository                                                                                                     |
 | **Schema** (`*.schema.ts`)                                          | Effect Schema input definitions, JSON Schema derivation, StandardSchema adapter                                                                                                                   |
-| **Repository** (`*.repository.ts`)                                  | Data access interface. `InMemory*` impl for now (database-ready interface)                                                                                                                        |
+| **Repository** (`repository.ts`, `*.live.ts`)                       | Data access. `RepositoryTag` Context.Tag (top-level shared, identifier `"Repository"`) + `InMemoryCoffeeRepositoryLive` Layer (database-ready contract)                                           |
 | **Types** (`*.type.ts`)                                             | Domain entities as Effect `Schema.Struct` definitions (one folder per field under `type/`)                                                                                                        |
 | **Errors** (`errors.ts`)                                            | Domain errors as `Data.TaggedError` — enables `Effect.catchTag` matching                                                                                                                          |
 | **Standard Schema Bridge** (`standard-schema-bridge.ts`)            | Adapts Effect Schema to `StandardSchemaWithJSON` for MCP SDK                                                                                                                                      |

@@ -1,13 +1,13 @@
 /**
  * Get-a-coffee service — Effect function that yields the
- * {@link CoffeeRepository} dependency, decodes its input, looks up
+ * {@link RepositoryTag} dependency, decodes its input, looks up
  * a coffee by name, and returns an MCP-shaped response.
  *
  * @remarks
  * Exports a single function {@link getACoffee} whose
  * return type is inferred by Effect.  The function decodes its
  * `args` against {@link GetACoffeeInput}, looks up the coffee via
- * `CoffeeRepository.findByName`, and wraps the result in the
+ * `RepositoryTag.findByName`, and wraps the result in the
  * standard MCP `{ content: [...] }` envelope.  When the coffee is
  * not found, {@link CoffeeNotFoundError} is caught internally and
  * a user-friendly message is returned instead of failing the
@@ -17,7 +17,7 @@
  * @module
  */
 import { Effect, Option, Schema } from "effect";
-import { CoffeeRepository } from "../shared/repository/coffee/repository.js";
+import { RepositoryTag } from "../../../repository/repository.js";
 import { CoffeeNotFoundError } from "../shared/error/coffee-not-found/coffee-not-found.js";
 import { GetACoffeeInput } from "./get-a-coffee.schema.js";
 
@@ -26,7 +26,7 @@ import { GetACoffeeInput } from "./get-a-coffee.schema.js";
  *
  * @remarks
  * Decodes `args` against {@link GetACoffeeInput} via
- * {@link Schema.decodeUnknownSync}, yields {@link CoffeeRepository}
+ * {@link Schema.decodeUnknownSync}, yields {@link RepositoryTag}
  * from the Effect context, calls `repo.findByName`, and wraps the
  * result in the MCP `{ content: [{ type: "text", text }] }`
  * envelope.  When the lookup yields `Option.None`, the function
@@ -39,7 +39,7 @@ import { GetACoffeeInput } from "./get-a-coffee.schema.js";
  */
 export const getACoffee = (args: unknown) =>
 	Effect.gen(function* () {
-		const repo = yield* CoffeeRepository;
+		const repo = yield* RepositoryTag;
 		const { name } = Schema.decodeUnknownSync(GetACoffeeInput)(args);
 		const coffee = yield* Effect.flatMap(
 			repo.findByName(name),

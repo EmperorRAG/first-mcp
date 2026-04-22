@@ -44,7 +44,7 @@ const HttpInfraLayer = Layer.mergeAll(
 );
 
 // ── McpServerModule ──────────────────────────────────────────────
-// Session manager + domain tools. CoffeeDomain.Default is bundled
+// Session manager + domain tools. CoffeeService.Default is bundled
 // internally via McpServerService's `dependencies` array.
 
 const McpServerModule = McpService.Default.pipe(

@@ -2,7 +2,7 @@
  * Unit tests for {@link getCoffees}.
  *
  * @remarks
- * Each test provides {@link CoffeeRepository.Default} via
+ * Each test provides {@link InMemoryCoffeeRepositoryLive} via
  * {@link Effect.provide} and asserts the function returns the
  * MCP-shaped `{ content: [{ type: "text", text }] }` response with
  * a JSON-serialised array of seed coffees.
@@ -12,7 +12,7 @@
 import { describe, it, expect } from "vitest";
 import { Effect, Schema } from "effect";
 import { getCoffees } from "./get-coffees.js";
-import { CoffeeRepository } from "../shared/repository/coffee/repository.js";
+import { InMemoryCoffeeRepositoryLive } from "../shared/repository/coffee/in-memory/repository.live.js";
 import { CoffeeSchema } from "../shared/type/coffee/coffee.type.js";
 
 describe("getCoffees", () => {
@@ -24,7 +24,7 @@ describe("getCoffees", () => {
 		/** @internal */
 		const result = await Effect.runPromise(
 			getCoffees(undefined).pipe(
-				Effect.provide(CoffeeRepository.Default),
+				Effect.provide(InMemoryCoffeeRepositoryLive),
 			),
 		);
 		expect(result.content).toHaveLength(1);
@@ -44,7 +44,7 @@ describe("getCoffees", () => {
 		/** @internal */
 		const result = await Effect.runPromise(
 			getCoffees(undefined).pipe(
-				Effect.provide(CoffeeRepository.Default),
+				Effect.provide(InMemoryCoffeeRepositoryLive),
 			),
 		);
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment

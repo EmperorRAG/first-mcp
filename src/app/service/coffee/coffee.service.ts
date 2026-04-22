@@ -1,13 +1,12 @@
 /**
  * Coffee domain — Effect service that exposes each coffee tool as a
- * named executor function bound to the resolved
- * {@link CoffeeRepository}.
+ * named executor function bound to the resolved {@link RepositoryTag}.
  *
  * @remarks
  * This module is the domain barrel for the coffee bounded context.
- * {@link CoffeeDomain} is an {@link Effect.Service} whose `effect`
- * factory yields {@link CoffeeRepository} and binds the get-coffees
- * and get-a-coffee functions to that repository so the resulting
+ * {@link CoffeeService} is an {@link Effect.Service} whose `effect`
+ * factory yields {@link RepositoryTag} and binds the get-coffees and
+ * get-a-coffee functions to that repository so the resulting
  * executor closures carry no requirements channel.
  *
  * Tool metadata, input schemas, and MCP server registration are
@@ -16,7 +15,8 @@
  * @module
  */
 import { Effect } from "effect";
-import { CoffeeRepository } from "./shared/repository/coffee/repository.js";
+import { RepositoryTag } from "../../repository/repository.js";
+import { InMemoryCoffeeRepositoryLive } from "./shared/repository/coffee/in-memory/repository.live.js";
 import { getCoffees } from "./get-coffees/get-coffees.js";
 import { getACoffee } from "./get-a-coffee/get-a-coffee.js";
 
@@ -30,38 +30,39 @@ import { getACoffee } from "./get-a-coffee/get-a-coffee.js";
  * input-schema references, and MCP `registerTool` wiring live in
  * `service/mcp/register-coffee-tools/`.
  *
- * The `dependencies` array bundles {@link CoffeeRepository.Default}
- * so the domain can be provided with a single `CoffeeDomain.Default`.
+ * The `dependencies` array bundles
+ * {@link InMemoryCoffeeRepositoryLive} so the domain can be
+ * provided with a single `CoffeeService.Default`.
  *
  * @example
  * ```ts
  * import { Effect } from "effect";
- * import { CoffeeDomain } from "./coffee.service.js";
+ * import { CoffeeService } from "./coffee.service.js";
  *
  * const program = Effect.gen(function* () {
- *   const domain = yield* CoffeeDomain;
+ *   const domain = yield* CoffeeService;
  *   const result = yield* domain.getCoffees(undefined);
  *   console.log(result);
  * });
  * ```
  */
-export class CoffeeDomain extends Effect.Service<CoffeeDomain>()(
-	"CoffeeDomain",
+export class CoffeeService extends Effect.Service<CoffeeService>()(
+	"CoffeeService",
 	{
 		effect: Effect.gen(function* () {
-			const repo = yield* CoffeeRepository;
+			const repo = yield* RepositoryTag;
 
 			return {
 				getCoffees: (args: unknown) =>
 					getCoffees(args).pipe(
-						Effect.provideService(CoffeeRepository, repo),
+						Effect.provideService(RepositoryTag, repo),
 					),
 				getACoffee: (args: unknown) =>
 					getACoffee(args).pipe(
-						Effect.provideService(CoffeeRepository, repo),
+						Effect.provideService(RepositoryTag, repo),
 					),
 			};
 		}),
-		dependencies: [CoffeeRepository.Default],
+		dependencies: [InMemoryCoffeeRepositoryLive],
 	},
 ) { }

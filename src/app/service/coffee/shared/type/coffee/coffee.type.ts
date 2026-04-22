@@ -91,7 +91,7 @@ export const CoffeeSchema = Schema.Struct({
  * @remarks
  * Derived from {@link CoffeeSchema} via `typeof CoffeeSchema.Type`.  This
  * type alias is used throughout the coffee domain — in the
- * `CoffeeRepositoryShape` contract, service return types, and
+ * {@link Repository} contract, service return types, and
  * controller response formatting — ensuring that any schema change
  * automatically propagates to all dependent code.
  */

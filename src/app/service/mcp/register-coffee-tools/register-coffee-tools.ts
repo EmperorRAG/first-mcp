@@ -5,7 +5,7 @@
  * Owns the metadata, optional input-schema reference, and registration
  * loop for every coffee tool.  Builds a list of descriptor entries by
  * pairing each module-scoped {@link ToolDescriptor} with the matching
- * executor on the resolved {@link CoffeeDomain} service, then calls
+ * executor on the resolved {@link CoffeeService} service, then calls
  * `server.registerTool` for each entry whose `metaData.name` appears
  * in the active-tools record.
  *
@@ -20,7 +20,7 @@ import type {
 	McpServer,
 	StandardSchemaWithJSON,
 } from "@modelcontextprotocol/server";
-import { CoffeeDomain } from "../../coffee/coffee.service.js";
+import { CoffeeService } from "../../coffee/coffee.service.js";
 import { GetACoffeeInputStandard } from "../../coffee/get-a-coffee/get-a-coffee.schema.js";
 import { McpRuntimeTag } from "../shared/type/mcp-runtime/mcp-runtime.tag.js";
 
@@ -36,7 +36,7 @@ interface ToolResponse {
 }
 
 /**
- * Bare executor signature exposed by every {@link CoffeeDomain} tool
+ * Bare executor signature exposed by every {@link CoffeeService} tool
  * property.
  *
  * @internal
@@ -80,7 +80,7 @@ const getACoffeeMetaData = {
  * Registers active coffee tools on the given MCP server.
  *
  * @remarks
- * Yields {@link CoffeeDomain} and {@link McpRuntimeTag} from the
+ * Yields {@link CoffeeService} and {@link McpRuntimeTag} from the
  * Effect context.  Builds a descriptor list pairing each metadata
  * entry with its matching executor on the resolved domain, then
  * calls `server.registerTool` for each entry whose `metaData.name`
@@ -95,7 +95,7 @@ export const registerCoffeeTools = (
 	activeTools: Record<string, boolean>,
 ) =>
 	Effect.gen(function* () {
-		const domain = yield* CoffeeDomain;
+		const domain = yield* CoffeeService;
 		const runtime = yield* McpRuntimeTag;
 
 		const descriptors: readonly ToolDescriptor[] = [

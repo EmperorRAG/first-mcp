@@ -8,7 +8,7 @@ import { Effect, Layer, ManagedRuntime, Ref } from "effect";
 import type { McpServer, StdioServerTransport } from "@modelcontextprotocol/server";
 import type { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
 import { AppConfig } from "../../config/app/app-config.js";
-import { CoffeeDomain } from "../coffee/coffee.service.js";
+import { CoffeeService } from "../coffee/coffee.service.js";
 import { SessionsRefTag } from "./shared/type/sessions-ref/sessions-ref.tag.js";
 import { McpRuntimeTag } from "./shared/type/mcp-runtime/mcp-runtime.tag.js";
 import { start } from "./start/start.js";
@@ -23,14 +23,14 @@ import { registerCoffeeTools } from "./register-coffee-tools/register-coffee-too
  * Effects in `start/`, `stop/`, `get-session/`, `set-session/`, and
  * `delete-session/` by providing them with an internal layer that
  * carries the sessions {@link Ref}, the {@link ManagedRuntime}, and
- * the resolved {@link AppConfig} / {@link CoffeeDomain} services.
+ * the resolved {@link AppConfig} / {@link CoffeeService} services.
  */
 export class McpService extends Effect.Service<McpService>()(
 	"McpService",
 	{
 		scoped: Effect.gen(function* () {
 			const config = yield* AppConfig;
-			const domain = yield* CoffeeDomain;
+			const domain = yield* CoffeeService;
 
 			const sessionsRef = yield* Ref.make<
 				Map<
@@ -45,7 +45,7 @@ export class McpService extends Effect.Service<McpService>()(
 			>(new Map());
 
 			const appLayer = Layer.mergeAll(
-				Layer.succeed(CoffeeDomain, domain),
+				Layer.succeed(CoffeeService, domain),
 				Layer.succeed(AppConfig, config),
 			);
 			const runtime = ManagedRuntime.make(appLayer);
@@ -58,7 +58,7 @@ export class McpService extends Effect.Service<McpService>()(
 				Layer.succeed(SessionsRefTag, sessionsRef),
 				Layer.succeed(McpRuntimeTag, runtime),
 				Layer.succeed(AppConfig, config),
-				Layer.succeed(CoffeeDomain, domain),
+				Layer.succeed(CoffeeService, domain),
 			);
 
 			return {
@@ -78,6 +78,6 @@ export class McpService extends Effect.Service<McpService>()(
 					),
 			};
 		}),
-		dependencies: [CoffeeDomain.Default],
+		dependencies: [CoffeeService.Default],
 	},
 ) { }

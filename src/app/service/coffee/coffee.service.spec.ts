@@ -1,9 +1,9 @@
 /**
- * Unit tests for the {@link CoffeeDomain} Effect service.
+ * Unit tests for the {@link CoffeeService} Effect service.
  *
  * @remarks
- * Each test provides {@link CoffeeDomain.Default}, which bundles the
- * {@link CoffeeRepository} dependency.  Validates that the domain
+ * Each test provides {@link CoffeeService.Default}, which bundles the
+ * {@link RepositoryTag} dependency.  Validates that the service
  * composes correctly and exposes named executor properties whose
  * effects produce MCP-shaped responses.  Tool metadata, input
  * schemas, and MCP server registration live in
@@ -14,46 +14,46 @@
  */
 import { describe, it, expect } from "vitest";
 import { Effect } from "effect";
-import { CoffeeDomain } from "./coffee.service.js";
+import { CoffeeService } from "./coffee.service.js";
 
 /**
- * Helper that runs an Effect with the {@link CoffeeDomain.Default}
- * layer providing both the domain service and its underlying
- * {@link CoffeeRepository}.
+ * Helper that runs an Effect with the {@link CoffeeService.Default}
+ * layer providing both the service and its underlying
+ * {@link RepositoryTag}.
  *
  * @internal
  */
-const runWithDomain = <A>(effect: Effect.Effect<A, never, CoffeeDomain>) =>
-	Effect.runPromise(Effect.provide(effect, CoffeeDomain.Default));
+const runWithService = <A>(effect: Effect.Effect<A, never, CoffeeService>) =>
+	Effect.runPromise(Effect.provide(effect, CoffeeService.Default));
 
-describe("CoffeeDomain", () => {
+describe("CoffeeService", () => {
 	it("exposes getCoffees as an executor function", async () => {
 		/** @internal */
-		const domain = await runWithDomain(
+		const service = await runWithService(
 			Effect.gen(function* () {
-				return yield* CoffeeDomain;
+				return yield* CoffeeService;
 			}),
 		);
-		expect(domain.getCoffees).toBeTypeOf("function");
+		expect(service.getCoffees).toBeTypeOf("function");
 	});
 
 	it("exposes getACoffee as an executor function", async () => {
 		/** @internal */
-		const domain = await runWithDomain(
+		const service = await runWithService(
 			Effect.gen(function* () {
-				return yield* CoffeeDomain;
+				return yield* CoffeeService;
 			}),
 		);
-		expect(domain.getACoffee).toBeTypeOf("function");
+		expect(service.getACoffee).toBeTypeOf("function");
 	});
 
 	it("getCoffees returns MCP-shaped response", async () => {
 		/** @internal */
 		const result = await Effect.runPromise(
 			Effect.gen(function* () {
-				const domain = yield* CoffeeDomain;
-				return yield* domain.getCoffees(undefined);
-			}).pipe(Effect.provide(CoffeeDomain.Default)),
+				const service = yield* CoffeeService;
+				return yield* service.getCoffees(undefined);
+			}).pipe(Effect.provide(CoffeeService.Default)),
 		);
 		expect(result.content).toHaveLength(1);
 		expect(result.content[0]?.type).toBe("text");
@@ -66,9 +66,9 @@ describe("CoffeeDomain", () => {
 		/** @internal */
 		const result = await Effect.runPromise(
 			Effect.gen(function* () {
-				const domain = yield* CoffeeDomain;
-				return yield* domain.getACoffee({ name: "Espresso" });
-			}).pipe(Effect.provide(CoffeeDomain.Default)),
+				const service = yield* CoffeeService;
+				return yield* service.getACoffee({ name: "Espresso" });
+			}).pipe(Effect.provide(CoffeeService.Default)),
 		);
 		expect(result.content).toHaveLength(1);
 		expect(result.content[0]?.type).toBe("text");

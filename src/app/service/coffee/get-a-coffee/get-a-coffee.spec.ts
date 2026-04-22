@@ -2,7 +2,7 @@
  * Unit tests for {@link getACoffee}.
  *
  * @remarks
- * Each test provides {@link CoffeeRepository.Default} via
+ * Each test provides {@link InMemoryCoffeeRepositoryLive} via
  * {@link Effect.provide} and asserts the function returns the
  * MCP-shaped `{ content: [{ type: "text", text }] }` response.
  * Because {@link CoffeeNotFoundError} is caught internally via
@@ -14,7 +14,7 @@
 import { describe, it, expect } from "vitest";
 import { Effect, Schema } from "effect";
 import { getACoffee } from "./get-a-coffee.js";
-import { CoffeeRepository } from "../shared/repository/coffee/repository.js";
+import { InMemoryCoffeeRepositoryLive } from "../shared/repository/coffee/in-memory/repository.live.js";
 import { CoffeeSchema } from "../shared/type/coffee/coffee.type.js";
 
 describe("getACoffee", () => {
@@ -26,7 +26,7 @@ describe("getACoffee", () => {
 		/** @internal */
 		const result = await Effect.runPromise(
 			getACoffee({ name: "Flat White" }).pipe(
-				Effect.provide(CoffeeRepository.Default),
+				Effect.provide(InMemoryCoffeeRepositoryLive),
 			),
 		);
 		expect(result.content).toHaveLength(1);
@@ -47,7 +47,7 @@ describe("getACoffee", () => {
 		/** @internal */
 		const result = await Effect.runPromise(
 			getACoffee({ name: "nonexistent" }).pipe(
-				Effect.provide(CoffeeRepository.Default),
+				Effect.provide(InMemoryCoffeeRepositoryLive),
 			),
 		);
 		expect(result.content[0]?.text).toBe(
@@ -69,7 +69,7 @@ describe("getACoffee", () => {
 			/** @internal */
 			const result = await Effect.runPromise(
 				getACoffee({ name }).pipe(
-					Effect.provide(CoffeeRepository.Default),
+					Effect.provide(InMemoryCoffeeRepositoryLive),
 				),
 			);
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment

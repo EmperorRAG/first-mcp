@@ -1,11 +1,11 @@
 /**
- * Unit tests for the {@link CoffeeRepository} service and its default
- * in-memory implementation.
+ * Unit tests for the {@link RepositoryTag} service contract as
+ * supplied by {@link InMemoryCoffeeRepositoryLive}.
  *
  * @remarks
  * Each test exercises the repository through the Effect dependency
  * injection system.  The {@link layer} helper from `@effect/vitest`
- * provides {@link CoffeeRepository.Default} to every
+ * provides {@link InMemoryCoffeeRepositoryLive} to every
  * {@link it.effect} block, so individual tests yield the service
  * directly without manual wiring.
  *
@@ -13,36 +13,36 @@
  */
 import { expect, layer } from "@effect/vitest";
 import { Effect, Option } from "effect";
-import {
-	CoffeeRepository,
-} from "./repository.js";
+import { RepositoryTag } from "../../../../../../repository/repository.js";
+import { InMemoryCoffeeRepositoryLive } from "./repository.live.js";
 
 /**
- * Exercises the {@link CoffeeRepository} service contract and its
- * default in-memory catalog data.
+ * Exercises the {@link RepositoryTag} service contract and the
+ * default in-memory catalog data supplied by
+ * {@link InMemoryCoffeeRepositoryLive}.
  */
-layer(CoffeeRepository.Default)("CoffeeRepository", (it) => {
+layer(InMemoryCoffeeRepositoryLive)("Repository (in-memory coffee)", (it) => {
 	/**
-	 * Verifies that {@link CoffeeRepository.findAll} returns the
+	 * Verifies that {@link RepositoryTag.findAll} returns the
 	 * complete seed catalog of four coffee drinks.
 	 */
 	it.effect("findAll returns all four coffees", () =>
 		Effect.gen(function* () {
 			/**
 			 * Repository handle yielded from the
-			 * {@link CoffeeRepository} service tag.
+			 * {@link RepositoryTag} service tag.
 			 *
 			 * @internal
 			 */
-			const repo = yield* CoffeeRepository;
+			const repo = yield* RepositoryTag;
 
 			/**
 			 * All coffee drinks resolved from the in-memory catalog
-			 * via {@link CoffeeRepository.findAll}.
+			 * via {@link RepositoryTag.findAll}.
 			 *
 			 * @internal
 			 */
-			const coffees = yield* repo.findAll;
+			const coffees = yield* repo.findAll(undefined);
 
 			expect(coffees).toHaveLength(4);
 			expect(coffees.map((c) => c.name)).toContain("Flat White");
@@ -50,18 +50,18 @@ layer(CoffeeRepository.Default)("CoffeeRepository", (it) => {
 	);
 
 	/**
-	 * Verifies that {@link CoffeeRepository.findByName} returns
+	 * Verifies that {@link Repository.findByName} returns
 	 * `Some<Coffee>` when the name matches a catalog entry.
 	 */
 	it.effect("findByName returns the matching coffee", () =>
 		Effect.gen(function* () {
 			/**
 			 * Repository handle yielded from the
-			 * {@link CoffeeRepository} service tag.
+			 * {@link RepositoryTag} service tag.
 			 *
 			 * @internal
 			 */
-			const repo = yield* CoffeeRepository;
+			const repo = yield* RepositoryTag;
 
 			/**
 			 * Lookup result for `"Espresso"` — expected to be
@@ -79,18 +79,18 @@ layer(CoffeeRepository.Default)("CoffeeRepository", (it) => {
 	);
 
 	/**
-	 * Verifies that {@link CoffeeRepository.findByName} returns
+	 * Verifies that {@link Repository.findByName} returns
 	 * `None` when the name does not match any catalog entry.
 	 */
 	it.effect("findByName returns None for unknown name", () =>
 		Effect.gen(function* () {
 			/**
 			 * Repository handle yielded from the
-			 * {@link CoffeeRepository} service tag.
+			 * {@link RepositoryTag} service tag.
 			 *
 			 * @internal
 			 */
-			const repo = yield* CoffeeRepository;
+			const repo = yield* RepositoryTag;
 
 			/**
 			 * Lookup result for `"nonexistent"` — expected to be
@@ -108,7 +108,7 @@ layer(CoffeeRepository.Default)("CoffeeRepository", (it) => {
 	);
 
 	/**
-	 * Verifies that {@link CoffeeRepository.findByName} performs an
+	 * Verifies that {@link Repository.findByName} performs an
 	 * exact case-sensitive match — `"espresso"` (lowercase) must not
 	 * resolve the `"Espresso"` catalog entry.
 	 */
@@ -116,11 +116,11 @@ layer(CoffeeRepository.Default)("CoffeeRepository", (it) => {
 		Effect.gen(function* () {
 			/**
 			 * Repository handle yielded from the
-			 * {@link CoffeeRepository} service tag.
+			 * {@link RepositoryTag} service tag.
 			 *
 			 * @internal
 			 */
-			const repo = yield* CoffeeRepository;
+			const repo = yield* RepositoryTag;
 
 			/**
 			 * Lookup result for `"espresso"` (lowercase) — expected
@@ -139,7 +139,7 @@ layer(CoffeeRepository.Default)("CoffeeRepository", (it) => {
 	);
 
 	/**
-	 * Verifies that {@link CoffeeRepository.findByName} returns
+	 * Verifies that {@link Repository.findByName} returns
 	 * `None` for the degenerate empty-string input rather than
 	 * matching any entry or throwing.
 	 */
@@ -147,11 +147,11 @@ layer(CoffeeRepository.Default)("CoffeeRepository", (it) => {
 		Effect.gen(function* () {
 			/**
 			 * Repository handle yielded from the
-			 * {@link CoffeeRepository} service tag.
+			 * {@link RepositoryTag} service tag.
 			 *
 			 * @internal
 			 */
-			const repo = yield* CoffeeRepository;
+			const repo = yield* RepositoryTag;
 
 			/**
 			 * Lookup result for `""` — expected to be `None` since
@@ -170,7 +170,7 @@ layer(CoffeeRepository.Default)("CoffeeRepository", (it) => {
 
 	/**
 	 * Verifies that each {@link Coffee} entry returned by
-	 * {@link CoffeeRepository.findAll} conforms to the expected
+	 * {@link RepositoryTag.findAll} conforms to the expected
 	 * entity shape with all six schema fields present and
 	 * correctly typed.
 	 */
@@ -178,19 +178,19 @@ layer(CoffeeRepository.Default)("CoffeeRepository", (it) => {
 		Effect.gen(function* () {
 			/**
 			 * Repository handle yielded from the
-			 * {@link CoffeeRepository} service tag.
+			 * {@link RepositoryTag} service tag.
 			 *
 			 * @internal
 			 */
-			const repo = yield* CoffeeRepository;
+			const repo = yield* RepositoryTag;
 
 			/**
 			 * All coffee drinks resolved from the in-memory catalog
-			 * via {@link CoffeeRepository.findAll}.
+			 * via {@link RepositoryTag.findAll}.
 			 *
 			 * @internal
 			 */
-			const coffees = yield* repo.findAll;
+			const coffees = yield* repo.findAll(undefined);
 
 			/**
 			 * First coffee drink in the catalog, used as the shape
@@ -211,7 +211,7 @@ layer(CoffeeRepository.Default)("CoffeeRepository", (it) => {
 	);
 
 	/**
-	 * Verifies that {@link CoffeeRepository.findAll} returns
+	 * Verifies that {@link RepositoryTag.findAll} returns
 	 * exactly the four expected coffee names — guards against
 	 * accidental additions or removals in the static catalog.
 	 */
@@ -219,19 +219,19 @@ layer(CoffeeRepository.Default)("CoffeeRepository", (it) => {
 		Effect.gen(function* () {
 			/**
 			 * Repository handle yielded from the
-			 * {@link CoffeeRepository} service tag.
+			 * {@link RepositoryTag} service tag.
 			 *
 			 * @internal
 			 */
-			const repo = yield* CoffeeRepository;
+			const repo = yield* RepositoryTag;
 
 			/**
 			 * All coffee drinks resolved from the in-memory catalog
-			 * via {@link CoffeeRepository.findAll}.
+			 * via {@link RepositoryTag.findAll}.
 			 *
 			 * @internal
 			 */
-			const coffees = yield* repo.findAll;
+			const coffees = yield* repo.findAll(undefined);
 
 			/**
 			 * Extracted names from the catalog for set-equality
@@ -249,7 +249,7 @@ layer(CoffeeRepository.Default)("CoffeeRepository", (it) => {
 	);
 
 	/**
-	 * Verifies that {@link CoffeeRepository.findByName} returns
+	 * Verifies that {@link Repository.findByName} returns
 	 * the correct entity data for every entry in the static
 	 * catalog — guards against field-level data corruption.
 	 */
@@ -257,16 +257,16 @@ layer(CoffeeRepository.Default)("CoffeeRepository", (it) => {
 		Effect.gen(function* () {
 			/**
 			 * Repository handle yielded from the
-			 * {@link CoffeeRepository} service tag.
+			 * {@link RepositoryTag} service tag.
 			 *
 			 * @internal
 			 */
-			const repo = yield* CoffeeRepository;
+			const repo = yield* RepositoryTag;
 
 			/**
 			 * Expected catalog data keyed by coffee name, used to
 			 * verify each entry returned by
-			 * {@link CoffeeRepository.findByName}.
+			 * {@link Repository.findByName}.
 			 *
 			 * @internal
 			 */
