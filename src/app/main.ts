@@ -1,17 +1,17 @@
 /**
  * Application entry point — resolves transport mode from configuration
- * (with `--stdio` CLI override), composes the service layers, and
- * starts the MCP server via the {@link Listener} abstraction.
+ * (with `--stdio` CLI override), selects the appropriate
+ * {@link StdioAppLayer} or {@link HttpAppLayer}, and starts the MCP
+ * server via the {@link Listener} abstraction.
  *
  * @remarks
  * Orchestrates the full server lifecycle:
  *
  * 1. Reads {@link AppConfig.mode} from the environment, applying the
  *    `--stdio` CLI override via {@link resolveTransportMode}.
- * 2. Selects the appropriate {@link Transport}, {@link Router}, and
- *    {@link Listener} layers based on the resolved mode.
- * 3. Composes the full runtime layer and creates a
- *    {@link ManagedRuntime}.
+ * 2. Selects the pre-composed {@link StdioAppLayer} or
+ *    {@link HttpAppLayer} from {@link module:layers | layers.ts}.
+ * 3. Creates a {@link ManagedRuntime} from the selected layer.
  * 4. Resolves the {@link Listener} and calls
  *    {@link ListenerShape.start | start()}.
  * 5. Registers SIGTERM / SIGINT handlers that interrupt the root
@@ -19,16 +19,10 @@
  *
  * @module
  */
-import { Effect, Fiber, Layer, Logger, ManagedRuntime } from "effect";
+import { Effect, Fiber, ManagedRuntime } from "effect";
 import { AppConfig } from "./config/app/app-config.js";
-import { HttpTransportLive } from "./transport/http/http-transport.js";
-import { StdioTransportLive } from "./transport/stdio/stdio.js";
-import { HttpRouterLive } from "./router/http/http-router.js";
-import { StdioRouterLive } from "./router/stdio/stdio-router.js";
-import { McpServerService } from "./server/mcp/mcp-server.js";
 import { Listener } from "./server/server.js";
-import { HttpListener, HttpListenerLive } from "./server/http/http-listener.js";
-import { StdioListener, StdioListenerLive } from "./server/stdio/stdio-listener.js";
+import { StdioAppLayer, HttpAppLayer } from "./layers.js";
 
 /**
  * Resolves the effective transport mode by checking the `--stdio` CLI
@@ -44,21 +38,24 @@ import { StdioListener, StdioListenerLive } from "./server/stdio/stdio-listener.
  *
  * @internal
  */
-const resolveTransportMode = (configMode: "http" | "stdio"): "http" | "stdio" =>
-	process.argv.includes("--stdio") ? "stdio" : configMode;
+const resolveTransportMode = (configMode: "http" | "stdio") =>
+	Effect.if(process.argv.includes("--stdio"), {
+		onTrue: () => Effect.succeed("stdio" as const),
+		onFalse: () => Effect.succeed(configMode),
+	});
 
 /**
- * Main application program that resolves the transport and starts the
- * MCP server via the {@link Listener} abstraction.
+ * Main application program that resolves the transport mode and starts
+ * the MCP server via the {@link Listener} abstraction.
  *
  * @remarks
  * Execution proceeds as follows:
  *
  * 1. Reads the configured transport mode and applies the `--stdio` CLI
  *    override via {@link resolveTransportMode}.
- * 2. Selects the transport, router, and listener layers by mode.
- * 3. Composes the full runtime layer and creates a
- *    {@link ManagedRuntime}.
+ * 2. Selects the pre-composed {@link StdioAppLayer} or
+ *    {@link HttpAppLayer}.
+ * 3. Creates a {@link ManagedRuntime} from the selected layer.
  * 4. Resolves the {@link Listener} and calls
  *    {@link ListenerShape.start | start()}.
  * 5. Registers a finalizer to dispose the {@link ManagedRuntime}.
@@ -68,91 +65,28 @@ const resolveTransportMode = (configMode: "http" | "stdio"): "http" | "stdio" =>
  * @internal
  */
 const program = Effect.gen(function* () {
-	const modeConfig = yield* Effect.promise(() =>
-		Effect.runPromise(
-			Effect.gen(function* () {
-				const appConfig = yield* AppConfig;
-				return appConfig.mode;
-			}).pipe(Effect.provide(AppConfig.Default)),
-		),
+	const modeConfig = yield* AppConfig.pipe(
+		Effect.map((c) => c.mode),
+		Effect.provide(AppConfig.Default),
 	);
 
-	const mode = resolveTransportMode(modeConfig);
+	const mode = yield* resolveTransportMode(modeConfig);
 
 	// Ensure the environment reflects the resolved mode so that
 	// downstream services (e.g. McpServerService) reading AppConfig
 	// see the same value the layer graph was built with.
-	process.env.TRANSPORT_MODE = mode;
+	yield* Effect.sync(() => { process.env.TRANSPORT_MODE = mode; });
 
-	const transportLayer = mode === "stdio" ? StdioTransportLive : HttpTransportLive;
-	const routerLayer = mode === "stdio"
-		? StdioRouterLive
-		: HttpRouterLive.pipe(Layer.provide(AppConfig.Default));
+	const appLayer = yield* Effect.if(mode === "stdio", {
+		onTrue: () => Effect.succeed(StdioAppLayer),
+		onFalse: () => Effect.succeed(HttpAppLayer),
+	});
 
-	const depsLayer = Layer.mergeAll(AppConfig.Default, transportLayer, routerLayer);
-	const mcpServerProvided = McpServerService.Default.pipe(
-		Layer.provide(depsLayer),
-	);
-
-	const listenerLayer = mode === "stdio"
-		? Layer.effect(
-			Listener,
-			Effect.gen(function* () {
-				const svc = yield* StdioListener;
-				return svc;
-			}),
-		).pipe(
-			Layer.provide(StdioListenerLive),
-			Layer.provide(mcpServerProvided),
-		)
-		: Layer.effect(
-			Listener,
-			Effect.gen(function* () {
-				const svc = yield* HttpListener;
-				return svc;
-			}),
-		).pipe(
-			Layer.provide(HttpListenerLive),
-			Layer.provide(
-				Layer.mergeAll(
-					AppConfig.Default,
-					transportLayer,
-					routerLayer,
-					mcpServerProvided,
-				),
-			),
-		);
-
-	const appLayer = Layer.mergeAll(
-		AppConfig.Default,
-		transportLayer,
-		routerLayer,
-		mcpServerProvided,
-		listenerLayer,
-	);
-
-	// In stdio mode, redirect Effect logs to stderr so they do not
-	// corrupt the JSON-RPC protocol channel on stdout.
-	const stderrLoggerLayer = Logger.replace(
-		Logger.defaultLogger,
-		Logger.make(({ logLevel, message, date }) => {
-			globalThis.process.stderr.write(
-				`timestamp=${date.toISOString()} level=${logLevel.label} message=${String(message)}\n`,
-			);
-		}),
-	);
-	const finalLayer = mode === "stdio"
-		? appLayer.pipe(Layer.provide(stderrLoggerLayer))
-		: appLayer;
-
-	const runtime = ManagedRuntime.make(finalLayer);
+	const runtime = ManagedRuntime.make(appLayer);
 
 	yield* Effect.promise(() =>
 		runtime.runPromise(
-			Effect.gen(function* () {
-				const listener = yield* Listener;
-				yield* listener.start();
-			}),
+			Listener.pipe(Effect.flatMap((l) => l.start())),
 		),
 	);
 
