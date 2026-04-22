@@ -13,8 +13,8 @@
  */
 import { describe, it, expect } from "vitest";
 import { Effect } from "effect";
-import { StdioTransportLive } from "./stdio.js";
-import { Transport } from "../transport.js";
+import { StdioTransportLive } from "./transport.js";
+import { Transport } from "../../../transport/transport.js";
 
 describe("StdioTransportLive", () => {
 	it("resolves Transport from the container", async () => {

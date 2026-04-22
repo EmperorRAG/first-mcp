@@ -17,8 +17,8 @@
  * @module
  */
 import { Effect, Layer } from "effect";
-import { Router, type RouteAction } from "../router.js";
-import { AppConfig } from "../../config/app/app-config.js";
+import { Router, type RouteAction } from "../../../router/router.js";
+import { AppConfig } from "../../../config/app/app-config.js";
 
 /**
  * Validates that a host string resolves to a loopback address or

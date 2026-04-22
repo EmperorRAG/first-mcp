@@ -23,10 +23,10 @@
 import type { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
 import type { IncomingMessage, ServerResponse } from "node:http";
 import { Effect, Layer } from "effect";
-import { Transport } from "../transport.js";
-import type { HttpRawContext } from "../mcp-request.js";
-import { McpRequest } from "../mcp-request.js";
-import { McpResponse } from "../mcp-response.js";
+import { Transport } from "../../../transport/transport.js";
+import type { HttpRawContext } from "../../../schema/request/mcp-request.js";
+import { McpRequest } from "../../../schema/request/mcp-request.js";
+import { McpResponse } from "../../../schema/response/mcp-response.js";
 
 /**
  * Wire-format input for an HTTP request before DTO transformation.

@@ -10,7 +10,7 @@
  * @module
  */
 import { Effect, Layer } from "effect";
-import { Router } from "../router.js";
+import { Router } from "../../../router/router.js";
 
 /**
  * {@link Layer} providing the stdio implementation of the shared

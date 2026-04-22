@@ -2,7 +2,7 @@
  * Application entry point — resolves transport mode from configuration
  * (with `--stdio` CLI override), selects the appropriate
  * {@link StdioAppLayer} or {@link HttpAppLayer}, and starts the MCP
- * server via the {@link Listener} abstraction.
+ * server via the {@link ListenerTag} abstraction.
  *
  * @remarks
  * Orchestrates the full server lifecycle:
@@ -12,7 +12,7 @@
  * 2. Selects the pre-composed {@link StdioAppLayer} or
  *    {@link HttpAppLayer} from {@link module:layers | layers.ts}.
  * 3. Creates a {@link ManagedRuntime} from the selected layer.
- * 4. Resolves the {@link Listener} and calls
+ * 4. Resolves the {@link ListenerTag} and calls
  *    {@link ListenerShape.start | start()}.
  * 5. Registers SIGTERM / SIGINT handlers that interrupt the root
  *    {@link fiber}, triggering {@link Effect.scoped} finalizers.
@@ -21,7 +21,7 @@
  */
 import { Effect, Fiber, ManagedRuntime } from "effect";
 import { AppConfig } from "./config/app/app-config.js";
-import { Listener } from "./server/server.js";
+import { ListenerTag } from "./listener/listener.tag.js";
 import { StdioAppLayer, HttpAppLayer } from "./layers.js";
 
 /**
@@ -46,7 +46,7 @@ const resolveTransportMode = (configMode: "http" | "stdio") =>
 
 /**
  * Main application program that resolves the transport mode and starts
- * the MCP server via the {@link Listener} abstraction.
+ * the MCP server via the {@link ListenerTag} abstraction.
  *
  * @remarks
  * Execution proceeds as follows:
@@ -56,7 +56,7 @@ const resolveTransportMode = (configMode: "http" | "stdio") =>
  * 2. Selects the pre-composed {@link StdioAppLayer} or
  *    {@link HttpAppLayer}.
  * 3. Creates a {@link ManagedRuntime} from the selected layer.
- * 4. Resolves the {@link Listener} and calls
+ * 4. Resolves the {@link ListenerTag} and calls
  *    {@link ListenerShape.start | start()}.
  * 5. Registers a finalizer to dispose the {@link ManagedRuntime}.
  * 6. Suspends indefinitely with {@link Effect.never} so the server
@@ -86,7 +86,7 @@ const program = Effect.gen(function* () {
 
 	yield* Effect.promise(() =>
 		runtime.runPromise(
-			Listener.pipe(Effect.flatMap((l) => l.start())),
+			ListenerTag.pipe(Effect.flatMap((l) => l.start())),
 		),
 	);
 

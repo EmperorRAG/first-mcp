@@ -21,8 +21,8 @@
  * @module
  */
 import { Context, type Effect } from "effect";
-import type { McpRequest } from "./mcp-request.js";
-import type { McpResponse } from "./mcp-response.js";
+import type { McpRequest } from "../schema/request/mcp-request.js";
+import type { McpResponse } from "../schema/response/mcp-response.js";
 
 /**
  * Opaque SDK transport handle passed to {@link TransportShape.handleMcp}.
@@ -135,4 +135,4 @@ export interface TransportShape {
 export class Transport extends Context.Tag("Transport")<
 	Transport,
 	TransportShape
->() {}
+>() { }

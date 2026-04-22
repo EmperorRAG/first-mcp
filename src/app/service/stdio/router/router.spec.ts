@@ -8,9 +8,9 @@
  */
 import { describe, it, expect } from "vitest";
 import { Effect } from "effect";
-import { StdioRouterLive } from "./stdio-router.js";
-import { Router } from "../router.js";
-import { McpRequest } from "../../transport/mcp-request.js";
+import { StdioRouterLive } from "./router.js";
+import { Router } from "../../../router/router.js";
+import { McpRequest } from "../../../schema/request/mcp-request.js";
 
 describe("StdioRouterLive", () => {
 	it("always resolves to mcp-message", async () => {

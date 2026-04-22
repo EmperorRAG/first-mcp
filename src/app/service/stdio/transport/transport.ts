@@ -21,8 +21,8 @@
  * @module
  */
 import { Effect, Layer } from "effect";
-import { Transport } from "../transport.js";
-import { McpRequest } from "../mcp-request.js";
+import { Transport } from "../../../transport/transport.js";
+import { McpRequest } from "../../../schema/request/mcp-request.js";
 
 /**
  * {@link Layer} providing the stdio implementation of the shared

@@ -12,7 +12,7 @@
  * @module
  */
 import { Context, type Effect } from "effect";
-import type { McpRequest } from "../transport/mcp-request.js";
+import type { McpRequest } from "../schema/request/mcp-request.js";
 
 /**
  * Discriminated union of all possible route outcomes.
@@ -92,4 +92,4 @@ export interface RouterShape {
 export class Router extends Context.Tag("Router")<
 	Router,
 	RouterShape
->() {}
+>() { }

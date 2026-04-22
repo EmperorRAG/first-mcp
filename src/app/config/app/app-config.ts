@@ -28,7 +28,7 @@
  * @module
  */
 import { Config, Effect } from "effect";
-import type { ActiveToolsRecord } from "../../server/mcp/registerable-tool.js";
+import type { ActiveToolsRecord } from "../../service/mcp/registerable-tool/registerable-tool.js";
 
 /**
  * Union of supported transport modes for the MCP server.

@@ -11,7 +11,7 @@
  * @module
  */
 import { Context, Effect, Layer } from "effect";
-import { McpServerService } from "../mcp/mcp-server.js";
+import { McpService } from "../mcp/mcp.js";
 
 /**
  * Service contract for the stdio listener.
@@ -45,16 +45,16 @@ export class StdioListener extends Context.Tag("StdioListener")<
  * @remarks
  * Dependencies:
  *
- * - {@link McpServerService} — session CRUD
+ * - {@link McpService} — session CRUD
  *
  * Creates a single MCP session with the fixed ID `"stdio"` when
  * {@link StdioListenerShape.start | start()} is called.
  */
-export const StdioListenerLive: Layer.Layer<StdioListener, never, McpServerService> =
+export const StdioListenerLive: Layer.Layer<StdioListener, never, McpService> =
 	Layer.effect(
 		StdioListener,
 		Effect.gen(function* () {
-			const mcpSvc = yield* McpServerService;
+			const mcpSvc = yield* McpService;
 
 			return {
 				start: () =>

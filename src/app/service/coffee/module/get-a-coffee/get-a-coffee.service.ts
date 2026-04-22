@@ -20,7 +20,7 @@ import { CoffeeRepository } from "../../repository/coffee-repository.js";
 import type { Coffee } from "../../type/coffee/coffee.type.js";
 import { CoffeeNotFoundError } from "../../errors.js";
 import { GetACoffeeInput, GetACoffeeInputStandard } from "./get-a-coffee.schema.js";
-import type { ToolResponse } from "../../../../server/mcp/registerable-tool.js";
+import type { ToolResponse } from "../../../mcp/registerable-tool/registerable-tool.js";
 
 /**
  * Effect service for retrieving a single coffee drink by name.

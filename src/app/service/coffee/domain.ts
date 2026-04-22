@@ -26,7 +26,7 @@ import { GetACoffeeService } from "./module/get-a-coffee/get-a-coffee.service.js
 import type {
 	RegisterableTool,
 	ActiveToolsRecord,
-} from "../../server/mcp/registerable-tool.js";
+} from "../mcp/registerable-tool/registerable-tool.js";
 
 /**
  * Effect service exposing coffee domain tools as named properties

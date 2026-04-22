@@ -22,10 +22,10 @@ import {
 	StdioClientTransport,
 } from "@modelcontextprotocol/client";
 import { AppConfig } from "./config/app/app-config.js";
-import { HttpTransportLive } from "./transport/http/http-transport.js";
+import { HttpTransportLive } from "./service/http/transport/transport.js";
 import { HttpRouterLive } from "./router/http/http-router.js";
-import { McpServerService } from "./server/mcp/mcp-server.js";
-import { HttpListener, HttpListenerLive } from "./server/http/http-listener.js";
+import { McpServerService } from "./listener/mcp/mcp-server.js";
+import { HttpListener, HttpListenerLive } from "./listener/http/http-listener.js";
 
 // ---------------------------------------------------------------------------
 // HTTP transport

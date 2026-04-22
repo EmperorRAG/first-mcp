@@ -2,7 +2,7 @@
  * HTTP listener — {@link Context.Tag} and {@link Layer} that creates
  * a `node:http` server, dispatches requests through the transport and
  * router layers, and delegates session management to
- * {@link McpServerService}.
+ * {@link McpService}.
  *
  * @remarks
  * Encapsulates all HTTP-specific server orchestration:
@@ -10,7 +10,7 @@
  * 1. Creates a `node:http` server with a per-request handler that
  *    parses the body, routes the request, and dispatches to the
  *    appropriate session handler or transport responder.
- * 2. Delegates session CRUD to {@link McpServerService}.
+ * 2. Delegates session CRUD to {@link McpService}.
  * 3. Returns start / stop lifecycle methods.
  *
  * @module
@@ -19,10 +19,10 @@ import { createServer, type Server } from "node:http";
 import { Context, Effect, Either, Layer, Ref } from "effect";
 import { Transport, type TransportShape } from "../../transport/transport.js";
 import { Router, type RouterShape } from "../../router/router.js";
-import { McpResponse, CORS_HEADERS } from "../../transport/mcp-response.js";
+import { McpResponse, CORS_HEADERS } from "../../schema/response/mcp-response.js";
 import { AppConfig } from "../../config/app/app-config.js";
-import { McpServerService, SessionNotFoundError } from "../mcp/mcp-server.js";
-import { parseBody } from "./body-parser.js";
+import { McpService, SessionNotFoundError } from "../mcp/mcp.js";
+import { parseBody } from "./body-parser/body-parser.js";
 
 /**
  * Service contract for the HTTP listener.
@@ -60,11 +60,11 @@ export class HttpListener extends Context.Tag("HttpListener")<
  *
  * @remarks
  * Parses the body, routes, and dispatches to the appropriate handler.
- * Session CRUD is delegated to {@link McpServerService}.
+ * Session CRUD is delegated to {@link McpService}.
  *
  * @param transport - The resolved {@link TransportShape}.
  * @param router - The resolved {@link RouterShape}.
- * @param mcpSvc - The resolved {@link McpServerService}.
+ * @param mcpSvc - The resolved {@link McpService}.
  * @param req - The incoming HTTP request.
  * @param res - The outgoing HTTP response.
  *
@@ -73,7 +73,7 @@ export class HttpListener extends Context.Tag("HttpListener")<
 const handleRequest = (
 	transport: TransportShape,
 	router: RouterShape,
-	mcpSvc: McpServerService,
+	mcpSvc: McpService,
 	req: import("node:http").IncomingMessage,
 	res: import("node:http").ServerResponse,
 ): void => {
@@ -230,19 +230,19 @@ const handleRequest = (
  *
  * - {@link Transport} — request/response parsing
  * - {@link Router} — route matching
- * - {@link McpServerService} — session CRUD
+ * - {@link McpService} — session CRUD
  * - {@link AppConfig} — port binding
  *
  * Creates a `node:http` server but does not bind it until
  * {@link HttpListenerShape.start | start()} is called.
  */
-export const HttpListenerLive: Layer.Layer<HttpListener, never, Transport | Router | McpServerService | AppConfig> =
+export const HttpListenerLive: Layer.Layer<HttpListener, never, Transport | Router | McpService | AppConfig> =
 	Layer.effect(
 		HttpListener,
 		Effect.gen(function* () {
 			const transport = yield* Transport;
 			const router = yield* Router;
-			const mcpSvc = yield* McpServerService;
+			const mcpSvc = yield* McpService;
 			const config = yield* AppConfig;
 
 			const serverRef = yield* Ref.make<Server | null>(null);

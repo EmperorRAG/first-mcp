@@ -13,8 +13,8 @@
  */
 import { describe, it, expect } from "vitest";
 import { Effect } from "effect";
-import { HttpTransportLive } from "./http-transport.js";
-import { Transport } from "../transport.js";
+import { HttpTransportLive } from "./transport.js";
+import { Transport } from "../../../transport/transport.js";
 
 describe("http-transport", () => {
 	it("HttpTransportLive resolves Transport from the container", async () => {

@@ -2,10 +2,10 @@
  * Shared types for the MCP server session manager.
  *
  * @remarks
- * Centralises the {@link McpServerServiceShape} service contract and
+ * Centralises the {@link McpServiceInterface} service contract and
  * the {@link SessionEntry} type so that consumers can depend on the
  * shape without pulling in the full implementation from
- * `mcp-server.ts`.
+ * `mcp.ts`.
  *
  * @module
  */
@@ -13,7 +13,7 @@ import type { McpServer } from "@modelcontextprotocol/server";
 import type { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
 import type { StdioServerTransport } from "@modelcontextprotocol/server";
 import type { Effect } from "effect";
-import type { SessionNotFoundError } from "./errors.js";
+import type { SessionNotFoundError } from "./shared/error/session-not-found/session-not-found.js";
 
 /**
  * Maps an MCP session identifier to its SDK transport and server
@@ -49,7 +49,7 @@ export interface SessionEntry {
  * | {@link setSession} | Creates a new session and returns the entry |
  * | {@link deleteSession} | Closes and removes a session by ID |
  */
-export interface McpServerServiceShape {
+export interface McpServiceInterface {
 	/**
 	 * Initialises the session manager.
 	 *

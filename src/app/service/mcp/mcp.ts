@@ -4,7 +4,7 @@
  * and batch teardown.
  *
  * @remarks
- * {@link McpServerService} is an {@link Effect.Service} whose
+ * {@link McpService} is an {@link Effect.Service} whose
  * `scoped` factory resolves {@link AppConfig} and
  * {@link CoffeeDomain}, creates a {@link ManagedRuntime} for tool
  * handler execution, and exposes CRUD operations over the internal
@@ -23,12 +23,12 @@ import { McpServer } from "@modelcontextprotocol/server";
 import { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
 import { StdioServerTransport } from "@modelcontextprotocol/server";
 import { AppConfig } from "../../config/app/app-config.js";
-import { CoffeeDomain } from "../../service/coffee/domain.js";
-import type { McpServerServiceShape, SessionEntry } from "./types.js";
-import { SessionNotFoundError } from "./errors.js";
+import { CoffeeDomain } from "../coffee/domain.js";
+import type { McpServiceInterface, SessionEntry } from "./types.js";
+import { SessionNotFoundError } from "./shared/error/session-not-found/session-not-found.js";
 
-export type { McpServerServiceShape, SessionEntry } from "./types.js";
-export { SessionNotFoundError } from "./errors.js";
+export type { McpServiceInterface as McpServerServiceShape, SessionEntry } from "./types.js";
+export { SessionNotFoundError } from "./shared/error/session-not-found/session-not-found.js";
 
 /**
  * Effect service managing MCP server sessions.
@@ -65,8 +65,8 @@ export { SessionNotFoundError } from "./errors.js";
  * });
  * ```
  */
-export class McpServerService extends Effect.Service<McpServerService>()(
-	"McpServerService",
+export class McpService extends Effect.Service<McpService>()(
+	"McpService",
 	{
 		scoped: Effect.gen(function* () {
 			const config = yield* AppConfig;
@@ -166,7 +166,7 @@ export class McpServerService extends Effect.Service<McpServerService>()(
 							sessions.delete(sessionId);
 						}
 					}),
-			} satisfies McpServerServiceShape;
+			} satisfies McpServiceInterface;
 		}),
 		dependencies: [CoffeeDomain.Default],
 	},

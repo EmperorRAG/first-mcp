@@ -11,22 +11,22 @@
  * |------|----------|
  * | **BaseLayer** | {@link AppConfig} (infrastructure config) |
  * | **InfraLayer** | Transport + Router (mode-specific) |
- * | **McpServerModule** | {@link McpServerService} (session CRUD, tool registration) |
- * | **ListenerModule** | {@link Listener} (mode-specific lifecycle) |
+ * | **McpServerModule** | {@link McpService} (session CRUD, tool registration) |
+ * | **ListenerModule** | {@link ListenerTag} (mode-specific lifecycle) |
  * | **AppLayer** | All tiers composed into a single self-contained layer |
  *
  * @module
  */
 import { Layer, Logger } from "effect";
 import { AppConfig } from "./config/app/app-config.js";
-import { HttpTransportLive } from "./transport/http/http-transport.js";
-import { StdioTransportLive } from "./transport/stdio/stdio.js";
-import { HttpRouterLive } from "./router/http/http-router.js";
-import { StdioRouterLive } from "./router/stdio/stdio-router.js";
-import { McpServerService } from "./server/mcp/mcp-server.js";
-import { Listener } from "./server/server.js";
-import { HttpListener, HttpListenerLive } from "./server/http/http-listener.js";
-import { StdioListener, StdioListenerLive } from "./server/stdio/stdio-listener.js";
+import { HttpTransportLive } from "./service/http/transport/transport.js";
+import { StdioTransportLive } from "./service/stdio/transport/transport.js";
+import { HttpRouterLive } from "./service/http/router/router.js";
+import { StdioRouterLive } from "./service/stdio/router/router.js";
+import { McpService } from "./service/mcp/mcp.js";
+import { ListenerTag } from "./listener/listener.tag.js";
+import { HttpListener, HttpListenerLive } from "./service/http/http.js";
+import { StdioListener, StdioListenerLive } from "./service/stdio/stdio.js";
 
 // ── BaseLayer ────────────────────────────────────────────────────
 // Application-wide infrastructure shared by both transport modes.
@@ -47,19 +47,19 @@ const HttpInfraLayer = Layer.mergeAll(
 // Session manager + domain tools. CoffeeDomain.Default is bundled
 // internally via McpServerService's `dependencies` array.
 
-const McpServerModule = McpServerService.Default.pipe(
+const McpServerModule = McpService.Default.pipe(
 	Layer.provide(BaseLayer),
 );
 
 // ── ListenerModules (mode-specific) ──────────────────────────────
 // Each resolves the polymorphic Listener tag to its concrete impl.
 
-const StdioListenerModule = Layer.effect(Listener, StdioListener).pipe(
+const StdioListenerModule = Layer.effect(ListenerTag, StdioListener).pipe(
 	Layer.provide(StdioListenerLive),
 	Layer.provide(McpServerModule),
 );
 
-const HttpListenerModule = Layer.effect(Listener, HttpListener).pipe(
+const HttpListenerModule = Layer.effect(ListenerTag, HttpListener).pipe(
 	Layer.provide(HttpListenerLive),
 	Layer.provide(
 		Layer.mergeAll(BaseLayer, HttpInfraLayer, McpServerModule),

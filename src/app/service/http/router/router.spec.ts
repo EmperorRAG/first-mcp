@@ -10,10 +10,10 @@
  */
 import { describe, it, expect } from "vitest";
 import { ConfigProvider, Effect, Layer } from "effect";
-import { HttpRouterLive } from "./http-router.js";
-import { Router } from "../router.js";
-import { McpRequest } from "../../transport/mcp-request.js";
-import { AppConfig } from "../../config/app/app-config.js";
+import { HttpRouterLive } from "./router.js";
+import { Router } from "../../../router/router.js";
+import { McpRequest } from "../../../schema/request/mcp-request.js";
+import { AppConfig } from "../../../config/app/app-config.js";
 
 /**
  * Test config layer — provides {@link AppConfig} with default

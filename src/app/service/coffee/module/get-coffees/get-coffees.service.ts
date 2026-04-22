@@ -17,7 +17,7 @@
  */
 import { Effect } from "effect";
 import { CoffeeRepository } from "../../repository/coffee-repository.js";
-import type { ToolResponse } from "../../../../server/mcp/registerable-tool.js";
+import type { ToolResponse } from "../../../mcp/registerable-tool/registerable-tool.js";
 
 /**
  * Effect service for retrieving all coffee drinks from the repository.
