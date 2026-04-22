@@ -23,7 +23,7 @@ import { HttpTransportLive } from "./service/http/transport/transport.js";
 import { StdioTransportLive } from "./service/stdio/transport/transport.js";
 import { HttpRouterLive } from "./service/http/router/router.js";
 import { StdioRouterLive } from "./service/stdio/router/router.js";
-import { McpService } from "./service/mcp/mcp.js";
+import { McpService } from "./service/mcp/mcp.service.js";
 import { ListenerTag } from "./listener/listener.tag.js";
 import { HttpListener, HttpListenerLive } from "./service/http/http.js";
 import { StdioListener, StdioListenerLive } from "./service/stdio/stdio.js";

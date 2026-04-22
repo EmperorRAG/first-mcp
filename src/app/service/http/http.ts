@@ -21,7 +21,7 @@ import { Transport, type TransportShape } from "../../transport/transport.js";
 import { Router, type RouterShape } from "../../router/router.js";
 import { McpResponse, CORS_HEADERS } from "../../schema/response/mcp-response.js";
 import { AppConfig } from "../../config/app/app-config.js";
-import { McpService } from "../mcp/mcp.js";
+import { McpService } from "../mcp/mcp.service.js";
 import { SessionNotFoundError } from "../mcp/shared/error/session-not-found/session-not-found.js";
 import { parseBody } from "./body-parser/body-parser.js";
 

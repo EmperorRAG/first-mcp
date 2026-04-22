@@ -8,7 +8,7 @@ import { Effect, Layer, ManagedRuntime, Ref } from "effect";
 import type { McpServer, StdioServerTransport } from "@modelcontextprotocol/server";
 import type { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
 import { AppConfig } from "../../config/app/app-config.js";
-import { CoffeeDomain } from "../coffee/domain.js";
+import { CoffeeDomain } from "../coffee/coffee.service.js";
 import { SessionsRefTag } from "./shared/type/sessions-ref/sessions-ref.tag.js";
 import { McpRuntimeTag } from "./shared/type/mcp-runtime/mcp-runtime.tag.js";
 import { start } from "./start/start.js";

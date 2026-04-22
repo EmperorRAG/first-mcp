@@ -11,7 +11,7 @@
  * @module
  */
 import { Context, Effect, Layer } from "effect";
-import { McpService } from "../mcp/mcp.js";
+import { McpService } from "../mcp/mcp.service.js";
 
 /**
  * Service contract for the stdio listener.

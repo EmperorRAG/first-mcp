@@ -14,7 +14,7 @@
  * @module
  */
 import { Context, type ManagedRuntime } from "effect";
-import type { CoffeeDomain } from "../../../../coffee/domain.js";
+import type { CoffeeDomain } from "../../../../coffee/coffee.service.js";
 
 /**
  * Effect tag whose service value is the {@link ManagedRuntime}

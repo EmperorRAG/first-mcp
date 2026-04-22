@@ -14,7 +14,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { Effect, type ManagedRuntime } from "effect";
 import type { McpServer } from "@modelcontextprotocol/server";
-import { CoffeeDomain } from "./domain.js";
+import { CoffeeDomain } from "./coffee.service.js";
 
 /** @internal */
 const runWithDomain = <A>(effect: Effect.Effect<A, never, CoffeeDomain>) =>

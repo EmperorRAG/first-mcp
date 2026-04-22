@@ -16,7 +16,7 @@
  * @module
  */
 import { Effect } from "effect";
-import { CoffeeRepository } from "../../repository/coffee-repository.js";
+import { CoffeeRepository } from "../shared/repository/coffee/repository.js";
 
 /**
  * Effect service for retrieving all coffee drinks from the repository.

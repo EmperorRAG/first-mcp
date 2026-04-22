@@ -18,8 +18,8 @@
 import { describe, it, expect } from "vitest";
 import { Cause, Effect, Exit, Schema } from "effect";
 import { GetACoffeeService } from "./get-a-coffee.service.js";
-import { CoffeeNotFoundError } from "../../errors.js";
-import { CoffeeSchema } from "../../type/coffee/coffee.type.js";
+import { CoffeeNotFoundError } from "../shared/error/coffee-not-found/coffee-not-found.js";
+import { CoffeeSchema } from "../shared/type/coffee/coffee.type.js";
 
 /**
  * Provides {@link GetACoffeeService.Default} to an effect requiring

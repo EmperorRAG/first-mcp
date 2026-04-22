@@ -16,9 +16,9 @@
  * @module
  */
 import { Effect, Option, Schema } from "effect";
-import { CoffeeRepository } from "../../repository/coffee-repository.js";
-import type { Coffee } from "../../type/coffee/coffee.type.js";
-import { CoffeeNotFoundError } from "../../errors.js";
+import { CoffeeRepository } from "../shared/repository/coffee/repository.js";
+import type { Coffee } from "../shared/type/coffee/coffee.type.js";
+import { CoffeeNotFoundError } from "../shared/error/coffee-not-found/coffee-not-found.js";
 import { GetACoffeeInput, GetACoffeeInputStandard } from "./get-a-coffee.schema.js";
 
 /**

@@ -15,7 +15,7 @@
  * @module
  */
 import { JSONSchema, Schema } from "effect";
-import { toStandardSchema } from "../../../../schema/shared/standard-schema-bridge.js";
+import { toStandardSchema } from "../../../schema/shared/standard-schema-bridge.js";
 
 /**
  * Effect Schema for validating `get-a-coffee` tool input.

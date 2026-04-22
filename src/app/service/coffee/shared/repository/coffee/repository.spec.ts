@@ -15,7 +15,7 @@ import { expect, layer } from "@effect/vitest";
 import { Effect, Option } from "effect";
 import {
 	CoffeeRepository,
-} from "./coffee-repository.js";
+} from "./repository.js";
 
 /**
  * Exercises the {@link CoffeeRepository} service contract and its

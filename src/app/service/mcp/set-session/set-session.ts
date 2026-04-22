@@ -25,7 +25,7 @@ import { McpServer } from "@modelcontextprotocol/server";
 import { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
 import { StdioServerTransport } from "@modelcontextprotocol/server";
 import { AppConfig } from "../../../config/app/app-config.js";
-import { CoffeeDomain } from "../../coffee/domain.js";
+import { CoffeeDomain } from "../../coffee/coffee.service.js";
 import { SessionsRefTag } from "../shared/type/sessions-ref/sessions-ref.tag.js";
 import { McpRuntimeTag } from "../shared/type/mcp-runtime/mcp-runtime.tag.js";
 

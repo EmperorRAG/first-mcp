@@ -14,7 +14,7 @@
  * @module
  */
 import { Effect, Option } from "effect";
-import type { Coffee } from "../type/coffee/coffee.type.js";
+import type { Coffee } from "../../type/coffee/coffee.type.js";
 
 /**
  * Static catalog of {@link Coffee} drinks used by the

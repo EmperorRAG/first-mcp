@@ -13,7 +13,7 @@
 import { describe, it, expect } from "vitest";
 import { Effect, Schema } from "effect";
 import { GetCoffeesService } from "./get-coffees.service.js";
-import { CoffeeSchema } from "../../type/coffee/coffee.type.js";
+import { CoffeeSchema } from "../shared/type/coffee/coffee.type.js";
 
 /**
  * Provides {@link GetCoffeesService.Default} to an effect requiring

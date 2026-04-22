@@ -21,8 +21,8 @@
 import { Effect } from "effect";
 import type { McpServer, StandardSchemaWithJSON } from "@modelcontextprotocol/server";
 import type { ManagedRuntime } from "effect";
-import { GetCoffeesService } from "./module/get-coffees/get-coffees.service.js";
-import { GetACoffeeService } from "./module/get-a-coffee/get-a-coffee.service.js";
+import { GetCoffeesService } from "./get-coffees/get-coffees.service.js";
+import { GetACoffeeService } from "./get-a-coffee/get-a-coffee.service.js";
 
 /**
  * Effect service exposing coffee domain tools as named properties
@@ -60,20 +60,12 @@ export class CoffeeDomain extends Effect.Service<CoffeeDomain>()(
 			const getCoffees = {
 				metaData: getCoffeesService.metaData,
 				executeFormatted: getCoffeesService.executeFormatted,
-			} satisfies {
-				readonly metaData: { readonly name: string; readonly description: string };
-				readonly inputSchema?: unknown;
-				readonly executeFormatted: (args: unknown) => Effect.Effect<{ [key: string]: unknown; content: { type: "text"; text: string }[] }>;
 			};
 
 			const getACoffee = {
 				metaData: getACoffeeService.metaData,
 				inputSchema: getACoffeeService.inputSchema,
 				executeFormatted: getACoffeeService.executeFormatted,
-			} satisfies {
-				readonly metaData: { readonly name: string; readonly description: string };
-				readonly inputSchema?: unknown;
-				readonly executeFormatted: (args: unknown) => Effect.Effect<{ [key: string]: unknown; content: { type: "text"; text: string }[] }>;
 			};
 
 			return {
