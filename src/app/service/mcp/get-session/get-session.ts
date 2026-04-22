@@ -1,5 +1,5 @@
 /**
- * Implementation of {@link McpServiceInterface.getSession}.
+ * Implementation of {@link McpService.getSession}.
  *
  * @remarks
  * Looks up an MCP session by ID in the {@link SessionsRefTag}-provided
@@ -13,7 +13,7 @@ import { SessionsRefTag } from "../shared/type/sessions-ref/sessions-ref.tag.js"
 import { SessionNotFoundError } from "../shared/error/session-not-found/session-not-found.js";
 
 /**
- * Retrieves an MCP {@link SessionEntry} by its identifier.
+ * Retrieves an MCP session entry by its identifier.
  *
  * @param sessionId - The MCP session identifier to look up.
  */

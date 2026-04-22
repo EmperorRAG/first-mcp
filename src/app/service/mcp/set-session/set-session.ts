@@ -1,5 +1,5 @@
 /**
- * Implementation of {@link McpServiceInterface.setSession}.
+ * Implementation of {@link McpService.setSession}.
  *
  * @remarks
  * Constructs a new {@link McpServer}, registers the active domain
@@ -31,7 +31,7 @@ import { McpRuntimeTag } from "../shared/type/mcp-runtime/mcp-runtime.tag.js";
 
 /**
  * Creates a new MCP session, registers domain tools, connects the
- * SDK transport, stores the resulting {@link SessionEntry}, and
+ * SDK transport, stores the resulting session entry, and
  * returns it.
  */
 export const setSession = () =>

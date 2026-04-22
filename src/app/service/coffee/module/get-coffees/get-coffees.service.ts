@@ -17,7 +17,6 @@
  */
 import { Effect } from "effect";
 import { CoffeeRepository } from "../../repository/coffee-repository.js";
-import type { ToolResponse } from "../../../mcp/registerable-tool/registerable-tool.js";
 
 /**
  * Effect service for retrieving all coffee drinks from the repository.
@@ -64,7 +63,7 @@ export class GetCoffeesService extends Effect.Service<GetCoffeesService>()(
 			return {
 				execute,
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
-				executeFormatted: (_args: unknown): Effect.Effect<ToolResponse> =>
+				executeFormatted: (_args: unknown): Effect.Effect<{ [key: string]: unknown; content: { type: "text"; text: string }[] }> =>
 					execute.pipe(
 						Effect.map((coffees) => ({
 							content: [{ type: "text" as const, text: JSON.stringify(coffees) }],

@@ -5,9 +5,10 @@
  * @module
  */
 import { Effect, Layer, ManagedRuntime, Ref } from "effect";
+import type { McpServer, StdioServerTransport } from "@modelcontextprotocol/server";
+import type { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
 import { AppConfig } from "../../config/app/app-config.js";
 import { CoffeeDomain } from "../coffee/domain.js";
-import type { SessionEntry } from "./types.js";
 import { SessionsRefTag } from "./shared/type/sessions-ref/sessions-ref.tag.js";
 import { McpRuntimeTag } from "./shared/type/mcp-runtime/mcp-runtime.tag.js";
 import { start } from "./start/start.js";
@@ -30,9 +31,17 @@ export class McpService extends Effect.Service<McpService>()(
 			const config = yield* AppConfig;
 			const domain = yield* CoffeeDomain;
 
-			const sessionsRef = yield* Ref.make<Map<string, SessionEntry>>(
-				new Map(),
-			);
+			const sessionsRef = yield* Ref.make<
+				Map<
+					string,
+					{
+						readonly server: McpServer;
+						readonly sdkTransport:
+							| NodeStreamableHTTPServerTransport
+							| StdioServerTransport;
+					}
+				>
+			>(new Map());
 
 			const appLayer = Layer.mergeAll(
 				Layer.succeed(CoffeeDomain, domain),

@@ -1,5 +1,5 @@
 /**
- * Implementation of {@link McpServiceInterface.start}.
+ * Implementation of {@link McpService.start}.
  *
  * @remarks
  * Initialisation of the session manager is performed in the

@@ -1,5 +1,5 @@
 /**
- * Implementation of {@link McpServiceInterface.stop}.
+ * Implementation of {@link McpService.stop}.
  *
  * @remarks
  * Closes every active SDK transport, clears the sessions map, and

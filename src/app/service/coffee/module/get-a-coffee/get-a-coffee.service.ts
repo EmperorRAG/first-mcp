@@ -20,7 +20,6 @@ import { CoffeeRepository } from "../../repository/coffee-repository.js";
 import type { Coffee } from "../../type/coffee/coffee.type.js";
 import { CoffeeNotFoundError } from "../../errors.js";
 import { GetACoffeeInput, GetACoffeeInputStandard } from "./get-a-coffee.schema.js";
-import type { ToolResponse } from "../../../mcp/registerable-tool/registerable-tool.js";
 
 /**
  * Effect service for retrieving a single coffee drink by name.
@@ -75,7 +74,7 @@ export class GetACoffeeService extends Effect.Service<GetACoffeeService>()(
 				);
 			return {
 				execute,
-				executeFormatted: (args: unknown): Effect.Effect<ToolResponse> => {
+				executeFormatted: (args: unknown): Effect.Effect<{ [key: string]: unknown; content: { type: "text"; text: string }[] }> => {
 					const { name } = Schema.decodeUnknownSync(GetACoffeeInput)(args);
 					return execute(name).pipe(
 						Effect.map((coffee) => ({

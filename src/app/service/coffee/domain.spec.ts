@@ -5,7 +5,7 @@
  * Each test provides {@link CoffeeDomain.Default}, which bundles both
  * child services ({@link GetCoffeesService}, {@link GetACoffeeService})
  * and their repository dependencies.  Validates that the domain
- * composes correctly, exposes named {@link RegisterableTool}
+ * composes correctly, exposes named registerable tool
  * properties with the expected `metaData`, and provides a
  * `registerCoffeeTools` method for batch tool registration.
  *
@@ -21,7 +21,7 @@ const runWithDomain = <A>(effect: Effect.Effect<A, never, CoffeeDomain>) =>
 	Effect.runPromise(Effect.provide(effect, CoffeeDomain.Default));
 
 describe("CoffeeDomain", () => {
-	it("exposes getCoffees as a RegisterableTool", async () => {
+	it("exposes getCoffees as a registerable tool", async () => {
 		const domain = await runWithDomain(
 			Effect.gen(function* () {
 				return yield* CoffeeDomain;
@@ -31,7 +31,7 @@ describe("CoffeeDomain", () => {
 		expect(domain.getCoffees.executeFormatted).toBeTypeOf("function");
 	});
 
-	it("exposes getACoffee as a RegisterableTool with inputSchema", async () => {
+	it("exposes getACoffee as a registerable tool with inputSchema", async () => {
 		const domain = await runWithDomain(
 			Effect.gen(function* () {
 				return yield* CoffeeDomain;

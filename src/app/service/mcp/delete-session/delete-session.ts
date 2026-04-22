@@ -1,5 +1,5 @@
 /**
- * Implementation of {@link McpServiceInterface.deleteSession}.
+ * Implementation of {@link McpService.deleteSession}.
  *
  * @remarks
  * Closes the SDK transport for the named session and removes it

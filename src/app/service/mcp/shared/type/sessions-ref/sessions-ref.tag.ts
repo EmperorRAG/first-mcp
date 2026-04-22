@@ -14,13 +14,24 @@
  * @module
  */
 import { Context, type Ref } from "effect";
-import type { SessionEntry } from "../../../types.js";
+import type { McpServer, StdioServerTransport } from "@modelcontextprotocol/server";
+import type { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
 
 /**
  * Effect tag whose service value is the {@link Ref} holding the
- * `Map<string, SessionEntry>` of active MCP sessions.
+ * `Map<string, { server, sdkTransport }>` of active MCP sessions.
  */
 export class SessionsRefTag extends Context.Tag("McpSessionsRef")<
 	SessionsRefTag,
-	Ref.Ref<Map<string, SessionEntry>>
+	Ref.Ref<
+		Map<
+			string,
+			{
+				readonly server: McpServer;
+				readonly sdkTransport:
+				| NodeStreamableHTTPServerTransport
+				| StdioServerTransport;
+			}
+		>
+	>
 >() { }
