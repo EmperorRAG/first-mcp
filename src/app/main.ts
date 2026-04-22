@@ -22,6 +22,7 @@
 import { Effect, Fiber, ManagedRuntime } from "effect";
 import { AppConfig } from "./config/app/app-config.js";
 import { ListenerTag } from "./listener/listener.tag.js";
+import { StdioService } from "./service/stdio/stdio.service.js";
 import { StdioAppLayer, HttpAppLayer } from "./layers.js";
 
 /**
@@ -77,24 +78,35 @@ const program = Effect.gen(function* () {
 	// see the same value the layer graph was built with.
 	yield* Effect.sync(() => { process.env.TRANSPORT_MODE = mode; });
 
-	const appLayer = yield* Effect.if(mode === "stdio", {
-		onTrue: () => Effect.succeed(StdioAppLayer),
-		onFalse: () => Effect.succeed(HttpAppLayer),
-	});
+	if (mode === "stdio") {
+		const runtime = ManagedRuntime.make(StdioAppLayer);
 
-	const runtime = ManagedRuntime.make(appLayer);
+		yield* Effect.promise(() =>
+			runtime.runPromise(
+				StdioService.pipe(Effect.flatMap((s) => s.start())),
+			),
+		);
 
-	yield* Effect.promise(() =>
-		runtime.runPromise(
-			ListenerTag.pipe(Effect.flatMap((l) => l.start())),
-		),
-	);
+		yield* Effect.addFinalizer(() =>
+			Effect.promise(() => runtime.dispose()).pipe(
+				Effect.andThen(Effect.logInfo("Runtime disposed")),
+			),
+		);
+	} else {
+		const runtime = ManagedRuntime.make(HttpAppLayer);
 
-	yield* Effect.addFinalizer(() =>
-		Effect.promise(() => runtime.dispose()).pipe(
-			Effect.andThen(Effect.logInfo("Runtime disposed")),
-		),
-	);
+		yield* Effect.promise(() =>
+			runtime.runPromise(
+				ListenerTag.pipe(Effect.flatMap((l) => l.start())),
+			),
+		);
+
+		yield* Effect.addFinalizer(() =>
+			Effect.promise(() => runtime.dispose()).pipe(
+				Effect.andThen(Effect.logInfo("Runtime disposed")),
+			),
+		);
+	}
 
 	yield* Effect.never;
 });

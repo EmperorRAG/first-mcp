@@ -1,10 +1,11 @@
 /**
- * Implementation of {@link McpService.registerCoffeeTools}.
+ * Standalone effect that registers the active coffee tools on a given
+ * MCP server, used by `setSession`.
  *
  * @remarks
  * Owns the metadata, optional input-schema reference, and registration
  * loop for every coffee tool.  Builds a list of descriptor entries by
- * pairing each module-scoped {@link ToolDescriptor} with the matching
+ * pairing each module-scoped metadata constant with the matching
  * executor on the resolved {@link CoffeeService} service, then calls
  * `server.registerTool` for each entry whose `metaData.name` appears
  * in the active-tools record.
@@ -18,42 +19,10 @@
 import { Effect } from "effect";
 import type {
 	McpServer,
-	StandardSchemaWithJSON,
 } from "@modelcontextprotocol/server";
 import { CoffeeService } from "../../coffee/coffee.service.js";
 import { GetACoffeeInputStandard } from "../../coffee/get-a-coffee/get-a-coffee.schema.js";
 import { McpRuntimeTag } from "../shared/type/mcp-runtime/mcp-runtime.tag.js";
-
-/**
- * MCP tool handler return shape used to constrain executor types
- * across the iteration loop.
- *
- * @internal
- */
-interface ToolResponse {
-	readonly [key: string]: unknown;
-	readonly content: { type: "text"; text: string }[];
-}
-
-/**
- * Bare executor signature exposed by every {@link CoffeeService} tool
- * property.
- *
- * @internal
- */
-type Executor = (args: unknown) => Effect.Effect<ToolResponse>;
-
-/**
- * Per-tool registration descriptor — pairs static metadata with the
- * resolved domain executor and an optional standard-schema input.
- *
- * @internal
- */
-interface ToolDescriptor {
-	readonly metaData: { readonly name: string; readonly description: string };
-	readonly execute: Executor;
-	readonly inputSchema?: StandardSchemaWithJSON<unknown, unknown>;
-}
 
 /**
  * Static metadata for the `get-coffees` tool.
@@ -95,17 +64,17 @@ export const registerCoffeeTools = (
 	activeTools: Record<string, boolean>,
 ) =>
 	Effect.gen(function* () {
-		const domain = yield* CoffeeService;
+		const service = yield* CoffeeService;
 		const runtime = yield* McpRuntimeTag;
 
-		const descriptors: readonly ToolDescriptor[] = [
+		const descriptors = [
 			{
 				metaData: getCoffeesMetaData,
-				execute: domain.getCoffees,
+				execute: service.getCoffees,
 			},
 			{
 				metaData: getACoffeeMetaData,
-				execute: domain.getACoffee,
+				execute: service.getACoffee,
 				inputSchema: GetACoffeeInputStandard,
 			},
 		];

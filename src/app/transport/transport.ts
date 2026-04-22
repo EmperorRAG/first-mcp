@@ -5,7 +5,7 @@
  *
  * @remarks
  * Defines a polymorphic {@link Transport} tag that both
- * {@link HttpTransportLive} and {@link StdioTransportLive} satisfy.
+ * {@link HttpTransportLive} satisfies.
  * The transport is a **protocol adapter** responsible for:
  *
  * - **Parsing** wire-format input into {@link McpRequest} DTOs
@@ -118,7 +118,7 @@ export interface TransportShape {
  * Registered under the string identifier `"Transport"`.  Consumer code
  * yields this tag inside an {@link Effect.gen} block to obtain the
  * transport implementation provided by the current {@link Layer} — either
- * `HttpTransportLive` or `StdioTransportLive`, selected at startup based
+ * `HttpTransportLive`, selected at startup based
  * on {@link AppConfig.mode}.
  *
  * @example

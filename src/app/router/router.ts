@@ -5,7 +5,7 @@
  *
  * @remarks
  * Defines a polymorphic {@link Router} tag that both
- * {@link HttpRouterLive} and {@link StdioRouterLive} satisfy.  The
+ * {@link HttpRouterLive} satisfies.  The
  * router maps an {@link McpRequest} DTO to a {@link RouteAction} string
  * that the {@link McpServerService} uses to dispatch the request.
  *
@@ -75,7 +75,7 @@ export interface RouterShape {
  * Registered under the string identifier `"Router"`.  Consumer code
  * yields this tag inside an {@link Effect.gen} block to obtain the
  * router implementation provided by the current {@link Layer} — either
- * `HttpRouterLive` or `StdioRouterLive`, selected at startup based
+ * `HttpRouterLive`, selected at startup based
  * on {@link AppConfig.mode}.
  *
  * @example

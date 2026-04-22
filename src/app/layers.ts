@@ -20,13 +20,11 @@
 import { Layer, Logger } from "effect";
 import { AppConfig } from "./config/app/app-config.js";
 import { HttpTransportLive } from "./service/http/transport/transport.js";
-import { StdioTransportLive } from "./service/stdio/transport/transport.js";
 import { HttpRouterLive } from "./service/http/router/router.js";
-import { StdioRouterLive } from "./service/stdio/router/router.js";
 import { McpService } from "./service/mcp/mcp.service.js";
 import { ListenerTag } from "./listener/listener.tag.js";
 import { HttpListener, HttpListenerLive } from "./service/http/http.js";
-import { StdioListener, StdioListenerLive } from "./service/stdio/stdio.js";
+import { StdioService } from "./service/stdio/stdio.service.js";
 
 // ── BaseLayer ────────────────────────────────────────────────────
 // Application-wide infrastructure shared by both transport modes.
@@ -34,9 +32,8 @@ import { StdioListener, StdioListenerLive } from "./service/stdio/stdio.js";
 const BaseLayer = AppConfig.Default;
 
 // ── InfraLayers (mode-specific) ──────────────────────────────────
-// Transport + Router implementations selected per mode.
-
-const StdioInfraLayer = Layer.mergeAll(StdioTransportLive, StdioRouterLive);
+// Transport + Router implementations selected per mode (HTTP only —
+// stdio uses the SDK's StdioServerTransport directly via StdioService).
 
 const HttpInfraLayer = Layer.mergeAll(
 	HttpTransportLive,
@@ -52,11 +49,12 @@ const McpServerModule = McpService.Default.pipe(
 );
 
 // ── ListenerModules (mode-specific) ──────────────────────────────
-// Each resolves the polymorphic Listener tag to its concrete impl.
+// HTTP resolves the polymorphic Listener tag to its concrete impl.
+// Stdio uses StdioService directly (no ListenerTag bridge).
 
-const StdioListenerModule = Layer.effect(ListenerTag, StdioListener).pipe(
-	Layer.provide(StdioListenerLive),
+const StdioServiceModule = StdioService.Default.pipe(
 	Layer.provide(McpServerModule),
+	Layer.provide(BaseLayer),
 );
 
 const HttpListenerModule = Layer.effect(ListenerTag, HttpListener).pipe(
@@ -91,9 +89,8 @@ const stderrLoggerLayer = Logger.replace(
  */
 export const StdioAppLayer = Layer.mergeAll(
 	BaseLayer,
-	StdioInfraLayer,
 	McpServerModule,
-	StdioListenerModule,
+	StdioServiceModule,
 ).pipe(Layer.provide(stderrLoggerLayer));
 
 /**

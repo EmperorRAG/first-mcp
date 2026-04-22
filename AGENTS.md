@@ -20,7 +20,7 @@ src/app/
 │   │   ├── body-parser.ts              — parseBody() — reads IncomingMessage stream as JSON Effect
 │   │   └── body-parser.spec.ts
 │   ├── stdio/
-│   │   └── stdio-listener.ts           — StdioListener tag + StdioListenerLive Layer
+│   │   └── stdio-listener.ts           — StdioService Effect.Service (start/stop split into per-method files)
 │   └── mcp/                            — MCP session manager
 │       ├── mcp-server.ts               — McpServerService Effect.Service (session CRUD)
 │       ├── types.ts                    — SessionEntry + McpServerServiceShape contract
@@ -32,24 +32,16 @@ src/app/
 │   └── repository.ts                    — Repository Context.Tag (top-level shared)
 ├── router/                             — routing layer (McpRequest → RouteAction)
 │   ├── router.ts                       — Router Context.Tag + RouterShape + RouteAction union
-│   ├── http/
-│   │   ├── http-router.ts              — HttpRouterLive Layer (DNS rebinding guard, path routing)
-│   │   └── http-router.spec.ts
-│   └── stdio/
-│       ├── stdio-router.ts             — StdioRouterLive Layer (always "mcp-message")
-│       └── stdio-router.spec.ts
+│   └── http/
+│       └── http-router.ts              — HttpRouterLive Layer (DNS rebinding guard, path routing)
 ├── transport/                          — transport layer (wire-format adapter)
 │   ├── transport.ts                    — Transport Context.Tag + TransportShape interface
 │   ├── mcp-request.ts                  — McpRequest Schema.TaggedClass DTO (HTTP + stdio decode)
 │   ├── mcp-request.spec.ts
 │   ├── mcp-response.ts                — McpResponse Schema.TaggedClass DTO (HTTP encode + CORS)
 │   ├── mcp-response.spec.ts
-│   ├── http/
-│   │   ├── http-transport.ts           — HttpTransportLive Layer (parse/respond/handleMcp)
-│   │   └── http-transport.spec.ts
-│   └── stdio/
-│       ├── stdio.ts                    — StdioTransportLive Layer (parse only; SDK handles I/O)
-│       └── stdio.spec.ts
+│   └── http/
+│       └── http-transport.ts           — HttpTransportLive Layer (parse/respond/handleMcp)
 ├── schema/
 │   └── shared/
 │       └── standard-schema-bridge.ts   — toStandardSchema() adapter (Effect Schema → MCP SDK)
@@ -123,7 +115,7 @@ src/app/
 ### Transport Modes
 
 - **Streamable HTTP (default)**: Raw Node.js HTTP server exposing `POST /mcp`, `GET /mcp` (SSE backward compat), `DELETE /mcp` (session termination), and `GET /health`. Request flow: `HttpListener.start()` → per-request `parseBody()` → `Transport.parse()` → `Router.resolve()` → switch on `RouteAction` → `McpServerService` session CRUD. Uses `NodeStreamableHTTPServerTransport` with stateful sessions (`Mcp-Session-Id` header). DNS rebinding protection in `HttpRouterLive` validates `Host` header against loopback addresses and any additional hostnames in `ALLOWED_HOSTS`. Sessions tracked in an Effect `Ref` holding a transport map. CORS headers added manually via `McpResponse`. Used for Docker and network-based clients.
-- **stdio (`--stdio` flag)**: `StdioListener.start()` creates a single MCP session via `McpServerService.setSession()` with a fixed `"stdio"` session ID. The SDK's `StdioServerTransport` reads directly from `stdin` and writes to `stdout`. No routing, body parsing, or multi-session management. For local VS Code MCP integration via `.vscode/mcp.json`.
+- **stdio (`--stdio` flag)**: `StdioService.start()` creates a single MCP session via `McpService.setSession()` with a fixed `"stdio"` session ID. The SDK's `StdioServerTransport` reads directly from `stdin` and writes to `stdout`. No routing, body parsing, or multi-session management. `main.ts` yields `StdioService` directly (no `ListenerTag` bridge). For local VS Code MCP integration via `.vscode/mcp.json`.
 - **Selection**: `main.ts` reads `AppConfig.mode` (with `--stdio` CLI override via `resolveTransportMode()`), selects the appropriate `Transport`, `Router`, and `Listener` layers, composes the runtime, and resolves the shared `Listener` tag to call `start()`.
 
 ## Build and Test
@@ -157,9 +149,9 @@ After code changes, always run `npm run build` before testing the MCP server. Wh
 - **Standard Schema bridge**: `toStandardSchema()` in `schema/shared/standard-schema-bridge.ts` adapts Effect Schema to the `StandardSchemaWithJSON` interface required by MCP SDK's `registerTool()`
 - **Error handling**: Domain errors extend `Data.TaggedError` with a unique `_tag` string — enables exhaustive `Effect.catchTag` matching without `instanceof` checks. Field names must not shadow `Error.name` (e.g., use `coffeeName` instead of `name`)
 - **Strict TypeScript**: `strict: true` is enabled — no implicit `any`, null checks required
-- **Listener abstraction**: `Listener` Context.Tag in `server/server.ts` defines the shared `start()`/`stop()` interface. `HttpListenerLive` and `StdioListenerLive` satisfy it. `main.ts` resolves the tag via `Layer.effect` based on the transport mode
-- **Router abstraction**: `Router` Context.Tag in `router/router.ts` defines `resolve(McpRequest) → RouteAction`. `HttpRouterLive` performs DNS rebinding guard + path/method routing; depends on `AppConfig` for `ALLOWED_HOSTS`. `StdioRouterLive` always returns `"mcp-message"`
-- **Transport abstraction**: `Transport` Context.Tag in `transport/transport.ts` defines `parse`/`respond`/`handleMcp`. `HttpTransportLive` delegates to `McpRequest`/`McpResponse` DTOs. `StdioTransportLive` is minimal (SDK handles I/O)
+- **Listener abstraction**: `Listener` Context.Tag in `server/server.ts` defines the shared `start()`/`stop()` interface for HTTP. `HttpListenerLive` satisfies it. Stdio uses the `StdioService` `Effect.Service` directly (no `ListenerTag` bridge); `main.ts` branches on the resolved transport mode
+- **Router abstraction**: `Router` Context.Tag in `router/router.ts` defines `resolve(McpRequest) → RouteAction`. `HttpRouterLive` performs DNS rebinding guard + path/method routing; depends on `AppConfig` for `ALLOWED_HOSTS`. Stdio has no router — the SDK transport is invoked directly
+- **Transport abstraction**: `Transport` Context.Tag in `transport/transport.ts` defines `parse`/`respond`/`handleMcp`. `HttpTransportLive` delegates to `McpRequest`/`McpResponse` DTOs. Stdio has no shared transport adapter — the SDK's `StdioServerTransport` is wired directly inside `McpService.setSession`
 - **Session management**: `McpServerService` owns session CRUD via an Effect `Ref` holding a `Map<string, SessionEntry>`. Each `POST /mcp` initialize creates a new `McpServer` + `NodeStreamableHTTPServerTransport`; subsequent requests reuse via the `Mcp-Session-Id` header. `SessionNotFoundError` (`Data.TaggedError`) is raised when a session ID is not found. HTTP listener uses `Effect.either` for graceful fallthrough to the initialize check on `mcp-message`
 - **Allowed hosts**: `ALLOWED_HOSTS` env var (comma-separated, case-insensitive) adds hostnames to the DNS rebinding allowlist beyond the default loopback addresses — required for remote deployments (e.g., Azure Container Apps)
 - **Port configuration**: `PORT` env var controls HTTP server port (default `3001`)
