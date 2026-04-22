@@ -7,9 +7,12 @@
  * @remarks
  * This module is the domain barrel for the coffee bounded context.
  * {@link CoffeeDomain} is an {@link Effect.Service} whose `effect`
- * factory yields the child services
- * ({@link GetCoffeesService}, {@link GetACoffeeService}) and returns
- * an object whose values satisfy the registerable tool shape.
+ * factory yields {@link CoffeeRepository} and binds the get-coffees
+ * and get-a-coffee functions to that repository so the resulting
+ * `executeFormatted` closures carry no requirements channel.
+ *
+ * Tool metadata (`metaData`, `inputSchema`) is declared at module
+ * scope alongside the closure construction.
  *
  * The {@link CoffeeDomain.registerCoffeeTools | registerCoffeeTools}
  * return property iterates over the domain's tool properties and
@@ -21,28 +24,50 @@
 import { Effect } from "effect";
 import type { McpServer, StandardSchemaWithJSON } from "@modelcontextprotocol/server";
 import type { ManagedRuntime } from "effect";
-import { GetCoffeesService } from "./get-coffees/get-coffees.service.js";
-import { GetACoffeeService } from "./get-a-coffee/get-a-coffee.service.js";
+import { CoffeeRepository } from "./shared/repository/coffee/repository.js";
+import { getCoffees } from "./get-coffees/get-coffees.js";
+import { getACoffee } from "./get-a-coffee/get-a-coffee.js";
+import { GetACoffeeInputStandard } from "./get-a-coffee/get-a-coffee.schema.js";
+
+/**
+ * Static metadata for the `get-coffees` tool.
+ *
+ * @internal
+ */
+const getCoffeesMetaData = {
+	name: "get-coffees" as const,
+	description: "Get a list of all coffees" as const,
+};
+
+/**
+ * Static metadata for the `get-a-coffee` tool.
+ *
+ * @internal
+ */
+const getACoffeeMetaData = {
+	name: "get-a-coffee" as const,
+	description:
+		"Retrieve the data for a specific coffee based on its name" as const,
+};
 
 /**
  * Effect service exposing coffee domain tools as named properties
  * and a batch registration method.
  *
  * @remarks
- * Each property (`getCoffees`, `getACoffee`) satisfies the
- * registerable tool shape, carrying `metaData`,
+ * Each property (`getCoffees`, `getACoffee`) carries `metaData`,
  * optional `inputSchema`, and `executeFormatted`.  The
  * {@link registerCoffeeTools} method iterates over these properties
  * and registers only those whose `metaData.name` appears in the
  * given active-tools record.
  *
- * The `dependencies` array bundles both child services so the domain
- * can be provided with a single `CoffeeDomain.Default`.
+ * The `dependencies` array bundles {@link CoffeeRepository.Default}
+ * so the domain can be provided with a single `CoffeeDomain.Default`.
  *
  * @example
  * ```ts
  * import { Effect } from "effect";
- * import { CoffeeDomain } from "./domain.js";
+ * import { CoffeeDomain } from "./coffee.service.js";
  *
  * const program = Effect.gen(function* () {
  *   const domain = yield* CoffeeDomain;
@@ -54,23 +79,28 @@ export class CoffeeDomain extends Effect.Service<CoffeeDomain>()(
 	"CoffeeDomain",
 	{
 		effect: Effect.gen(function* () {
-			const getCoffeesService = yield* GetCoffeesService;
-			const getACoffeeService = yield* GetACoffeeService;
+			const repo = yield* CoffeeRepository;
 
-			const getCoffees = {
-				metaData: getCoffeesService.metaData,
-				executeFormatted: getCoffeesService.executeFormatted,
+			const getCoffeesTool = {
+				metaData: getCoffeesMetaData,
+				executeFormatted: (args: unknown) =>
+					getCoffees(args).pipe(
+						Effect.provideService(CoffeeRepository, repo),
+					),
 			};
 
-			const getACoffee = {
-				metaData: getACoffeeService.metaData,
-				inputSchema: getACoffeeService.inputSchema,
-				executeFormatted: getACoffeeService.executeFormatted,
+			const getACoffeeTool = {
+				metaData: getACoffeeMetaData,
+				inputSchema: GetACoffeeInputStandard,
+				executeFormatted: (args: unknown) =>
+					getACoffee(args).pipe(
+						Effect.provideService(CoffeeRepository, repo),
+					),
 			};
 
 			return {
-				getCoffees,
-				getACoffee,
+				getCoffees: getCoffeesTool,
+				getACoffee: getACoffeeTool,
 
 				/**
 				 * Registers active coffee tools on the given MCP server.
@@ -97,7 +127,7 @@ export class CoffeeDomain extends Effect.Service<CoffeeDomain>()(
 						readonly metaData: { readonly name: string; readonly description: string };
 						readonly inputSchema?: unknown;
 						readonly executeFormatted: (args: unknown) => Effect.Effect<{ [key: string]: unknown; content: { type: "text"; text: string }[] }>;
-					}[] = [getCoffees, getACoffee];
+					}[] = [getCoffeesTool, getACoffeeTool];
 					for (const tool of tools) {
 						if (!activeTools[tool.metaData.name]) continue;
 						server.registerTool(
@@ -114,6 +144,6 @@ export class CoffeeDomain extends Effect.Service<CoffeeDomain>()(
 				},
 			};
 		}),
-		dependencies: [GetCoffeesService.Default, GetACoffeeService.Default],
+		dependencies: [CoffeeRepository.Default],
 	},
 ) { }

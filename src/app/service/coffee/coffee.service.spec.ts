@@ -2,9 +2,8 @@
  * Unit tests for the {@link CoffeeDomain} Effect service.
  *
  * @remarks
- * Each test provides {@link CoffeeDomain.Default}, which bundles both
- * child services ({@link GetCoffeesService}, {@link GetACoffeeService})
- * and their repository dependencies.  Validates that the domain
+ * Each test provides {@link CoffeeDomain.Default}, which bundles the
+ * {@link CoffeeRepository} dependency.  Validates that the domain
  * composes correctly, exposes named registerable tool
  * properties with the expected `metaData`, and provides a
  * `registerCoffeeTools` method for batch tool registration.

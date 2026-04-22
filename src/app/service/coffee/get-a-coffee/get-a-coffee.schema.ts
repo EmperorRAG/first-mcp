@@ -43,8 +43,8 @@ export const GetACoffeeInput = Schema.Struct({ name: Schema.String });
  * Inferred TypeScript type from the {@link GetACoffeeInput} schema.
  *
  * @remarks
- * Equivalent to `{ name: string }`.  Used as the parameter type for
- * `GetACoffeeService.execute` after schema validation.
+ * Equivalent to `{ name: string }`.  Used as the decoded input
+ * type by the get-a-coffee function after schema validation.
  */
 export type GetACoffeeInput = typeof GetACoffeeInput.Type;
 
