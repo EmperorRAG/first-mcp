@@ -17,7 +17,7 @@
  * @module
  */
 import { Schema } from "effect";
-import { CoffeeSchema, type Coffee } from "../../service/coffee/type/coffee/coffee.type.js";
+import { CoffeeSchema, type Coffee } from "../../service/coffee/shared/type/coffee/coffee.type.js";
 
 /**
  * Pre-compiled decoder for a single {@link Coffee} entity.

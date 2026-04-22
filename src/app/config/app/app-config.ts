@@ -28,7 +28,6 @@
  * @module
  */
 import { Config, Effect } from "effect";
-import type { ActiveToolsRecord } from "../../server/mcp/registerable-tool.js";
 
 /**
  * Union of supported transport modes for the MCP server.
@@ -62,8 +61,8 @@ function isTransportMode(value: string): value is TransportMode {
 }
 
 /**
- * Parses a comma-separated string of tool names into an
- * {@link ActiveToolsRecord}.
+ * Parses a comma-separated string of tool names into an active-tools
+ * record (`Record<string, boolean>`).
  *
  * @remarks
  * Splits on commas, trims whitespace from each segment, and filters
@@ -76,7 +75,7 @@ function isTransportMode(value: string): value is TransportMode {
  *
  * @internal
  */
-function parseActiveTools(raw: string): ActiveToolsRecord {
+function parseActiveTools(raw: string): Record<string, boolean> {
 	const entries = raw
 		.split(",")
 		.map((s) => s.trim())
@@ -168,7 +167,7 @@ export class AppConfig extends Effect.Service<AppConfig>()("AppConfig", {
 		const activeToolsRaw = yield* Config.string("ACTIVE_TOOLS").pipe(
 			Config.withDefault(""),
 		);
-		const activeTools: ActiveToolsRecord = parseActiveTools(activeToolsRaw);
+		const activeTools: Record<string, boolean> = parseActiveTools(activeToolsRaw);
 		const allowedHostsRaw = yield* Config.string("ALLOWED_HOSTS").pipe(
 			Config.withDefault(""),
 		);

@@ -12,7 +12,7 @@
  *
  * @module
  */
-import type { Coffee } from "../../service/coffee/type/coffee/coffee.type.js";
+import type { Coffee } from "../../service/coffee/shared/type/coffee/coffee.type.js";
 
 /**
  * Pre-built flat white {@link Coffee} fixture.
@@ -51,7 +51,7 @@ export const espressoCoffee: Coffee = {
  * Default list of {@link Coffee} fixtures used by mock repositories.
  *
  * @deprecated No longer imported by any test.  The Effect-TS
- * migration uses `InMemoryCoffeeRepository` with its own
+ * migration uses `InMemoryCoffeeRepositoryLive` with its own
  * built-in seed data.  Use individual fixtures
  * ({@link flatWhiteCoffee}, {@link espressoCoffee}) when specific
  * entities are needed.
